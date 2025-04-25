@@ -1,0 +1,26 @@
+{
+  "name": "retirementcalculator",
+  "version": "0.1.0",
+  "description": "Retirement Calculator",
+  "main": "index.js",
+  "scripts": {
+    "start": "node /src/app.js",
+    "dev": "nodemon /src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaquinPar/2800-202510-BBY14.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JoaquinPar/2800-202510-BBY14/issues"
+  },
+  "homepage": "https://github.com/JoaquinPar/2800-202510-BBY14#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
