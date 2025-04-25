@@ -59,7 +59,7 @@ retirementCalculator/
 - **[Braeden Sowinski](https://github.com/SowinskiBraeden)** - BCIT CST Student with a passion for back-end development.
 - **[Joaquin Paredes](https://github.com/JoaquinPar)** - BCIT CST Student with the aspiration of becoming a game developer in the future.
 - **[Nicolas Agostini](https://github.com/nicoagostini)** - BCIT CST Student with a passion for technology and AI.
-- **[Mitchell Schaeffer](https://github.com/knighthawk4227)** BCIT CST Student with a passion for technology.
+- **[Mitchell Schaeffer](https://github.com/knighthawk4227)** - BCIT CST Student with a passion for technology.
 
 ---
 
