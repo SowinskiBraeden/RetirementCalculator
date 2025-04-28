@@ -2,10 +2,10 @@
   "name": "retirementcalculator",
   "version": "0.1.0",
   "description": "Retirement Calculator",
-  "main": "index.js",
+  "main": "./src/app.js",
   "scripts": {
-    "start": "node /src/app.js",
-    "dev": "nodemon /src/app.js"
+    "start": "node ./src/app.js",
+    "dev": "nodemon ./src/app.js"
   },
   "repository": {
     "type": "git",
