@@ -62,6 +62,7 @@ retirementCalculator/
 - **[Mitchell Schaeffer](https://github.com/knighthawk4227)** - BCIT CST Student with a passion for technology.
 
 ---
+## more details to come...
 
 ## Limitations and Future Work
 ### Limitations
