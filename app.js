@@ -1,31 +1,47 @@
 const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const session = require("express-session");
+require('dotenv').config();
 
 const app = express();
-
 const port = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 app.set('views',path.join(__dirname, 'src/views'));
-
-
 app.use(express.urlencoded({ extended: true }));
-
-
-/*
-STATIC ROUTINGS
-*/
-
 app.use("/static", express.static("./src/public"));
+
+app.use(session({
+    secret: process.env.secret,
+    resave: true,
+    saveUninitialized: false,
+}));
+
+/*** Database ***/
+const { connectMongo, getCollection } = require("./src/database/connection");
+
+let users;
+async function initDatabase() {
+    const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
+    const database = process.env.database || "knoldus"; // Database name
+    
+    const db = await connectMongo(mongoURI, database);
+    
+    // For any collection, init here
+    users = await getCollection(db, "users");
+}
+
+
+initDatabase().then(() => {
+    require("./src/auth/authentication")(app, users);
+});
 
 /*
 ROUTINGS
 */
 
 app.get('/', (req, res) => {
+    if (!req.session.errMessage) req.session.errMessage = "";
     res.render('index');
 });
 
@@ -34,11 +50,11 @@ app.get('/landing', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
-    res.render('signup');
+    res.render('signup', { errMessage: req.session.errMessage });
 });
 
 app.get('/login', (req, res) => {
-    res.render('login');
+    res.render('login', { errMessage: req.session.errMessage });
 });
 
 app.get('/home', (req, res) => {
@@ -67,17 +83,6 @@ app.get('/settings', (req, res) => {
 
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
-});
-
-
-app.post('/signup', (req, res) => {
-    res.status(200);
-    res.send('200 status code');
-});
-
-app.post('/login', (req, res) => {
-    res.status(200);
-    res.send('200 status code');
 });
 
 app.get('/*splat', (req, res) => {
