@@ -9,7 +9,21 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
-app.set('views',path.join(__dirname, 'views'));
+app.set('views',path.join(__dirname, 'src/views'));
+
+
+app.use(express.urlencoded({ extended: true }));
+
+
+/*
+STATIC ROUTINGS
+*/
+
+app.use("/scripts", express.static("./src/scripts"));
+app.use("/css", express.static("./src/css"));
+app.use("/images", express.static("./src/images"));
+app.use("/views", express.static("./src/views"));
+
 
 /*
 ROUTINGS
@@ -17,6 +31,10 @@ ROUTINGS
 
 app.get('/', (req, res) => {
     res.render('index');
+});
+
+app.get('/landing', (req, res) => {
+    res.render('landing');
 });
 
 app.get('/signup', (req, res) => {
