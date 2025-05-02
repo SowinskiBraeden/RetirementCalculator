@@ -19,11 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 STATIC ROUTINGS
 */
 
-app.use("/scripts", express.static("./src/scripts"));
-app.use("/css", express.static("./src/css"));
-app.use("/images", express.static("./src/images"));
-app.use("/views", express.static("./src/views"));
-
+app.use("/static", express.static("./src/public"));
 
 /*
 ROUTINGS
