@@ -24,11 +24,27 @@ Example:
 
 ## Usage
 
-***Please check back later.***
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/JoaquinPar/2800-202510-BBY14.git
+   cd 2800-202510-BBY14
+   ```
 
-1. ...
-2. ...
-3. ...
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+   This will install Express, express-session, EJS, dotenv, and any other required packages listed in `package.json`.
+
+3. **Create and configure the environment file:**
+   - Create a file named `.env` in the root directory of the project.
+   - Add the necessary environment variables to this file.
+
+4. **Run the application:**
+   ```bash
+   node app.js
+   ```
+   The application should now be running, typically on `http://localhost:3000` (or the port specified in your `.env` file).
 
 ---
 
@@ -37,7 +53,6 @@ Example:
 ```
 retirementCalculator/
 ├── src/
-|   ├── app.js
 │   ├── views/
 │   ├── public/
 |   |    ├── css/
@@ -45,6 +60,7 @@ retirementCalculator/
 |   |    ├── images/
 |   |    └── scripts/
 │   └── util/
+├── app.js
 ├── .env.example
 ├── .gitignore
 ├── LICENSE
