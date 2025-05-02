@@ -54,12 +54,9 @@ Example:
 retirementCalculator/
 ├── src/
 │   ├── views/
-│   ├── public/
-|   |    ├── css/
-|   |    ├── icons/
-|   |    ├── images/
-|   |    └── scripts/
-│   └── util/
+|   ├── css/
+|   ├── images/
+|   └── scripts/
 ├── app.js
 ├── .env.example
 ├── .gitignore
