@@ -18,23 +18,23 @@ app.use(session({
 }));
 
 /*** Database ***/
-const { connectMongo, getCollection } = require("./src/database/connection");
+// const { connectMongo, getCollection } = require("./src/database/connection");
 
-let users;
-async function initDatabase() {
-    const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
-    const database = process.env.database || "knoldus"; // Database name
+// let users;
+// async function initDatabase() {
+//     const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
+//     const database = process.env.database || "knoldus"; // Database name
     
-    const db = await connectMongo(mongoURI, database);
+//     const db = await connectMongo(mongoURI, database);
     
-    // For any collection, init here
-    users = await getCollection(db, "users");
-}
+//     // For any collection, init here
+//     users = await getCollection(db, "users");
+// }
 
 
-initDatabase().then(() => {
-    require("./src/auth/authentication")(app, users);
-});
+// initDatabase().then(() => {
+//     require("./src/auth/authentication")(app, users);
+// });
 
 /*
 ROUTINGS
@@ -42,7 +42,7 @@ ROUTINGS
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
-    res.render('index');
+    res.render('layout');
 });
 
 app.get('/landing', (req, res) => {
