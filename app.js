@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 require('dotenv').config();
 
 const app = express();
@@ -11,10 +12,13 @@ app.set('views',path.join(__dirname, 'src/views'));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("./src/public"));
 
+/*** Sessions ***/
 app.use(session({
-    secret: process.env.secret,
+    secret: config.express_secret,
+    store: MongoStore.create({ mongoUrl: `${mongoURI}/${config.mongo_database}`, crypto: { secret: config.mongo_secret } }),
     resave: true,
     saveUninitialized: false,
+    cookie: { maxAge: 60000 },
 }));
 
 /*** Database ***/
@@ -31,63 +35,74 @@ async function initDatabase() {
     users = await getCollection(db, "users");
 }
 
-
 initDatabase().then(() => {
     require("./src/auth/authentication")(app, users);
 });
 
-/*
-ROUTINGS
-*/
+/*** ROUTINGS ***/
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
     res.render('index');
+    return res.status(200);
 });
 
 app.get('/landing', (req, res) => {
     res.render('landing');
+    return res.status(200);
 });
 
 app.get('/signup', (req, res) => {
     res.render('signup', { errMessage: req.session.errMessage });
+    return res.status(200);
 });
 
 app.get('/login', (req, res) => {
+    if (req.session.authenticated) {
+        
+    }
     res.render('login', { errMessage: req.session.errMessage });
+    return res.status(200);
 });
 
 app.get('/home', (req, res) => {
     res.render('home');
+    return res.status(200);
 });
 
 app.get('/assets', (req, res) => {
     res.render('assets');
+    return res.status(200);
 });
 
 app.get('/plans', (req, res) => {
     res.render('plans');
+    return res.status(200);
 });
 
 app.get('/more', (req, res) => {
     res.render('more');
+    return res.status(200);
 });
 
 app.get('/profile', (req, res) => {
     res.render('profiles');
+    return res.status(200);
 });
 
 app.get('/settings', (req, res) => {
     res.render('settings');
+    return res.status(200);
 });
 
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
+    return res.status(200);
 });
 
 app.get('/*splat', (req, res) => {
-    res.status(404);
     res.send('404 Not Found');
+    return res.status(404);
 });
 
 app.listen(port, () => {
