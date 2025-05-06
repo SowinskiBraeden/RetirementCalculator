@@ -13,6 +13,12 @@ module.exports = (users) => {
     });
     
     router.post("/login", async (req, res) => {
+
+        if (req.session.authenticated) {
+            res.redirect("/home");
+            return res.status(status.Ok);        
+        }
+
         const credentialSchema = joi.object({
             email: joi.string().email().required(),
             password: joi.string().max(20).required(),
