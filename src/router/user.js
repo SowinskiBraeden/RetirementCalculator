@@ -2,9 +2,10 @@ const status = require("../util/statuses");
 
 module.exports = (middleware) => {
     const router = require("express").Router();
-        
+    
+    router.use(middleware);
+
     router.get('/home', async (req, res) => {
-        console.log("Router has: ", req.user);
         res.render('home', { user: req.user });
         return res.status(status.Ok);
     });
