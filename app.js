@@ -61,13 +61,23 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    res.render('home');
+    res.render('home', { session: req.session });
     return res.status(status.Ok);
 });
 
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
     return res.status(status.Ok);
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    return res.redirect('/login');
+});
+
+app.get('/*splat', (req, res) => {
+    res.send('404 Not Found');
+    return res.status(status.NotFound);
 });
 
 // Initialize database and start app

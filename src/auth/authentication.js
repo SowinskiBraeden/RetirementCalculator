@@ -70,7 +70,7 @@ module.exports = (users) => {
             return res.redirect("/signup");
         }
 
-        let hashedPassword = await bcrypt.hash(req.body.password, salt);
+        let hashedPassword = await bcrypt.hashSync(req.body.password, salt);
 
         users.insertOne({
             email: req.body.email,
