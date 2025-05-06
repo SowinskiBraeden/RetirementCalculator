@@ -27,7 +27,7 @@ module.exports = (middleware, users) => {
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profiles', { user: req.user });
+        res.render('profile', { user: req.user });
         return res.status(status.Ok);
     });
 
