@@ -37,17 +37,6 @@ async function initDatabase() {
     users = await getCollection(db, "users");
 }
 
-initDatabase().then(() => {
-    // Import authentication handler
-    app.use(require("./src/auth/authentication")(users));
-
-    // Import middleware
-    const middleware = require("./src/auth/middleware")(users);
-
-    // Apply middleware to protected user routes
-    app.use(require("./src/router/user")(middleware));
-});
-
 /*** ROUTINGS ***/
 
 app.get('/', (req, res) => {
@@ -80,11 +69,25 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.get('/*splat', (req, res) => {
-    res.send('404 Not Found');
-    return res.status(status.NotFound);
-});
+// Initialize database and start app
+initDatabase().then(() => {
+    console.log("Successfully connected to MongoDB");
 
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+    // Import authentication handler
+    app.use(require("./src/auth/authentication")(users));
+
+    // Import middleware & apply to user routes
+    const middleware = require("./src/auth/middleware")(users);
+    app.use(require("./src/router/user")(middleware));
+
+    // 404 handler
+    app.get('/*splat', (req, res) => {
+        res.send('404 Not Found');
+        return res.status(status.NotFound);
+    });    
+
+    // Start app
+    app.listen(port, () => {
+        console.log(`Server listening on port ${port}`);
+    });    
 });
