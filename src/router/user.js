@@ -9,7 +9,7 @@ module.exports = (middleware, users, plans) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('home', { user: req.user });
+        res.render('dashboard', { user: req.user });
         return res.status(status.Ok);
     });
 

@@ -46,7 +46,7 @@ async function initDatabase() {
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
-    res.render('dashboard');
+    res.render('landing');
     return res.status(status.Ok);
 });
 
