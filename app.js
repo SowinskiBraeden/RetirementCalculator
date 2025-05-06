@@ -25,6 +25,7 @@ app.set('view engine', 'ejs');
 app.set('views',path.join(__dirname, 'src/views'));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("./src/public"));
+app.use("/images", express.static("./src/public/images"));
 
 /*** Database ***/
 const { connectMongo, getCollection } = require("./src/database/connection");
@@ -41,11 +42,6 @@ async function initDatabase() {
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
-    res.render('index');
-    return res.status(status.Ok);
-});
-
-app.get('/landing', (req, res) => {
     res.render('landing');
     return res.status(status.Ok);
 });
@@ -61,6 +57,11 @@ app.get('/login', (req, res) => {
         return res.status(status.Ok);        
     }
     res.render('login', { errMessage: req.session.errMessage });
+    return res.status(status.Ok);
+});
+
+app.get('/home', (req, res) => {
+    res.render('home');
     return res.status(status.Ok);
 });
 
