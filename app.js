@@ -49,6 +49,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
+    const ignore = ["User not found", "Incorrect password"];
+    if (ignore.includes(req.session.errMessage)) req.session.errMessage = "";
     res.render('signup', { errMessage: req.session.errMessage });
     return res.status(status.Ok);
 });
