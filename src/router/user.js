@@ -31,5 +31,10 @@ module.exports = (middleware) => {
         return res.status(status.Ok);
     });
 
+    router.get('/logout', middleware, (req, res) => {
+        req.session.destroy();
+        return res.redirect('/login');
+    });
+
     return router;
 };

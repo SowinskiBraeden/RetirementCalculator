@@ -72,7 +72,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    res.render('home');
+    res.render('home', { session: req.session });
     return res.status(status.Ok);
 });
 
@@ -104,6 +104,11 @@ app.get('/profile', (req, res) => {
 app.get('/settings', (req, res) => {
     res.render('settings');
     return res.status(status.Ok);
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    return res.redirect('/login');
 });
 
 app.get('/*splat', (req, res) => {

@@ -10,6 +10,7 @@
 
 <body>
     <%- include("./partials/header") %>
+    <% if (session.authenticated) { console.log(session.email); } else { console.log("No user"); } %>
     <main>
         The Dashboard Page
     </main>
