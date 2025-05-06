@@ -13,15 +13,18 @@ const createMiddleware = (users) => {
             return res.status(status.Unauthorized);
         }
     
-        let user = await users.findOne({ "email": req.session.email }).then((user) => user);
-    
-        if (!user) {
-            req.session.errMessage = "User not found";
-            res.redirect("/login");
-            return res.status(status.Unauthorized);
+        if (!req.session.user) {
+            let user = await users.findOne({ "email": req.session.email }).then((user) => user);
+        
+            if (!user) {
+                req.session.errMessage = "User not found";
+                res.redirect("/login");
+                return res.status(status.Unauthorized);
+            }
+        
+            req.session.user = user;
         }
-    
-        req.user = user;
+
         next();
     };
 }
