@@ -38,6 +38,7 @@ async function initDatabase() {
     
     // For any collection, init here
     users = await getCollection(db, "users");
+    plans = await getCollection(db, "plans");
 }
 
 /*** ROUTINGS ***/
@@ -78,8 +79,8 @@ initDatabase().then(() => {
     app.use(require("./src/auth/authentication")(users));
 
     // Import middleware & apply to user routes
-    const middleware = require("./src/auth/middleware")(users);
-    app.use(require('./src/router/user')(middleware, users));
+    const middleware = require("./src/auth/middleware")(users, plans);
+    app.use(require('./src/router/user')(middleware, users, plans));
 
     // 404 handler
     app.get('/*splat', (req, res) => {
