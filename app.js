@@ -38,17 +38,6 @@ async function initDatabase() {
     users = await getCollection(db, "users");
 }
 
-initDatabase().then(() => {
-    // Import authentication handler
-    app.use(require("./src/auth/authentication")(users));
-
-    // Import middleware
-    const middleware = require("./src/auth/middleware")(users);
-
-    // Apply middleware to protected user routes
-    app.use(require("./src/router/user")(middleware));
-});
-
 /*** ROUTINGS ***/
 
 app.get('/', (req, res) => {
@@ -81,31 +70,6 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.get('/assets', (req, res) => {
-    res.render('assets');
-    return res.status(status.Ok);
-});
-
-app.get('/plans', (req, res) => {
-    res.render('plans');
-    return res.status(status.Ok);
-});
-
-app.get('/more', (req, res) => {
-    res.render('more');
-    return res.status(status.Ok);
-});
-
-app.get('/profile', (req, res) => {
-    res.render('profile');
-    return res.status(status.Ok);
-});
-
-app.get('/settings', (req, res) => {
-    res.render('settings');
-    return res.status(status.Ok);
-});
-
 app.get('/logout', (req, res) => {
     req.session.destroy();
     return res.redirect('/login');
@@ -116,6 +80,25 @@ app.get('/*splat', (req, res) => {
     return res.status(status.NotFound);
 });
 
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+// Initialize database and start app
+initDatabase().then(() => {
+    console.log("Successfully connected to MongoDB");
+
+    // Import authentication handler
+    app.use(require("./src/auth/authentication")(users));
+
+    // Import middleware & apply to user routes
+    const middleware = require("./src/auth/middleware")(users);
+    app.use(require("./src/router/user")(middleware));
+
+    // 404 handler
+    app.get('/*splat', (req, res) => {
+        res.send('404 Not Found');
+        return res.status(status.NotFound);
+    });    
+
+    // Start app
+    app.listen(port, () => {
+        console.log(`Server listening on port ${port}`);
+    });    
 });

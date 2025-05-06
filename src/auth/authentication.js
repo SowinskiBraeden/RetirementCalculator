@@ -5,6 +5,12 @@ const salt = 12;
 
 module.exports = (users) => {
     const router = require("express").Router();
+
+    router.get("/logout", (req, res) => {
+        req.session.destroy();
+        // res.status(status.Unauthorized);
+        return res.redirect('/login');
+    });
     
     router.post("/login", async (req, res) => {
         const credentialSchema = joi.object({
@@ -84,12 +90,6 @@ module.exports = (users) => {
             res.status(status.Ok);
             return res.redirect("/home");
         });
-    });
-
-    router.get("/logout", (req, res) => {
-        req.session.destroy();
-        // res.status(status.Unauthorized);
-        return res.redirect('/login');
     });
 
     return router;
