@@ -33,11 +33,13 @@ app.use("/images", express.static("./src/public/images"));
 const { connectMongo, getCollection } = require("./src/database/connection");
 
 let users;
+let assets;
 async function initDatabase() {
     const db = await connectMongo(mongoURI, database);
     
     // For any collection, init here
-    users = await getCollection(db, "users");
+    users  = await getCollection(db, "users");
+    assets = await getCollection(db, "assets");
 }
 
 /*** ROUTINGS ***/
@@ -79,7 +81,7 @@ initDatabase().then(() => {
 
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users);
-    app.use(require('./src/router/user')(middleware, users));
+    app.use(require('./src/router/user')(middleware, users, assets));
 
     // 404 handler
     app.get('/*splat', (req, res) => {

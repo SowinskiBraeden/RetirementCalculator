@@ -7,7 +7,7 @@ const assetForms = [
 /**
  * selectAssetForm changes which form is displayed
  * to create specified assets.
- * @param {string} assetId
+ * @param {string} assetFormId
  */
 function selectAssetForm(assetFormId) {
   for (let i = 0; i < assetForms.length; i++) {

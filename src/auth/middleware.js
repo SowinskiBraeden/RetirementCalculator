@@ -2,9 +2,8 @@ const status = require("../util/statuses");
 const session = require("express-session");
 
 /**
- * createMiddleware returns a middleware function for express.
- * @param {MongoClient.collection} users
- * @return {async function} 
+ * @param {MongoClient.collection} users db collection
+ * @returns {async function} middleware handler function
  */
 const createMiddleware = (users) => {
     return async (req, res, next) => {

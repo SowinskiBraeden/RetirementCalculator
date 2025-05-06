@@ -3,7 +3,13 @@ const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
 
-module.exports = (middleware, users) => {
+/**
+ * @param {function} middleware handler
+ * @param {MongoClient.collection} users db collection
+ * @param {MongoClient.collection} assets db collection
+ * @returns {express.Router} user protected routes router
+ */
+module.exports = (middleware, users, assets) => {
     const router = require("express").Router();
     
     router.use(middleware);
