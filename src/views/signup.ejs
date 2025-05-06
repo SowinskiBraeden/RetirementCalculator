@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include("./partials/fileHeader") %>
+<%- include("./partials/headerStart") %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
-</head>
-
-<body>
-    <div class="flex justify-center items-center h-screen bg-gray-700">
+<main>
+    <div class="flex justify-center items-center h-screen">
         <form action="/signup" method="POST">
             <div class="w-96 p-6 shadow-1g bg-white rounded-md">
                 <h1 class="text-3xl block text-center font-semibold"> Signup </h1>
@@ -42,7 +35,6 @@
             </div>
         </form>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</body>
+</main>
 
-</html>
+<%- include("./partials/footer") %>
