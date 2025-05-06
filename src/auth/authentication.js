@@ -3,15 +3,11 @@ const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
 
-const middleware = require("./middleware");
-
-
 module.exports = (users) => {
     const router = require("express").Router();
 
     router.get("/logout", (req, res) => {
         req.session.destroy();
-        // res.status(status.Unauthorized);
         return res.redirect('/login');
     });
     

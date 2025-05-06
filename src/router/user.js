@@ -108,10 +108,5 @@ module.exports = (middleware, users) => {
         });
     });
 
-    router.get('/logout', (req, res) => {
-        req.session.destroy();
-        return res.redirect('/login');
-    });
-
     return router;
 };

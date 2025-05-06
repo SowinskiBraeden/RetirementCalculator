@@ -16,6 +16,7 @@ const connectMongo = async (mongoURI, databaseName) => {
  * getCollection object to interact with MongoDB
  * @param {MongoClient} dbo
  * @param {string} collection 
+ * @return {MongoClient.collection}
  */
 const getCollection = async (dbo, collection) => {
     return await dbo.collection(collection);
