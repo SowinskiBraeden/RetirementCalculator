@@ -39,8 +39,6 @@ module.exports = (users) => {
                 return res.redirect("/login");
             }
 
-            console.log("User logged in successfully");
-            console.log("User email: " + req.body.email);
             req.session.authenticated = true;
             req.session.userId = user._id;
             req.session.email = req.body.email;
@@ -53,7 +51,7 @@ module.exports = (users) => {
     router.post("/signup", async (req, res) => {
         const userSchema = joi.object({
             email: joi.string().email().required(),
-            // name: joi.string().alphanum().max(20).required(),
+            name: joi.string().alphanum().max(20).required(),
             password: joi.string().max(20).min(8).required(),
             repassword: joi.string().max(20).min(8).required(),
         });
@@ -76,13 +74,13 @@ module.exports = (users) => {
 
         users.insertOne({
             email: req.body.email,
-            // name: req.body.name,
+            name: req.body.name,
             password: hashedPassword,
         }).then((results, err) => {
             if (err) {
-                res.status(status.InternalServerError);
                 console.error(err);
-                return res.send("Internal server error");
+                res.session.errMessage = "Internal server error";
+                return res.status(status.InternalServerError).redirect("/signup");
             }
 
             req.session.authenticated = true;
@@ -90,8 +88,7 @@ module.exports = (users) => {
             req.session.userId = results.insertedId;
 
             req.session.errMessage = "";
-            res.status(status.Ok);
-            return res.redirect("/home");
+            return res.status(status.Ok).redirect("/home");
         });
     });
 
