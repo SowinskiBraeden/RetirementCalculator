@@ -39,8 +39,6 @@ module.exports = (users) => {
                 return res.redirect("/login");
             }
 
-            console.log("User logged in successfully");
-            console.log("User email: " + req.body.email);
             req.session.authenticated = true;
             req.session.email = req.body.email;
             req.session.errMessage = "";

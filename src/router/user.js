@@ -43,8 +43,6 @@ module.exports = (middleware, users) => {
     });
 
     router.post('/questionnaire', (req, res) => {
-        console.log("Questionnaire POST body:", req.body);
-    
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
