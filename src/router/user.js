@@ -120,10 +120,6 @@ module.exports = (middleware, users, plans) => {
             expenses: joi.number().min(0).required(),
             assets: joi.number().min(0).required(),
             liabilities: joi.number().min(0).required(),
-            retirementAge: joi.number().min(18).max(120).required(),
-            retirementExpenses: joi.number().min(0).required(),
-            retirementAssets: joi.number().min(0).required(),
-            retirementLiabilities: joi.number().min(0).required(),
         });
     
         const validationOptions = { convert: true, abortEarly: false }; 
@@ -148,10 +144,6 @@ module.exports = (middleware, users, plans) => {
                     expenses: value.expenses,
                     assets: value.assets,
                     liabilities: value.liabilities,
-                    retirementAge: value.retirementAge,
-                    retirementExpenses: value.retirementExpenses,
-                    retirementAssets: value.retirementAssets,
-                    retirementLiabilities: value.retirementLiabilities,
                 } 
             }
         ).then((result) => { 
