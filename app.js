@@ -3,7 +3,9 @@ const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const express = require('express');
 const path = require('path');
+const joi = require('joi'); 
 require('dotenv').config();
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,7 +20,7 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: `${mongoURI}${database}`, crypto: { secret: secret } }),
     resave: true,
     saveUninitialized: false,
-    cookie: { maxAge: 60000 },
+    cookie: { maxAge: 3600000 },
 }));
 
 app.set('view engine', 'ejs');
@@ -75,7 +77,7 @@ initDatabase().then(() => {
 
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users);
-    app.use(require('./src/router/user')(middleware));
+    app.use(require('./src/router/user')(middleware, users));
 
     // 404 handler
     app.get('/*splat', (req, res) => {

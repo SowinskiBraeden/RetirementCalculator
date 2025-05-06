@@ -2,8 +2,13 @@
 <%- include("./partials/header") %>
 
 <main>
+    <%- include("./partials/header") %>
     Welcome: <%= user.email %>
     The Dashboard Page
+    <% if(user.authenticated) { %>
+        <%= user.email %>
+        <%= user.errMessage %>
+    <% } %>
 </main>
 
 <%- include("./partials/navBar") %>
