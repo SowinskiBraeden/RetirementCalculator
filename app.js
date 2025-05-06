@@ -28,6 +28,7 @@ app.set('views',path.join(__dirname, 'src/views'));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("./src/public"));
 app.use("/images", express.static("./src/public/images"));
+app.use(express.json());
 
 /*** Database ***/
 const { connectMongo, getCollection } = require("./src/database/connection");
@@ -69,6 +70,15 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
+app.post('/api/location', async (req,res) => {
+    const { latitude, longitude } = req.body;
+
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
+
+    const data = await response.json();
+
+    res.json(data);
+});
 
 // Initialize database and start app
 initDatabase().then(() => {
