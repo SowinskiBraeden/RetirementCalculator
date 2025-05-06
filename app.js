@@ -67,10 +67,6 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    return res.redirect('/login');
-});
 
 // Initialize database and start app
 initDatabase().then(() => {

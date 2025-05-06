@@ -16,7 +16,7 @@ module.exports = (users) => {
     });
     
     router.post("/login", async (req, res) => {
-
+      
         const credentialSchema = joi.object({
             email: joi.string().email().required(),
             password: joi.string().max(20).required(),
