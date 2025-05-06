@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
 
+const middleware = require("./middleware");
+
+
 module.exports = (users) => {
     const router = require("express").Router();
 
@@ -13,12 +16,7 @@ module.exports = (users) => {
     });
     
     router.post("/login", async (req, res) => {
-
-        if (req.session.authenticated) {
-            res.redirect("/home");
-            return res.status(status.Ok);        
-        }
-
+      
         const credentialSchema = joi.object({
             email: joi.string().email().required(),
             password: joi.string().max(20).required(),
@@ -45,9 +43,10 @@ module.exports = (users) => {
                 return res.redirect("/login");
             }
 
+            console.log("User logged in successfully");
+            console.log("User email: " + req.body.email);
             req.session.authenticated = true;
             req.session.email = req.body.email;
-
             req.session.errMessage = "";
             res.redirect("/home");
             return res.status(status.Ok);
