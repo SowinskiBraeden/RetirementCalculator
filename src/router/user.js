@@ -14,7 +14,21 @@ module.exports = (middleware, users) => {
     });
 
     router.get('/assets', (req, res) => {
-        res.render('assets', { user: req.user });
+        let assets = [
+            {
+                name: "hello my name is braeden! abc!",
+                value: 1123.50,
+            },
+            {
+                name: "asset 2",
+                value: 321.05,
+            },
+            {
+                name: "asset 3",
+                value: 666,
+            },
+        ];
+        res.render('assets', { user: req.user, assets: assets });
         return res.status(status.Ok);
     });
 
