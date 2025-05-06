@@ -1,4 +1,5 @@
 const status = require("../util/statuses");
+const session = require("express-session");
 
 /**
  * createMiddleware returns a middleware function for express.
