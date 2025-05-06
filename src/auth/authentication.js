@@ -42,6 +42,7 @@ module.exports = (users) => {
             console.log("User logged in successfully");
             console.log("User email: " + req.body.email);
             req.session.authenticated = true;
+            req.session.userId = user._id;
             req.session.email = req.body.email;
             req.session.errMessage = "";
             res.redirect("/home");
@@ -86,6 +87,7 @@ module.exports = (users) => {
 
             req.session.authenticated = true;
             req.session.email = req.body.email;
+            req.session.userId = results.insertedId;
 
             req.session.errMessage = "";
             res.status(status.Ok);
