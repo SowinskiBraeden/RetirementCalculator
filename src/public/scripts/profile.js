@@ -4,7 +4,7 @@
  */
 function unlockAccount() {
   document.getElementById("save-account").disabled = false;
-  document.getElementById("email").disabled = false;
+  // document.getElementById("email").disabled = false;
   document.getElementById("name").disabled = false;
   document.getElementById("password").disabled = false;
   document.getElementById("repassword").disabled = false;
@@ -32,7 +32,7 @@ function unlockPersonal() {
 function lockAll() {
   // Clear unsaved inputs on page load (refresh doesnt clear them)
   document.getElementById("account-form").reset();
-  document.getElementById("personal-form").reset();
+  // document.getElementById("personal-form").reset();
 
   // Account section
   document.getElementById("save-account").disabled = true;
@@ -43,14 +43,14 @@ function lockAll() {
   document.getElementById("save-account").classList.add("cursor-not-allowed");
 
   // Personal info section
-  document.getElementById("save-personal").disabled = true;
-  document.getElementById("dob").disabled = true;
-  document.getElementById("education").disabled = true;
-  document.getElementById("ms-single").disabled = true;
-  document.getElementById("ms-married").disabled = true;
-  document.getElementById("ms-divorced").disabled = true;
-  document.getElementById("ms-widowed").disabled = true;
-  document.getElementById("save-personal").classList.add("cursor-not-allowed");
+  // document.getElementById("save-personal").disabled = true;
+  // document.getElementById("dob").disabled = true;
+  // document.getElementById("education").disabled = true;
+  // document.getElementById("ms-single").disabled = true;
+  // document.getElementById("ms-married").disabled = true;
+  // document.getElementById("ms-divorced").disabled = true;
+  // document.getElementById("ms-widowed").disabled = true;
+  // document.getElementById("save-personal").classList.add("cursor-not-allowed");
 
 }
 
