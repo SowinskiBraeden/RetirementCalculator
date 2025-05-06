@@ -60,11 +60,6 @@ app.get('/login', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.get('/home', (req, res) => {
-    res.render('home', { session: req.session });
-    return res.status(status.Ok);
-});
-
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
     return res.status(status.Ok);
@@ -73,11 +68,6 @@ app.get('/aboutUs', (req, res) => {
 app.get('/logout', (req, res) => {
     req.session.destroy();
     return res.redirect('/login');
-});
-
-app.get('/*splat', (req, res) => {
-    res.send('404 Not Found');
-    return res.status(status.NotFound);
 });
 
 // Initialize database and start app
@@ -89,7 +79,7 @@ initDatabase().then(() => {
 
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users);
-    app.use(require("./src/router/user")(middleware));
+    app.use(require('./src/router/user')(middleware));
 
     // 404 handler
     app.get('/*splat', (req, res) => {

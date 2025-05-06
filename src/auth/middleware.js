@@ -14,7 +14,7 @@ const createMiddleware = (users) => {
         }
     
         let user = await users.findOne({ "email": req.session.email }).then((user) => user);
-
+    
         if (!user) {
             req.session.errMessage = "User not found";
             res.redirect("/login");

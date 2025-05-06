@@ -9,9 +9,8 @@
 </head>
 
 <body>
-    <%- include("./partials/header") %>
-    <% if (session.authenticated) { console.log(session.email); } else { console.log("No user"); } %>
     <main>
+        <%= user.email %>
         The Dashboard Page
     </main>
     <footer>
@@ -20,7 +19,6 @@
                 <p>&copy; 2025 RCalculator. All rights reserved.</p>
              </div>
         </div>
-        <%- include("./partials/navBar") %>
     </footer>
 </body>
 
