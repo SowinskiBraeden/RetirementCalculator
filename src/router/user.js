@@ -15,53 +15,40 @@ module.exports = (middleware, users, assets) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('home', { user: req.user });
+        res.render('home', { user: req.session.user });
         return res.status(status.Ok);
     });
 
-    router.get('/assets', (req, res) => {
-        let assets = [
-            {
-                name: "hello my name is braeden! abc!",
-                value: 1123.50,
-            },
-            {
-                name: "asset 2",
-                value: 321.05,
-            },
-            {
-                name: "asset 3",
-                value: 666,
-            },
-        ];
-        res.render('assets', { user: req.user, assets: assets });
+    router.get('/assets', async (req, res) => {
+        let userAssets = await assets.find({ "ownerId": req.session.user._id }).toArray();
+        res.render('assets', { user: req.session.user, assets: userAssets });
         return res.status(status.Ok);
     });
 
     router.get('/plans', (req, res) => {
-        res.render('plans', { user: req.user });
+        res.render('plans', { user: req.session.user });
         return res.status(status.Ok);
     });
 
     router.get('/more', (req, res) => {
-        res.render('more', { user: req.user });
+        res.render('more', { user: req.session.user });
         return res.status(status.Ok);
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profile', { user: req.user, errMessage: req.session.errMessage });
+        res.render('profile', { user: req.session.user, errMessage: req.session.errMessage });
         return res.status(status.Ok);
     });
 
     router.get('/settings', (req, res) => {
-        res.render('settings', { user: req.user });
+        res.render('settings', { user: req.session.user });
         return res.status(status.Ok);
     });
 
     router.get('/questionnaire', (req, res) => {
         const errMessage = req.session.errMessage;
         req.session.errMessage = ""; 
-        res.render('questionnaire', { user: req.user, errMessage: errMessage });
+        res.render('questionnaire', { user: req.session.user, errMessage: errMessage });
     });
 
     router.post('/questionnaire', (req, res) => {
@@ -145,7 +132,6 @@ module.exports = (middleware, users, assets) => {
         }
 
         let update = {
-            // email: req.body.email,
             name: req.body.name,
         };
 
@@ -179,6 +165,80 @@ module.exports = (middleware, users, assets) => {
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile"); 
         });
+    });
+
+    router.post("/createAsset", async (req, res) => {
+        // Create asset, each asset has different data structure based on type
+        const type = req.body.assetType;
+        let assetSchema;
+
+        switch (type) {
+            case "other":
+                assetSchema = joi.object({
+                    ownerId: joi.string().alphanum().required(),
+                    type: joi.string().valid("other", "stock", "saving").required(),
+                    name: joi.string().alphanum().min(3).max(30).required(),
+                    value: joi.number().min(0).required(),
+                    purchaseDate: joi.date().required(),
+                    description: joi.string().alphanum().max(240),
+                });
+                break;
+            case "saving":
+                assetSchema = joi.object({
+                    ownerId: joi.string().alphanum().required(),
+                    type: joi.string().valid("other", "stock", "saving").required(),
+                    name: joi.string().alphanum().min(3).max(30).required(),
+                    value: joi.number().min(0).required(),
+                });
+                break;
+            case "stock":
+                assetSchema = joi.object({
+                    ownerId: joi.string().alphanum().required(),
+                    type: joi.string().valid("other", "stock", "saving").required(),
+                    ticker: joi.string().alphanum().min(3).max(5).required(),
+                    price: joi.number().min(0).required(),
+                    quantity: joi.number().min(1).required(),
+                    purchaseDate: joi.date().required(),
+                });
+                break;
+            default:
+                console.error("Modified asset type, rejected");
+                req.session.errMessage = "Invalid input";
+                return res.status(status.BadRequest).redirect("/assets");
+        };
+
+        const valid = assetSchema.validate(req.body);
+
+        if (valid.err) {
+            req.session.errMessage = "Invalid input",
+            res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        let newAsset = {
+            ...req.body,
+            updatedAt: new Date(),
+        };
+
+        if (type == "stock") {
+            newAsset.quantity = parseInt(newAsset.quantity);
+            newAsset.price = parseFloat(newAsset.price)
+            newAsset.value = newAsset.quantity * newAsset.price;
+            newAsset.name = `${newAsset.ticker} Stock`;
+        }
+        newAsset.value = parseFloat(newAsset.value);
+        newAsset.type = type;
+
+        assets.insertOne(newAsset, (err, result) => {
+            if (err) {
+                console.error("Error creating asset: ", err);
+                req.session.errMessage = "Internal server error";
+                return res.status(status.InternalServerError).redirect("/assets");
+            }
+        });
+
+        req.session.errMessage = ""; 
+        return res.status(status.Ok).redirect("/assets"); 
     });
 
     return router;

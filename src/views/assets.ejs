@@ -33,12 +33,12 @@
         </div>
 
         <!-- Create other asset form -->
-        <form method="POST" action="createAsset" id="create-other-asset-form">
+        <form method="POST" action="/createAsset" id="create-other-asset-form">
             <input style="display: none;" value="<%= user._id %>" name="ownerId" type="text">
             <input style="display: none;" value="other" name="assetType" type="text">
 
             <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name</label>
-            <input required id="name" type="text" name="name" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <input required id="name" type="text" name="name" minlength="3" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 
             <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Asset Value</label>
             <input required placeholder="CAD" min="0" id="value" type="number" name="value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -63,12 +63,12 @@
         </form>
 
         <!-- Create savings asset form -->
-        <form style="display: none;" method="POST" action="createAsset" id="create-saving-asset-form">
+        <form style="display: none;" method="POST" action="/createAsset" id="create-saving-asset-form">
             <input style="display: none;" value="<%= user._id %>" name="ownerId" type="text">
-            <input style="display: none;" value="savings" name="assetType" type="text">
+            <input style="display: none;" value="saving" name="assetType" type="text">
 
             <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Savings Name</label>
-            <input required id="name" type="text" name="name" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <input required id="name" type="text" name="name" minlength="3" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 
             <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Savings Value</label>
             <input required placeholder="CAD" min="0" id="value" type="number" name="value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -87,13 +87,12 @@
         </form>
 
         <!-- Create stock asset form -->
-        <form style="display: none;" method="POST" action="createAsset" id="create-stock-asset-form">
+        <form style="display: none;" method="POST" action="/createAsset" id="create-stock-asset-form">
             <input style="display: none;" value="<%= user._id %>" name="ownerId" type="text">
             <input style="display: none;" value="stock" name="assetType" type="text">
 
-
-            <label for="stockTicker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
-            <input required id="stockTicker" type="text" name="stockTicker" maxlength="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
+            <input required id="ticker" type="text" name="ticker" minlength="3" maxlength="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 
             <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
             <input required placeholder="CAD" min="0" id="price" type="number" name="price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
