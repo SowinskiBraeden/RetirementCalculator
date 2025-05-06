@@ -1,34 +1,43 @@
+const status = require("../util/statuses");
+
 module.exports = (middleware) => {
     const router = require("express").Router();
+    
+    router.use(middleware);
 
-    router.get('/home', middleware, async (req, res) => {
+    router.get('/home', async (req, res) => {
         res.render('home', { user: req.user });
         return res.status(status.Ok);
     });
 
-    router.get('/assets', middleware, (req, res) => {
+    router.get('/assets', (req, res) => {
         res.render('assets', { user: req.user });
         return res.status(status.Ok);
     });
 
-    router.get('/plans', middleware, (req, res) => {
+    router.get('/plans', (req, res) => {
         res.render('plans', { user: req.user });
         return res.status(status.Ok);
     });
 
-    router.get('/more', middleware, (req, res) => {
+    router.get('/more', (req, res) => {
         res.render('more', { user: req.user });
         return res.status(status.Ok);
     });
 
-    router.get('/profile', middleware, (req, res) => {
+    router.get('/profile', (req, res) => {
         res.render('profiles', { user: req.user });
         return res.status(status.Ok);
     });
 
-    router.get('/settings', middleware, (req, res) => {
+    router.get('/settings', (req, res) => {
         res.render('settings', { user: req.user });
         return res.status(status.Ok);
+    });
+
+    router.get('/logout', (req, res) => {
+        req.session.destroy();
+        return res.redirect('/login');
     });
 
     return router;

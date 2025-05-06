@@ -3,7 +3,8 @@ const MongoClient = require("mongodb").MongoClient;
 /**
  * connectMongo returns a database connection to MongoDB
  * @param {string} mongoURI 
- * @param {string} databaseName 
+ * @param {string} databaseName
+ * @return {MongoClient}
  */
 const connectMongo = async (mongoURI, databaseName) => {
     const database = await MongoClient.connect(mongoURI, { connectTimeoutMS: 1000 });

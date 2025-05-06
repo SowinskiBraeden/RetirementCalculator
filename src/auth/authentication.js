@@ -5,8 +5,20 @@ const salt = 12;
 
 module.exports = (users) => {
     const router = require("express").Router();
+
+    router.get("/logout", (req, res) => {
+        req.session.destroy();
+        // res.status(status.Unauthorized);
+        return res.redirect('/login');
+    });
     
     router.post("/login", async (req, res) => {
+
+        if (req.session.authenticated) {
+            res.redirect("/home");
+            return res.status(status.Ok);        
+        }
+
         const credentialSchema = joi.object({
             email: joi.string().email().required(),
             password: joi.string().max(20).required(),
@@ -27,7 +39,7 @@ module.exports = (users) => {
                 return res.redirect("/login");
             }
 
-            if (!bcrypt.compare(req.body.password, user.password)) {
+            if (!bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.errMessage = "Incorrect password";
                 res.status(status.Unauthorized);
                 return res.redirect("/login");
@@ -64,7 +76,7 @@ module.exports = (users) => {
             return res.redirect("/signup");
         }
 
-        let hashedPassword = await bcrypt.hash(req.body.password, salt);
+        let hashedPassword = await bcrypt.hashSync(req.body.password, salt);
 
         users.insertOne({
             email: req.body.email,
@@ -84,12 +96,6 @@ module.exports = (users) => {
             res.status(status.Ok);
             return res.redirect("/home");
         });
-    });
-
-    router.get("/logout", (req, res) => {
-        req.session.destroy();
-        // res.status(status.Unauthorized);
-        return res.redirect('/login');
     });
 
     return router;

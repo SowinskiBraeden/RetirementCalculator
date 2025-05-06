@@ -1,6 +1,11 @@
 const status = require("../util/statuses");
 
-module.exports = (users) => {
+/**
+ * createMiddleware returns a middleware function for express.
+ * @param {MongoClient.collection} users
+ * @return {async function} 
+ */
+const createMiddleware = (users) => {
     return async (req, res, next) => {
         if (!req.session.authenticated || !req.session.email) {
             req.session.errMessage = "Please login to view that resource";
@@ -18,5 +23,7 @@ module.exports = (users) => {
     
         req.user = user;
         next();
-    }
-};
+    };
+}
+
+module.exports = createMiddleware;
