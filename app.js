@@ -3,7 +3,7 @@ const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const express = require('express');
 const path = require('path');
-const joi = require('joi'); 
+const joi = require('joi');
 require('dotenv').config();
 
 
@@ -44,7 +44,7 @@ async function initDatabase() {
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
-    res.render('index');
+    res.render('dashboard');
     return res.status(status.Ok);
 });
 
