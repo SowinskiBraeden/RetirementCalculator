@@ -33,7 +33,7 @@ module.exports = (users) => {
                 return res.redirect("/login");
             }
 
-            if (!bcrypt.compare(req.body.password, user.password)) {
+            if (!bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.errMessage = "Incorrect password";
                 res.status(status.Unauthorized);
                 return res.redirect("/login");
