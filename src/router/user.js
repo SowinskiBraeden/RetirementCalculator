@@ -1,5 +1,7 @@
 const status = require("../util/statuses");
+const bcrypt = require('bcrypt');
 const joi = require("joi");
+const salt = 12;
 
 module.exports = (middleware, users) => {
     const router = require("express").Router();
@@ -27,7 +29,7 @@ module.exports = (middleware, users) => {
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profile', { user: req.user });
+        res.render('profile', { user: req.user, errMessage: req.session.errMessage });
         return res.status(status.Ok);
     });
 
@@ -103,6 +105,59 @@ module.exports = (middleware, users) => {
             console.error("Error updating questionnaire in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
             res.status(status.InternalServerError).redirect("/questionnaire"); 
+        });
+    });
+
+    router.post("/updateAccount", async (req, res) => {
+        const accountSchema = joi.object({
+            email: joi.string().email(),
+            name: joi.string().alphanum().max(20),
+            password: joi.string().max(20).min(8),
+            repassword: joi.string().max(20).min(8),
+        });
+
+        const valid = accountSchema.validate(req.body);
+
+        if (valid.err) {
+            req.session.errMessage = "Invalid input",
+            res.status(status.BadRequest);
+            return res.redirect("/profile");
+        }
+
+        let update = {
+            // email: req.body.email,
+            name: req.body.name,
+        };
+
+        if ((req.body.password != "") && (req.body.password != req.body.repassword)) {
+            req.session.errMessage = "New passwords must match";
+            res.status(status.BadRequest);
+            return res.redirect("/profile");
+        } else if (req.body.password != "") {
+            let hashedPassword = await bcrypt.hashSync(req.body.password, salt);
+            update.password = hashedPassword;
+        }
+
+        users.updateOne(
+            { email: req.session.email },
+            { $set: update }
+        ).then((result) => {
+            if (result.matchedCount === 0) {
+                console.log(`User not found during account update: ${req.session.email}`);
+                req.session.errMessage = "User session invalid. Please log in again."; 
+                res.status(status.NotFound).redirect("/login"); 
+                return;
+            }
+            if (result.modifiedCount === 0 && result.matchedCount === 1) {
+                console.log(`User account data unchanged (already up-to-date): ${req.session.email}`);
+            }
+        
+            req.session.errMessage = ""; 
+            return res.status(status.Ok).redirect("/profile"); 
+        }).catch(err => { 
+            console.error("Error updating account in database:", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile"); 
         });
     });
 
