@@ -5,7 +5,7 @@ const salt = 12;
 
 module.exports = (middleware, users, plans) => {
     const router = require("express").Router();
-    
+
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
@@ -22,17 +22,17 @@ module.exports = (middleware, users, plans) => {
         if (!req.session.email) {
             return res.status(status.Unauthorized).redirect('/login');
         }
-    
+
         try {
 
             // console.log(req.user.email);
-            const userPlans = await plans.find({userEmail: req.user.email }).toArray();
+            const userPlans = await plans.find({ userEmail: req.user.email }).toArray();
             // console.log(userPlans);
             res.render('plans', {
                 user: req.user,
                 plans: userPlans
             });
-    
+
         } catch (err) {
             console.error("Error fetching plans:", err);
             req.session.errMessage = "Could not load your plans. Please try again.";
@@ -42,7 +42,7 @@ module.exports = (middleware, users, plans) => {
 
     router.get('/newPlan', (req, res) => {
         const errMessage = req.session.errMessage;
-        req.session.errMessage = ""; 
+        req.session.errMessage = "";
         res.render('newPlan', { user: req.user, errMessage: errMessage });
     });
 
@@ -51,44 +51,44 @@ module.exports = (middleware, users, plans) => {
             return res.status(status.Unauthorized).redirect('/login');
         }
 
-            const planSchema = joi.object({
-                name: joi.string().min(3).max(100).required(),
-                retirementAge: joi.number().min(18).max(120).required(),
-                retirementExpenses: joi.number().min(0).required(),
-                retirementAssets: joi.number().min(0).required(),
-                retirementLiabilities: joi.number().min(0).required(),
-            });
-
-            const validationOptions = { convert: true, abortEarly: false }; 
-            const { error, value } = planSchema.validate(req.body, validationOptions);
-
-            if (error) { 
-                console.error("Plan validation error:", error.details);
-                req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
-                res.status(status.BadRequest).redirect("/newPlan"); 
-                return; 
-            }
-            const newPlan = {
-                userEmail: req.user.email,
-                name: value.name,
-                retirementAge: value.retirementAge,
-                retirementExpenses: value.retirementExpenses,
-                retirementAssets: value.retirementAssets,
-                retirementLiabilities: value.retirementLiabilities,
-                progress: "0%"
-            };
-
-            try{
-                await plans.insertOne(newPlan);
-                req.session.errMessage = ""; 
-                res.redirect('/plans'); 
-            }
-            catch(err){
-                console.error("Error saving plan:", err);
-                req.session.errMessage = "An error occurred while saving your plan. Please try again.";
-                res.status(status.InternalServerError).redirect("/newPlan");
-            }
+        const planSchema = joi.object({
+            name: joi.string().min(3).max(100).required(),
+            retirementAge: joi.number().min(18).max(120).required(),
+            retirementExpenses: joi.number().min(0).required(),
+            retirementAssets: joi.number().min(0).required(),
+            retirementLiabilities: joi.number().min(0).required(),
         });
+
+        const validationOptions = { convert: true, abortEarly: false };
+        const { error, value } = planSchema.validate(req.body, validationOptions);
+
+        if (error) {
+            console.error("Plan validation error:", error.details);
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/newPlan");
+            return;
+        }
+        const newPlan = {
+            userEmail: req.user.email,
+            name: value.name,
+            retirementAge: value.retirementAge,
+            retirementExpenses: value.retirementExpenses,
+            retirementAssets: value.retirementAssets,
+            retirementLiabilities: value.retirementLiabilities,
+            progress: "0%"
+        };
+
+        try {
+            await plans.insertOne(newPlan);
+            req.session.errMessage = "";
+            res.redirect('/plans');
+        }
+        catch (err) {
+            console.error("Error saving plan:", err);
+            req.session.errMessage = "An error occurred while saving your plan. Please try again.";
+            res.status(status.InternalServerError).redirect("/newPlan");
+        }
+    });
 
     router.get('/more', (req, res) => {
         res.render('more', { user: req.user });
@@ -107,13 +107,13 @@ module.exports = (middleware, users, plans) => {
 
     router.get('/questionnaire', (req, res) => {
         const errMessage = req.session.errMessage;
-        req.session.errMessage = ""; 
+        req.session.errMessage = "";
         res.render('questionnaire', { user: req.user, errMessage: errMessage });
     });
 
     router.post('/questionnaire', (req, res) => {
         // console.log("Questionnaire POST body:", req.body);
-  
+
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
@@ -123,22 +123,22 @@ module.exports = (middleware, users, plans) => {
             assets: joi.number().min(0).required(),
             liabilities: joi.number().min(0).required(),
         });
-    
-        const validationOptions = { convert: true, abortEarly: false }; 
+
+        const validationOptions = { convert: true, abortEarly: false };
         const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
-    
-        if (error) { 
+
+        if (error) {
             console.error("Questionnaire validation error:", error.details);
-            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
-            res.status(status.BadRequest).redirect("/questionnaire"); 
-            return; 
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/questionnaire");
+            return;
         }
-    
-        users.updateOne( 
-            { email: req.session.email }, 
-            { 
-                $set: { 
-                    financialData: true, 
+
+        users.updateOne(
+            { email: req.session.email },
+            {
+                $set: {
+                    financialData: true,
                     dob: value.dob,
                     education: value.education,
                     maritalStatus: value.maritalStatus,
@@ -146,26 +146,26 @@ module.exports = (middleware, users, plans) => {
                     expenses: value.expenses,
                     assets: value.assets,
                     liabilities: value.liabilities,
-                } 
+                }
             }
-        ).then((result) => { 
+        ).then((result) => {
             if (result.matchedCount === 0) {
                 console.log(`User not found during questionnaire update: ${req.session.email}`);
-                req.session.errMessage = "User session invalid. Please log in again."; 
-                res.status(status.NotFound).redirect("/login"); 
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
                 console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.email}`);
             }
-        
-            req.session.errMessage = ""; 
-            res.status(status.Ok).redirect("/home"); 
-    
-        }).catch(err => { 
+
+            req.session.errMessage = "";
+            res.status(status.Ok).redirect("/home");
+
+        }).catch(err => {
             console.error("Error updating questionnaire in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            res.status(status.InternalServerError).redirect("/questionnaire"); 
+            res.status(status.InternalServerError).redirect("/questionnaire");
         });
     });
 
@@ -181,7 +181,7 @@ module.exports = (middleware, users, plans) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/profile");
         }
 
@@ -205,20 +205,20 @@ module.exports = (middleware, users, plans) => {
         ).then((result) => {
             if (result.matchedCount === 0) {
                 console.log(`User not found during account update: ${req.session.email}`);
-                req.session.errMessage = "User session invalid. Please log in again."; 
-                res.status(status.NotFound).redirect("/login"); 
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
                 console.log(`User account data unchanged (already up-to-date): ${req.session.email}`);
             }
-        
-            req.session.errMessage = ""; 
-            return res.status(status.Ok).redirect("/profile"); 
-        }).catch(err => { 
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/profile");
+        }).catch(err => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            return res.status(status.InternalServerError).redirect("/profile"); 
+            return res.status(status.InternalServerError).redirect("/profile");
         });
     });
 

@@ -71,7 +71,30 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.post('/api/location', async (req,res) => {
+app.get('/forgotPassword', (req, res) => {
+    res.render('forgotPass');
+    return res.status(status.Ok);
+});
+
+app.get('/reset/:token', async (req, res) => {
+    const token = req.params.token;
+
+    const user = await users.findOne({
+        resetToken: token,
+        resetTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        req.session.error = 'reset link not valid or has expired';
+        return res.redirect('/forgotPassword');
+    }
+    res.render('resetPassword', {
+        token: token,
+        errMessage: req.session.error || '',
+    });
+});
+
+app.post('/api/location', async (req, res) => {
     const { latitude, longitude } = req.body;
 
     const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
