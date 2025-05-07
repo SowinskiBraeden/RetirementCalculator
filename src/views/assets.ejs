@@ -133,6 +133,10 @@
         </form>
     </dialog>
 
+    <% if (errMessage != "") { %>
+        <div class="max-w-md mx-auto mb-10 rounded-lg shadow-md text-white font-bold bg-red-400 py-4 text-center"><%= errMessage %></div>
+    <% } %>
+
     <!-- Main display -->
     <section>
         <div class="mt-8 max-w-md mx-auto bg-white px-8 py-6 rounded-lg shadow-md flex flex-col justify-center">
