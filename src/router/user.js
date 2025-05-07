@@ -1,4 +1,5 @@
 const status = require("../util/statuses");
+const getRates = require("../util/exchangeRate");
 const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
@@ -221,6 +222,18 @@ module.exports = (middleware, users, plans) => {
             return res.status(status.InternalServerError).redirect("/profile"); 
         });
     });
+
+    router.get("/exRates/:lat/:lon", async (req, res) => {
+        if (!req.session.rates || Object.keys(req.session.rates).length == 0) {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.geolocation_api}`);
+            const data = await response.json();
+            
+            let country = data.results[0].formatted_address;
+            req.session.rates = await getRates(country);
+        }
+
+        return res.status(status.Ok).send({ rates: req.session.rates });
+    })
 
     return router;
 };

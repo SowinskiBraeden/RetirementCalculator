@@ -6,12 +6,11 @@ const path = require('path');
 const joi = require('joi'); 
 require('dotenv').config();
 
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
-const database = process.env.database || "knoldus"; // Database name
+const mongoURI = process.env.mongoURI;
+const database = process.env.database; // Database name
 const secret   = process.env.secret   || "123-secret-xyz";
 
 /*** Sessions ***/
@@ -34,13 +33,14 @@ app.use(express.json());
 const { connectMongo, getCollection } = require("./src/database/connection");
 
 let users;
+let rates;
 async function initDatabase() {
     const db = await connectMongo(mongoURI, database);
     
     // For any collection, init here
     users = await getCollection(db, "users");
     plans = await getCollection(db, "plans");
-    currencies = await getCollection(db, "currencies");
+    rates = await getCollection(db, "rates");
 }
 
 /*** ROUTINGS ***/
@@ -70,16 +70,6 @@ app.get('/login', (req, res) => {
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
     return res.status(status.Ok);
-});
-
-app.post('/api/location', async (req,res) => {
-    const { latitude, longitude } = req.body;
-
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
-
-    const data = await response.json();
-
-    res.json(data);
 });
 
 // Initialize database and start app
