@@ -1,7 +1,56 @@
 const status = require("../util/statuses");
-const bcrypt = require('bcrypt');
+const ObjectId = require('mongodb').ObjectId;
+const bcrypt = require("bcrypt");
 const joi = require("joi");
 const salt = 12;
+
+/**
+ * getAssetSchema returns correct joi object
+ * to validate req.body depending on asset type
+ * @param {string} type of asset
+ * @returns {joi.object} schema
+ */
+const getAssetSchema = (type) => {
+    let assetSchema;
+
+    switch (type) {
+        case "other":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                name: joi.string().alphanum().min(3).max(30).required(),
+                value: joi.number().min(0).required(),
+                purchaseDate: joi.date().required(),
+                description: joi.string().alphanum().max(240),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        case "saving":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                name: joi.string().alphanum().min(3).max(30).required(),
+                value: joi.number().min(0).required(),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        case "stock":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                ticker: joi.string().alphanum().min(3).max(5).required(),
+                price: joi.number().min(0).required(),
+                quantity: joi.number().min(1).required(),
+                purchaseDate: joi.date().required(),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        default:
+            return null;
+    };
+
+    return assetSchema;
+}
 
 /**
  * @param {function} middleware handler
@@ -169,43 +218,14 @@ module.exports = (middleware, users, assets) => {
 
     router.post("/createAsset", async (req, res) => {
         // Create asset, each asset has different data structure based on type
-        const type = req.body.assetType;
-        let assetSchema;
+        const type = req.body.type;
+        const assetSchema = getAssetSchema(type);
 
-        switch (type) {
-            case "other":
-                assetSchema = joi.object({
-                    ownerId: joi.string().alphanum().required(),
-                    type: joi.string().valid("other", "stock", "saving").required(),
-                    name: joi.string().alphanum().min(3).max(30).required(),
-                    value: joi.number().min(0).required(),
-                    purchaseDate: joi.date().required(),
-                    description: joi.string().alphanum().max(240),
-                });
-                break;
-            case "saving":
-                assetSchema = joi.object({
-                    ownerId: joi.string().alphanum().required(),
-                    type: joi.string().valid("other", "stock", "saving").required(),
-                    name: joi.string().alphanum().min(3).max(30).required(),
-                    value: joi.number().min(0).required(),
-                });
-                break;
-            case "stock":
-                assetSchema = joi.object({
-                    ownerId: joi.string().alphanum().required(),
-                    type: joi.string().valid("other", "stock", "saving").required(),
-                    ticker: joi.string().alphanum().min(3).max(5).required(),
-                    price: joi.number().min(0).required(),
-                    quantity: joi.number().min(1).required(),
-                    purchaseDate: joi.date().required(),
-                });
-                break;
-            default:
-                console.error("Modified asset type, rejected");
-                req.session.errMessage = "Invalid input";
-                return res.status(status.BadRequest).redirect("/assets");
-        };
+        if (!assetSchema) {
+            console.error("Modified asset type, rejected");
+            req.session.errMessage = "Invalid input";
+            return res.status(status.BadRequest).redirect("/assets");
+        }
 
         const valid = assetSchema.validate(req.body);
 
@@ -227,9 +247,8 @@ module.exports = (middleware, users, assets) => {
             newAsset.name = `${newAsset.ticker} Stock`;
         }
         newAsset.value = parseFloat(newAsset.value);
-        newAsset.type = type;
 
-        assets.insertOne(newAsset, (err, result) => {
+        assets.insertOne(newAsset, (err, _) => {
             if (err) {
                 console.error("Error creating asset: ", err);
                 req.session.errMessage = "Internal server error";
@@ -238,7 +257,92 @@ module.exports = (middleware, users, assets) => {
         });
 
         req.session.errMessage = ""; 
-        return res.status(status.Ok).redirect("/assets"); 
+        return res.status(status.Ok).redirect("/assets");
+    });
+
+    router.post("/updateAsset", async (req, res) => {
+        const type = req.body.type;
+        const assetSchema = getAssetSchema(type);
+
+        if (!assetSchema) {
+            console.error("Modified asset type, rejected");
+            req.session.errMessage = "Invalid input";
+            return res.status(status.BadRequest).redirect("/assets");
+        }
+        
+        const valid = assetSchema.validate(req.body);
+
+        if (valid.err) {
+            req.session.errMessage = "Invalid input",
+            res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        if (req.body.ownerId != req.session.user._id) {
+            req.session.errMessage = "Cannot change asset owner",
+            res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        let update = { ...req.body, updatedAt: new Date() };
+        if (type == "stock") {
+            update.quantity = parseInt(update.quantity);
+            update.price = parseFloat(update.price)
+            update.value = update.quantity * update.price;
+            update.name = `${update.ticker} Stock`;
+        }
+        update.value = parseFloat(update.value);
+        delete update.id
+        
+        assets.updateOne(
+            { "_id": new ObjectId(req.body.id) },
+            { $set: update },
+        ).then((result) => { 
+            if (result.matchedCount === 0) {
+                console.log(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to update asset";
+                return res.status(status.NotFound).redirect("/assets");
+            }
+            if (result.modifiedCount === 0 && result.matchedCount === 1) {
+                console.log(`Asset data unchanged (already up-to-date): ${req.body.id}`);
+            }
+        
+            req.session.errMessage = ""; 
+            return res.status(status.Ok).redirect("/assets"); 
+    
+        }).catch((err) => { 
+            console.error("Error updating asset: ", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            return res.status(status.InternalServerError).redirect("/assets"); 
+        });
+    });
+
+    router.post("/deleteAsset", (req, res) => {
+        const id = new ObjectId(req.body.id);
+
+        assets.deleteOne(
+            { "_id": id }
+        ).then((result) => { 
+            if (result.deletedCount === 0) {
+                console.log(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to delete asset";
+                return res.status(status.NotFound).redirect("/assets");
+            }
+
+            if (!result.acknowledged) {
+                console.error("Error updating asset: ", err);
+                req.session.errMessage = "An error occurred while saving your information. Please try again.";
+                return res.status(status.InternalServerError).redirect("/assets");
+            }
+        
+            req.session.errMessage = ""; 
+            return res.status(status.Ok).redirect("/assets"); 
+    
+        }).catch((err) => { 
+            console.error("Error updating asset: ", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            return res.status(status.InternalServerError).redirect("/assets");
+        });
     });
 
     return router;
