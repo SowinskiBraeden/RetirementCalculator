@@ -40,6 +40,7 @@ async function initDatabase() {
     // For any collection, init here
     users = await getCollection(db, "users");
     plans = await getCollection(db, "plans");
+    currencies = await getCollection(db, "currencies");
 }
 
 /*** ROUTINGS ***/
