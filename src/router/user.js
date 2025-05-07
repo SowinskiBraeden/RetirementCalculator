@@ -11,7 +11,41 @@ module.exports = (middleware, users, plans) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('dashboard', { user: req.user, location: req.session.country, countriesRates: req.session.rates });
+
+
+        /*
+
+            <% if (countryRates.length == 0) { %>
+                render loading icon
+            <% } else { %>
+                render exchange
+            <% } %>
+
+            stuff
+
+            <script>
+            
+            if (countryRates.length == 0) {
+                get geo
+                
+                receive exchange
+
+                replace loading with exchange
+            }
+
+            </script>
+        */
+
+        // if no session with geoData
+        if (!req.session.geoData) {
+            req.session.geoData = {
+                country: null,
+                toCurrencyRates: [],
+            };
+        }
+
+        res.render('dashboard', { user: req.user, geoData: req.session.geoData });
+
         return res.status(status.Ok);
     });
 
@@ -266,17 +300,19 @@ module.exports = (middleware, users, plans) => {
     });
 
     router.get("/exRates/:lat/:lon", async (req, res) => {
-        if (!req.session.rates || Object.keys(req.session.rates).length == 0) {
+        if (!req.session.geoData.country) {
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.geolocation_api}`);
             const data = await response.json();
             
             country = data.results[0].formatted_address;
             let results = await getRates(country);
-            req.session.rates = results.exRates;
-            req.session.country = results.abbreviation;
+            req.session.geoData = {
+                country: results.abbreviation,
+                toCurrencyRates: results.exRates
+            }
         }
 
-        return res.status(status.Ok).send({ rates: req.session.rates });
+        return res.status(status.Ok).send({ data: req.session.geoData });
     })
 
     return router;
