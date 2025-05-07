@@ -2,6 +2,7 @@ const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const bcrypt = require("bcrypt");
 const joi = require("joi");
+const { ObjectId } = require('mongodb');
 const salt = 12;
 
 /**
@@ -58,13 +59,13 @@ const getAssetSchema = (type) => {
  * @param {MongoClient.collection} assets db collection
  * @returns {express.Router} user protected routes router
  */
-module.exports = (middleware, users, assets) => {
+module.exports = (middleware, users, plans, assets) => {
     const router = require("express").Router();
     
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('home', { user: req.session.user });
+        res.render('dashboard', { user: req.session.user });
         return res.status(status.Ok);
     });
 
@@ -74,10 +75,118 @@ module.exports = (middleware, users, assets) => {
         return res.status(status.Ok);
     });
 
-    router.get('/plans', (req, res) => {
-        res.render('plans', { user: req.session.user });
-        return res.status(status.Ok);
+    router.get('/plans', async (req, res) => {
+        if (!req.session.email) {
+            return res.status(status.Unauthorized).redirect('/login');
+        }
+    
+        try {
+
+            // console.log(req.user.email);
+            const userPlans = await plans.find({userEmail: req.user.email }).toArray();
+            // console.log(userPlans);
+            res.render('plans', {
+                user: req.user,
+                plans: userPlans
+            });
+    
+        } catch (err) {
+            console.error("Error fetching plans:", err);
+            req.session.errMessage = "Could not load your plans. Please try again.";
+            res.status(status.InternalServerError).redirect('/home');
+        }
     });
+
+    router.get('/plans/:id', async (req, res) => {
+        if (!req.session.email) {
+            return res.status(status.Unauthorized).redirect('/login');
+        }
+    
+        try {
+            const planId = req.params.id;
+
+            
+            if (!ObjectId.isValid(planId)) {
+                req.session.errMessage = "Invalid plan ID format.";
+                return res.status(status.BadRequest).redirect('/plans');
+            }
+
+            const plan = await plans.findOne({ userEmail: req.user.email, _id: new ObjectId(planId) });
+
+            if (!plan) {
+                console.log(`Plan not found with ID: ${planId} for user: ${req.user.email}`);
+                req.session.errMessage = "Plan not found or you do not have permission to view it.";
+                return res.status(status.NotFound).redirect('/plans');
+            }
+            // console.log("Found plan:", plan);
+            res.render('planDetail', { 
+                user: req.user,
+                plan: plan
+            });
+    
+        } catch (err) {
+            console.error("Error fetching plan:", err);
+            req.session.errMessage = "Could not load your plan. Please try again.";
+            res.status(status.InternalServerError).redirect('/home');
+        }
+    });
+
+    router.get('/newPlan', (req, res) => {
+        if (!req.session.email) {
+            return res.status(status.Unauthorized).redirect('/login');
+        }
+        if(!req.user.financialData){
+            req.session.errMessage = "Please complete your financial data before creating a plan.";
+            return res.status(status.Unauthorized).redirect('/questionnaire');
+        }
+        const errMessage = req.session.errMessage;
+        req.session.errMessage = ""; 
+        res.render('newPlan', { user: req.user, errMessage: errMessage });
+    });
+
+    router.post('/newPlan', async (req, res) => {
+        if (!req.session.email) {
+            return res.status(status.Unauthorized).redirect('/login');
+        }
+
+            const planSchema = joi.object({
+                name: joi.string().min(3).max(100).required(),
+                retirementAge: joi.number().min(18).max(120).required(),
+                retirementExpenses: joi.number().min(0).required(),
+                retirementAssets: joi.number().min(0).required(),
+                retirementLiabilities: joi.number().min(0).required(),
+            });
+
+            const validationOptions = { convert: true, abortEarly: false }; 
+            const { error, value } = planSchema.validate(req.body, validationOptions);
+
+            if (error) { 
+                console.error("Plan validation error:", error.details);
+                req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
+                res.status(status.BadRequest).redirect("/newPlan"); 
+                return; 
+            }
+            const newPlan = {
+                userEmail: req.user.email,
+                name: value.name,
+                retirementAge: value.retirementAge,
+                retirementExpenses: value.retirementExpenses,
+                retirementAssets: value.retirementAssets,
+                retirementLiabilities: value.retirementLiabilities,
+                progress: "0%"
+            };
+
+            try{
+                await plans.insertOne(newPlan);
+                req.session.errMessage = ""; 
+                res.redirect('/plans'); 
+            }
+            catch(err){
+                console.error("Error saving plan:", err);
+                req.session.errMessage = "An error occurred while saving your plan. Please try again.";
+                res.status(status.InternalServerError).redirect("/newPlan");
+            }
+        });
 
     router.get('/more', (req, res) => {
         res.render('more', { user: req.session.user });
@@ -101,6 +210,8 @@ module.exports = (middleware, users, assets) => {
     });
 
     router.post('/questionnaire', (req, res) => {
+        // console.log("Questionnaire POST body:", req.body);
+  
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
@@ -109,10 +220,6 @@ module.exports = (middleware, users, assets) => {
             expenses: joi.number().min(0).required(),
             assets: joi.number().min(0).required(),
             liabilities: joi.number().min(0).required(),
-            retirementAge: joi.number().min(18).max(120).required(),
-            retirementExpenses: joi.number().min(0).required(),
-            retirementAssets: joi.number().min(0).required(),
-            retirementLiabilities: joi.number().min(0).required(),
         });
     
         const validationOptions = { convert: true, abortEarly: false }; 
@@ -137,10 +244,6 @@ module.exports = (middleware, users, assets) => {
                     expenses: value.expenses,
                     assets: value.assets,
                     liabilities: value.liabilities,
-                    retirementAge: value.retirementAge,
-                    retirementExpenses: value.retirementExpenses,
-                    retirementAssets: value.retirementAssets,
-                    retirementLiabilities: value.retirementLiabilities,
                 } 
             }
         ).then((result) => { 

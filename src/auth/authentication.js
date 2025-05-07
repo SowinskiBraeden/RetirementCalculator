@@ -44,6 +44,7 @@ module.exports = (users) => {
             }
 
             req.session.authenticated = true;
+            req.session.userId = user._id;
             req.session.email = req.body.email;
             req.session.errMessage = "";
             res.redirect("/home");
@@ -79,6 +80,7 @@ module.exports = (users) => {
             email: req.body.email,
             name: req.body.name,
             password: hashedPassword,
+            financialData: false,
         }).then((results, err) => {
             if (err) {
                 console.error(err);
@@ -88,6 +90,7 @@ module.exports = (users) => {
 
             req.session.authenticated = true;
             req.session.email = req.body.email;
+            req.session.userId = results.insertedId;
 
             req.session.errMessage = "";
             return res.status(status.Ok).redirect("/home");
