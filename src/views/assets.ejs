@@ -171,12 +171,9 @@
     <!-- list each asset and create hidden popup modal for view/edit -->
     <section class="mt-6">
         <% if (assets.length == 0) { %>
-            <button 
-                class="max-w-md mx-auto mb-10 rounded-lg shadow-md text-white font-bold bg-red-400 py-4 text-center"
-                onclick="document.getElementById('create-asset-modal').showModal()"
-            >
+            <div class="max-w-md mx-auto mb-10 rounded-lg shadow-md text-white font-bold bg-red-400 py-4 text-center">
                 You have no assets, create a new asset.
-            </button>
+            </div>
         <% } %>
         <% assets.forEach((asset) => { %>
             <!-- Clickable asset list item -->
