@@ -2,7 +2,6 @@ const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const bcrypt = require("bcrypt");
 const joi = require("joi");
-const { ObjectId } = require('mongodb');
 const salt = 12;
 
 /**
