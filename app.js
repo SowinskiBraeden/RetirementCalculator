@@ -84,23 +84,29 @@ app.post('/api/location', async (req,res) => {
     res.json(data);
 });
 
+// 404 handler - keep the actual notFound route please
+app.get('/notFound', (req, res) => {
+    res.render('notFound');
+    return res.status(status.NotFound);
+});
+
 // Initialize database and start app
 initDatabase().then(() => {
     console.log("Successfully connected to MongoDB");
 
     // Import authentication handler
     app.use(require("./src/auth/authentication")(users));
-
+    
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users);
     app.use(require('./src/router/user')(middleware, users, plans, assets));
 
     // 404 handler
     app.get('/*splat', (req, res) => {
-        res.send('404 Not Found');
+        res.render('notFound');
         return res.status(status.NotFound);
     });
-
+    
     // Start app
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);
