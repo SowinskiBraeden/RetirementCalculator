@@ -1,5 +1,6 @@
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
+const session = require("express-session");
 const bcrypt = require("bcrypt");
 const joi = require("joi");
 const salt = 12;
@@ -411,14 +412,14 @@ module.exports = (middleware, users, plans, assets) => {
             { "_id": id }
         ).then((result) => { 
             if (result.deletedCount === 0) {
-                console.log(`Asset not found: ${req.body.id}`);
-                req.session.errMessage = "Unable to delete asset";
+                console.error(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to delete asset. Please try again.";
                 return res.status(status.NotFound).redirect("/assets");
             }
 
             if (!result.acknowledged) {
-                console.error("Error updating asset: ", err);
-                req.session.errMessage = "An error occurred while saving your information. Please try again.";
+                console.error("Error deleting asset: ", err);
+                req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
                 return res.status(status.InternalServerError).redirect("/assets");
             }
         
@@ -426,9 +427,37 @@ module.exports = (middleware, users, plans, assets) => {
             return res.status(status.Ok).redirect("/assets"); 
     
         }).catch((err) => { 
-            console.error("Error updating asset: ", err);
-            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            console.error("Error deleting asset: ", err);
+            req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
             return res.status(status.InternalServerError).redirect("/assets");
+        });
+    });
+
+    router.post("/deleteUser", (req, res) => {
+        const id = new ObjectId(req.body.id);
+        
+        users.deleteOne(
+            { "_id": id },
+        ).then((result) => {
+            if (result.deletedCount === 0) {
+                console.error(`User not found: ${req.body.id}`);
+                req.session.errMessage = "Unabled to delete account. Please try again.";
+                return res.status(status.NotFound).redirect("/profile");
+            }
+
+            if (!result.acknowledged) {
+                console.error("Error deleting user: ", err);
+                req.session.errMessage = "An error occured while deleting your account. Please try again.";
+                return res.status(status.InternalServerError).redirect("/profile");
+            }
+
+            // Direct to logout to destroy session
+            req.session.destroy();
+            return res.status(status.Ok).redirect("/signup");
+        }).catch((err) => {
+            console.error("Error deleting user: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
         });
     });
 

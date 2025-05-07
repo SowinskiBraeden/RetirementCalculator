@@ -1,4 +1,5 @@
 const status = require("../util/statuses");
+const session = require("express-session");
 const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
