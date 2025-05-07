@@ -94,6 +94,8 @@ app.get('/reset/:token', async (req, res) => {
     });
 });
 
+app.post('reset')
+
 app.post('/api/location', async (req, res) => {
     const { latitude, longitude } = req.body;
 
