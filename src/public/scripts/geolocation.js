@@ -40,4 +40,4 @@ function error(err) {
     console.error("Geolocation error: ", err);
 }
 
-getLocation();
+//getLocation();
