@@ -75,20 +75,14 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/plans', async (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
-    
         try {
-
-            // console.log(req.user.email);
-            const userPlans = await plans.find({userEmail: req.user.email }).toArray();
+            // console.log(new ObjectId(req.session.user._id));
+            const userPlans = await plans.find({userId: new ObjectId(req.session.user._id) }).toArray();
             // console.log(userPlans);
             res.render('plans', {
-                user: req.user,
+                user: req.session.user,
                 plans: userPlans
             });
-    
         } catch (err) {
             console.error("Error fetching plans:", err);
             req.session.errMessage = "Could not load your plans. Please try again.";
@@ -97,9 +91,6 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/plans/:id', async (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
     
         try {
             const planId = req.params.id;
@@ -110,16 +101,16 @@ module.exports = (middleware, users, plans, assets) => {
                 return res.status(status.BadRequest).redirect('/plans');
             }
 
-            const plan = await plans.findOne({ userEmail: req.user.email, _id: new ObjectId(planId) });
+            const plan = await plans.findOne({ userId: new ObjectId(req.session.user._id), _id: new ObjectId(planId) });
 
             if (!plan) {
-                console.log(`Plan not found with ID: ${planId} for user: ${req.user.email}`);
+                console.log(`Plan not found with ID: ${planId} for user: ${req.session.user.email}`);
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
             // console.log("Found plan:", plan);
             res.render('planDetail', { 
-                user: req.user,
+                user: req.session.user,
                 plan: plan
             });
     
@@ -131,61 +122,54 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/newPlan', (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
-        if(!req.user.financialData){
+        if(!req.session.user.financialData){
             req.session.errMessage = "Please complete your financial data before creating a plan.";
             return res.status(status.Unauthorized).redirect('/questionnaire');
         }
         const errMessage = req.session.errMessage;
         req.session.errMessage = ""; 
-        res.render('newPlan', { user: req.user, errMessage: errMessage });
+        res.render('newPlan', { user: req.session.user, errMessage: errMessage });
     });
 
     router.post('/newPlan', async (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
-
-            const planSchema = joi.object({
-                name: joi.string().min(3).max(100).required(),
-                retirementAge: joi.number().min(18).max(120).required(),
-                retirementExpenses: joi.number().min(0).required(),
-                retirementAssets: joi.number().min(0).required(),
-                retirementLiabilities: joi.number().min(0).required(),
-            });
-
-            const validationOptions = { convert: true, abortEarly: false }; 
-            const { error, value } = planSchema.validate(req.body, validationOptions);
-
-            if (error) { 
-                console.error("Plan validation error:", error.details);
-                req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
-                res.status(status.BadRequest).redirect("/newPlan"); 
-                return; 
-            }
-            const newPlan = {
-                userEmail: req.user.email,
-                name: value.name,
-                retirementAge: value.retirementAge,
-                retirementExpenses: value.retirementExpenses,
-                retirementAssets: value.retirementAssets,
-                retirementLiabilities: value.retirementLiabilities,
-                progress: "0%"
-            };
-
-            try{
-                await plans.insertOne(newPlan);
-                req.session.errMessage = ""; 
-                res.redirect('/plans'); 
-            }
-            catch(err){
-                console.error("Error saving plan:", err);
-                req.session.errMessage = "An error occurred while saving your plan. Please try again.";
-                res.status(status.InternalServerError).redirect("/newPlan");
-            }
+        const planSchema = joi.object({
+            name: joi.string().min(3).max(100).required(),
+            retirementAge: joi.number().min(18).max(120).required(),
+            retirementExpenses: joi.number().min(0).required(),
+            retirementAssets: joi.number().min(0).required(),
+            retirementLiabilities: joi.number().min(0).required(),
         });
+
+        const validationOptions = { convert: true, abortEarly: false }; 
+        const { error, value } = planSchema.validate(req.body, validationOptions);
+
+        if (error) { 
+            console.error("Plan validation error:", error.details);
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
+            res.status(status.BadRequest).redirect("/newPlan"); 
+            return; 
+        }
+        const newPlan = {
+            userId: new ObjectId(req.session.user._id),
+            name: value.name,
+            retirementAge: value.retirementAge,
+            retirementExpenses: value.retirementExpenses,
+            retirementAssets: value.retirementAssets,
+            retirementLiabilities: value.retirementLiabilities,
+            progress: "0%"
+        };
+
+        try{
+            await plans.insertOne({userId: new ObjectId(req.session.user._id), ...newPlan});
+            req.session.errMessage = ""; 
+            res.redirect('/plans'); 
+        }
+        catch(err){
+            console.error("Error saving plan:", err);
+            req.session.errMessage = "An error occurred while saving your plan. Please try again.";
+            res.status(status.InternalServerError).redirect("/newPlan");
+        }
+    });
 
     router.get('/more', (req, res) => {
         res.render('more', { user: req.session.user });
@@ -232,7 +216,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
     
         users.updateOne( 
-            { email: req.session.email }, 
+            { _id: new ObjectId(req.session.user._id) }, 
             { 
                 $set: { 
                     financialData: true, 
@@ -247,15 +231,16 @@ module.exports = (middleware, users, plans, assets) => {
             }
         ).then((result) => { 
             if (result.matchedCount === 0) {
-                console.log(`User not found during questionnaire update: ${req.session.email}`);
+                console.log(`User not found during questionnaire update: ${req.session.user.email}`);
                 req.session.errMessage = "User session invalid. Please log in again."; 
                 res.status(status.NotFound).redirect("/login"); 
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.email}`);
+                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.user.email}`);
             }
         
+            req.session.user.financialData = true;
             req.session.errMessage = ""; 
             res.status(status.Ok).redirect("/home"); 
     
