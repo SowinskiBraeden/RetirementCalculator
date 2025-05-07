@@ -1,5 +1,4 @@
 const express = require('express');
-const { server } = require('ws');
 const crypto = require('crypto');
 const nodeMail = require('nodemailer');
 require('dotenv').config();
@@ -11,10 +10,9 @@ const transporter = nodeMail.createTransport({
         pass: process.env.PASS,
     }
 });
-
+// users info
 module.exports = (users) => {
     const router = express.Router();
-
 
     router.post('/resetPass', async (req, res) => {
         const { email } = req.body;

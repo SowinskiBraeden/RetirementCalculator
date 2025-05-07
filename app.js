@@ -114,6 +114,7 @@ initDatabase().then(() => {
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users, plans);
     app.use(require('./src/router/user')(middleware, users, plans));
+    app.use(require('./src/auth/forgetPass')(users));
 
     // 404 handler
     app.get('/*splat', (req, res) => {
