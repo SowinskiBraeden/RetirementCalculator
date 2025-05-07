@@ -12,7 +12,7 @@ async function getRates(country) {
     const data = await res.json();
     let rates = data.rates;
 
-    return rates;
+    return { exRates: rates, abbreviation: abbr };
 }
 
 module.exports = getRates;

@@ -11,7 +11,7 @@ module.exports = (middleware, users, plans) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('dashboard', { user: req.user });
+        res.render('dashboard', { user: req.user, location: req.session.country, countriesRates: req.session.rates });
         return res.status(status.Ok);
     });
 
@@ -270,8 +270,10 @@ module.exports = (middleware, users, plans) => {
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.geolocation_api}`);
             const data = await response.json();
             
-            let country = data.results[0].formatted_address;
-            req.session.rates = await getRates(country);
+            country = data.results[0].formatted_address;
+            let results = await getRates(country);
+            req.session.rates = results.exRates;
+            req.session.country = results.abbreviation;
         }
 
         return res.status(status.Ok).send({ rates: req.session.rates });

@@ -33,14 +33,12 @@ app.use(express.json());
 const { connectMongo, getCollection } = require("./src/database/connection");
 
 let users;
-let rates;
 async function initDatabase() {
     const db = await connectMongo(mongoURI, database);
 
     // For any collection, init here
     users = await getCollection(db, "users");
     plans = await getCollection(db, "plans");
-    rates = await getCollection(db, "rates");
 }
 
 /*** ROUTINGS ***/

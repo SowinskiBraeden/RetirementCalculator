@@ -16,5 +16,3 @@ async function getLatestExchange(position) {
 function error(err) {
     console.error("Geolocation error: ", err);
 }
-
-getLocation();
