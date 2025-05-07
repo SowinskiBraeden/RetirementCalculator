@@ -17,7 +17,6 @@ const getAssetSchema = (type) => {
     switch (type) {
         case "other":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
@@ -28,7 +27,6 @@ const getAssetSchema = (type) => {
             break;
         case "saving":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
@@ -37,7 +35,6 @@ const getAssetSchema = (type) => {
             break;
         case "stock":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 ticker: joi.string().alphanum().min(3).max(5).required(),
                 price: joi.number().min(0).required(),
@@ -70,7 +67,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/assets', async (req, res) => {
-        let userAssets = await assets.find({ "ownerId": req.session.user._id }).toArray();
+        let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
         res.render('assets', { user: req.session.user, errMessage: req.session.errMessage, assets: userAssets });
         return res.status(status.Ok);
     });
@@ -324,6 +321,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let newAsset = {
+            userId: new ObjectId(req.session.user._id),
             ...req.body,
             updatedAt: new Date(),
         };
@@ -366,7 +364,7 @@ module.exports = (middleware, users, plans, assets) => {
             return res.redirect("/assets");
         }
 
-        if (req.body.ownerId != req.session.user._id) {
+        if (req.body.userId != req.session.user._id) {
             req.session.errMessage = "Cannot change asset owner",
             res.status(status.BadRequest);
             return res.redirect("/assets");
@@ -434,10 +432,21 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.post("/deleteUser", (req, res) => {
-        const id = new ObjectId(req.body.id);
-        
+        // not as critical if results aren't as expected only if crashing
+        assets.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+            console.error("Error deleting user assets: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
+        });
+
+        plans.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+            console.error("Error deleting user assets: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
+        });
+
         users.deleteOne(
-            { "_id": id },
+            { _id: new ObjectId(req.session.user._id) },
         ).then((result) => {
             if (result.deletedCount === 0) {
                 console.error(`User not found: ${req.body.id}`);
