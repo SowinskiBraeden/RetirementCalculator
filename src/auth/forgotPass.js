@@ -14,9 +14,12 @@ const transporter = nodeMail.createTransport({
 module.exports = (users) => {
     const router = express.Router();
 
-    router.post('/resetPass', async (req, res) => {
+    router.post('/auth/resetPass', async (req, res) => {
+        console.log("we are inside of the post");
         const { email } = req.body;
         const user = await users.findOne({ email });
+        req.session.error = '';
+        req.session.reset = '';
 
         if (!user) {
             req.session.error = 'No user found'
@@ -43,7 +46,7 @@ module.exports = (users) => {
         try {
             await transporter.sendMail(mailSend);
             req.session.reset = 'Reset link sent Check your email';
-            res.redirect('/login');
+            res.redirect('/forgotPassword');
         } catch (err) {
             console.log('there was an error', err);
             res.status(500).send('email failed to send try again');
@@ -51,3 +54,4 @@ module.exports = (users) => {
     });
     return router;
 }
+

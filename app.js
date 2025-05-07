@@ -72,10 +72,15 @@ app.get('/aboutUs', (req, res) => {
 });
 
 app.get('/forgotPassword', (req, res) => {
-    res.render('forgotPass');
+    res.render('forgotPass', { error: req.session.error, reset: req.session.reset });
     return res.status(status.Ok);
 });
 
+app.get('reset', (req, res) => {
+    return res.render('resetPass');
+})
+
+// Reset with token given to user via email
 app.get('/reset/:token', async (req, res) => {
     const token = req.params.token;
 
@@ -88,13 +93,52 @@ app.get('/reset/:token', async (req, res) => {
         req.session.error = 'reset link not valid or has expired';
         return res.redirect('/forgotPassword');
     }
+    const error = req.session.error;
+    req.session.error = '';
+
     res.render('resetPassword', {
         token: token,
-        errMessage: req.session.error || '',
+        errMessage: error,
     });
 });
 
-app.post('reset')
+app.post('/resetLink', async (req, res) => {
+    const { token, password, confirmPassword, } = req.body;
+
+    if (!token || !password || !confirmPassword) {
+        req.session.error = 'field may be missing';
+        return res.redirect(`/reset/${token}`);
+    }
+    if (password !== confirmPassword) {
+        req.session.error = 'passwords do not match';
+        return res.redirect(`/reset/${token}`);
+    }
+    const user = await users.findOne({
+        resetToken: token,
+        resetTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        req.session.error = 'Reset link is invalid.';
+        return res.redirect('/forgotPassword');
+    }
+    const hashPassword = await bcrypt.hash(password, 12);
+
+    await users.updateOne(
+        {
+            email: user.email
+        },
+        {
+            $set: {
+                password: hashPassword,
+                resetToken: '',
+                resetTokenExpires: 0,
+            },
+        }
+    );
+    req.session.success = 'Password has been reset';
+    res.redirect('/login');
+});
 
 app.post('/api/location', async (req, res) => {
     const { latitude, longitude } = req.body;
@@ -112,11 +156,11 @@ initDatabase().then(() => {
 
     // Import authentication handler
     app.use(require("./src/auth/authentication")(users));
+    app.use(require('./src/auth/forgotPass')(users));
 
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users, plans);
     app.use(require('./src/router/user')(middleware, users, plans));
-    app.use(require('./src/auth/forgetPass')(users));
 
     // 404 handler
     app.get('/*splat', (req, res) => {
