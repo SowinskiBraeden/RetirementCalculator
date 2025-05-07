@@ -76,6 +76,7 @@ module.exports = (users) => {
             email: req.body.email,
             name: req.body.name,
             password: hashedPassword,
+            financialData: false,
         }).then((results, err) => {
             if (err) {
                 console.error(err);

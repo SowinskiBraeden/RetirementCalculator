@@ -2,14 +2,15 @@
   <%- include("./partials/header") %>
 
     <main>
+      <h2 class="text-xl text-white font-semibold mb-4">Welcome: <%= user.name %></h2>
         <!-- Buttons -->
         <div class="flex justify-end gap-4 px-5 py-6">
           <button class="cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800" type="button">
             Add Asset
           </button>
-          <button class="cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800" type="button">
+          <a href="/newPlan" class="cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800" type="button">
             Create new plan 
-          </button>
+          </a>
         </div>
         <!--This is the cards for plans and other things-->
         <div class="mt-12">
