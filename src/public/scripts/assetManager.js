@@ -5,6 +5,15 @@ const assetForms = [
 ];
 
 /**
+ * resetAll asset creation forms
+ */
+function resetAll() {
+    document.getElementById("create-other-asset-form").reset();
+    document.getElementById("create-saving-asset-form").reset();
+    document.getElementById("create-stock-asset-form").reset();
+}
+
+/**
  * selectAssetForm changes which form is displayed
  * to create specified assets.
  * @param {string} assetFormId
