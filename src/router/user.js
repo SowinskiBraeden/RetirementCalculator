@@ -70,7 +70,7 @@ module.exports = (middleware, users, assets) => {
 
     router.get('/assets', async (req, res) => {
         let userAssets = await assets.find({ "ownerId": req.session.user._id }).toArray();
-        res.render('assets', { user: req.session.user, assets: userAssets });
+        res.render('assets', { user: req.session.user, errMessage: req.session.errMessage, assets: userAssets });
         return res.status(status.Ok);
     });
 
