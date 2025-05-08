@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
 
+/**
+ * @param {MongoClient.collection} users db collection
+ * @returns {express.Router} authentication router
+ */
 module.exports = (users) => {
     const router = require("express").Router();
 
@@ -76,6 +80,7 @@ module.exports = (users) => {
             email: req.body.email,
             name: req.body.name,
             password: hashedPassword,
+            financialData: false,
         }).then((results, err) => {
             if (err) {
                 console.error(err);

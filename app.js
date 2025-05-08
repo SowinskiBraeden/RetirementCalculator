@@ -3,6 +3,7 @@ const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const express = require('express');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const joi = require('joi');
 require('dotenv').config();
 
@@ -34,11 +35,14 @@ app.use(express.json());
 const { connectMongo, getCollection } = require("./src/database/connection");
 
 let users;
+let assets;
+let plans;
 async function initDatabase() {
     const db = await connectMongo(mongoURI, database);
 
     // For any collection, init here
     users = await getCollection(db, "users");
+    assets = await getCollection(db, "assets");
     plans = await getCollection(db, "plans");
 }
 
@@ -46,7 +50,7 @@ async function initDatabase() {
 
 app.get('/', (req, res) => {
     if (!req.session.errMessage) req.session.errMessage = "";
-    res.render('dashboard');
+    res.render('landing');
     return res.status(status.Ok);
 });
 
@@ -76,9 +80,6 @@ app.get('/forgotPassword', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.get('reset', (req, res) => {
-    return res.render('resetPass');
-})
 
 // Reset with token given to user via email
 app.get('/reset/:token', async (req, res) => {
@@ -96,7 +97,7 @@ app.get('/reset/:token', async (req, res) => {
     const error = req.session.error;
     req.session.error = '';
 
-    res.render('resetPassword', {
+    res.render('resetPass', {
         token: token,
         errMessage: error,
     });
@@ -150,6 +151,12 @@ app.post('/api/location', async (req, res) => {
     res.json(data);
 });
 
+// 404 handler - keep the actual notFound route please
+app.get('/notFound', (req, res) => {
+    res.render('notFound');
+    return res.status(status.NotFound);
+});
+
 // Initialize database and start app
 initDatabase().then(() => {
     console.log("Successfully connected to MongoDB");
@@ -158,13 +165,14 @@ initDatabase().then(() => {
     app.use(require("./src/auth/authentication")(users));
     app.use(require('./src/auth/forgotPass')(users));
 
+
     // Import middleware & apply to user routes
-    const middleware = require("./src/auth/middleware")(users, plans);
-    app.use(require('./src/router/user')(middleware, users, plans));
+    const middleware = require("./src/auth/middleware")(users);
+    app.use(require('./src/router/user')(middleware, users, plans, assets));
 
     // 404 handler
     app.get('/*splat', (req, res) => {
-        res.send('404 Not Found');
+        res.render('notFound');
         return res.status(status.NotFound);
     });
 

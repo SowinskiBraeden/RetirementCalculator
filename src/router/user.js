@@ -1,38 +1,88 @@
 const status = require("../util/statuses");
-const bcrypt = require('bcrypt');
+const ObjectId = require('mongodb').ObjectId;
+const bcrypt = require("bcrypt");
 const joi = require("joi");
 const salt = 12;
 
-module.exports = (middleware, users, plans) => {
+/**
+ * getAssetSchema returns correct joi object
+ * to validate req.body depending on asset type
+ * @param {string} type of asset
+ * @returns {joi.object} schema
+ */
+const getAssetSchema = (type) => {
+    let assetSchema;
+
+    switch (type) {
+        case "other":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                name: joi.string().alphanum().min(3).max(30).required(),
+                value: joi.number().min(0).required(),
+                purchaseDate: joi.date().required(),
+                description: joi.string().alphanum().max(240),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        case "saving":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                name: joi.string().alphanum().min(3).max(30).required(),
+                value: joi.number().min(0).required(),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        case "stock":
+            assetSchema = joi.object({
+                ownerId: joi.string().alphanum().required(),
+                type: joi.string().valid("other", "stock", "saving").required(),
+                ticker: joi.string().alphanum().min(3).max(5).required(),
+                price: joi.number().min(0).required(),
+                quantity: joi.number().min(1).required(),
+                purchaseDate: joi.date().required(),
+                id: joi.string().alphanum(), // May be passed when updating existing asset
+            });
+            break;
+        default:
+            return null;
+    };
+
+    return assetSchema;
+}
+
+/**
+ * @param {function} middleware handler
+ * @param {MongoClient.collection} users db collection
+ * @param {MongoClient.collection} assets db collection
+ * @returns {express.Router} user protected routes router
+ */
+module.exports = (middleware, users, plans, assets) => {
     const router = require("express").Router();
 
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('home', { user: req.user });
+        res.render('dashboard', { user: req.session.user });
         return res.status(status.Ok);
     });
 
-    router.get('/assets', (req, res) => {
-        res.render('assets', { user: req.user });
+    router.get('/assets', async (req, res) => {
+        let userAssets = await assets.find({ "ownerId": req.session.user._id }).toArray();
+        res.render('assets', { user: req.session.user, errMessage: req.session.errMessage, assets: userAssets });
         return res.status(status.Ok);
     });
 
     router.get('/plans', async (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
-
         try {
-
-            // console.log(req.user.email);
-            const userPlans = await plans.find({ userEmail: req.user.email }).toArray();
+            // console.log(new ObjectId(req.session.user._id));
+            const userPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
             // console.log(userPlans);
             res.render('plans', {
-                user: req.user,
+                user: req.session.user,
                 plans: userPlans
             });
-
         } catch (err) {
             console.error("Error fetching plans:", err);
             req.session.errMessage = "Could not load your plans. Please try again.";
@@ -40,17 +90,48 @@ module.exports = (middleware, users, plans) => {
         }
     });
 
+    router.get('/plans/:id', async (req, res) => {
+
+        try {
+            const planId = req.params.id;
+
+
+            if (!ObjectId.isValid(planId)) {
+                req.session.errMessage = "Invalid plan ID format.";
+                return res.status(status.BadRequest).redirect('/plans');
+            }
+
+            const plan = await plans.findOne({ userId: new ObjectId(req.session.user._id), _id: new ObjectId(planId) });
+
+            if (!plan) {
+                console.log(`Plan not found with ID: ${planId} for user: ${req.session.user.email}`);
+                req.session.errMessage = "Plan not found or you do not have permission to view it.";
+                return res.status(status.NotFound).redirect('/plans');
+            }
+            // console.log("Found plan:", plan);
+            res.render('planDetail', {
+                user: req.session.user,
+                plan: plan
+            });
+
+        } catch (err) {
+            console.error("Error fetching plan:", err);
+            req.session.errMessage = "Could not load your plan. Please try again.";
+            res.status(status.InternalServerError).redirect('/home');
+        }
+    });
+
     router.get('/newPlan', (req, res) => {
+        if (!req.session.user.financialData) {
+            req.session.errMessage = "Please complete your financial data before creating a plan.";
+            return res.status(status.Unauthorized).redirect('/questionnaire');
+        }
         const errMessage = req.session.errMessage;
         req.session.errMessage = "";
-        res.render('newPlan', { user: req.user, errMessage: errMessage });
+        res.render('newPlan', { user: req.session.user, errMessage: errMessage });
     });
 
     router.post('/newPlan', async (req, res) => {
-        if (!req.session.email) {
-            return res.status(status.Unauthorized).redirect('/login');
-        }
-
         const planSchema = joi.object({
             name: joi.string().min(3).max(100).required(),
             retirementAge: joi.number().min(18).max(120).required(),
@@ -69,7 +150,7 @@ module.exports = (middleware, users, plans) => {
             return;
         }
         const newPlan = {
-            userEmail: req.user.email,
+            userId: new ObjectId(req.session.user._id),
             name: value.name,
             retirementAge: value.retirementAge,
             retirementExpenses: value.retirementExpenses,
@@ -79,7 +160,7 @@ module.exports = (middleware, users, plans) => {
         };
 
         try {
-            await plans.insertOne(newPlan);
+            await plans.insertOne({ userId: new ObjectId(req.session.user._id), ...newPlan });
             req.session.errMessage = "";
             res.redirect('/plans');
         }
@@ -91,24 +172,24 @@ module.exports = (middleware, users, plans) => {
     });
 
     router.get('/more', (req, res) => {
-        res.render('more', { user: req.user });
+        res.render('more', { user: req.session.user });
         return res.status(status.Ok);
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profile', { user: req.user, errMessage: req.session.errMessage });
+        res.render('profile', { user: req.session.user, errMessage: req.session.errMessage });
         return res.status(status.Ok);
     });
 
     router.get('/settings', (req, res) => {
-        res.render('settings', { user: req.user });
+        res.render('settings', { user: req.session.user });
         return res.status(status.Ok);
     });
 
     router.get('/questionnaire', (req, res) => {
         const errMessage = req.session.errMessage;
         req.session.errMessage = "";
-        res.render('questionnaire', { user: req.user, errMessage: errMessage });
+        res.render('questionnaire', { user: req.session.user, errMessage: errMessage });
     });
 
     router.post('/questionnaire', (req, res) => {
@@ -135,7 +216,7 @@ module.exports = (middleware, users, plans) => {
         }
 
         users.updateOne(
-            { email: req.session.email },
+            { _id: new ObjectId(req.session.user._id) },
             {
                 $set: {
                     financialData: true,
@@ -150,15 +231,16 @@ module.exports = (middleware, users, plans) => {
             }
         ).then((result) => {
             if (result.matchedCount === 0) {
-                console.log(`User not found during questionnaire update: ${req.session.email}`);
+                console.log(`User not found during questionnaire update: ${req.session.user.email}`);
                 req.session.errMessage = "User session invalid. Please log in again.";
                 res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.email}`);
+                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.user.email}`);
             }
 
+            req.session.user.financialData = true;
             req.session.errMessage = "";
             res.status(status.Ok).redirect("/home");
 
@@ -186,7 +268,6 @@ module.exports = (middleware, users, plans) => {
         }
 
         let update = {
-            // email: req.body.email,
             name: req.body.name,
         };
 
@@ -219,6 +300,135 @@ module.exports = (middleware, users, plans) => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile");
+        });
+    });
+
+    router.post("/createAsset", async (req, res) => {
+        // Create asset, each asset has different data structure based on type
+        const type = req.body.type;
+        const assetSchema = getAssetSchema(type);
+
+        if (!assetSchema) {
+            console.error("Modified asset type, rejected");
+            req.session.errMessage = "Invalid input";
+            return res.status(status.BadRequest).redirect("/assets");
+        }
+
+        const valid = assetSchema.validate(req.body);
+
+        if (valid.err) {
+            req.session.errMessage = "Invalid input",
+                res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        let newAsset = {
+            ...req.body,
+            updatedAt: new Date(),
+        };
+
+        if (type == "stock") {
+            newAsset.quantity = parseInt(newAsset.quantity);
+            newAsset.price = parseFloat(newAsset.price)
+            newAsset.value = newAsset.quantity * newAsset.price;
+            newAsset.name = `${newAsset.ticker} Stock`;
+        }
+        newAsset.value = parseFloat(newAsset.value);
+
+        assets.insertOne(newAsset, (err, _) => {
+            if (err) {
+                console.error("Error creating asset: ", err);
+                req.session.errMessage = "Internal server error";
+                return res.status(status.InternalServerError).redirect("/assets");
+            }
+        });
+
+        req.session.errMessage = "";
+        return res.status(status.Ok).redirect("/assets");
+    });
+
+    router.post("/updateAsset", async (req, res) => {
+        const type = req.body.type;
+        const assetSchema = getAssetSchema(type);
+
+        if (!assetSchema) {
+            console.error("Modified asset type, rejected");
+            req.session.errMessage = "Invalid input";
+            return res.status(status.BadRequest).redirect("/assets");
+        }
+
+        const valid = assetSchema.validate(req.body);
+
+        if (valid.err) {
+            req.session.errMessage = "Invalid input",
+                res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        if (req.body.ownerId != req.session.user._id) {
+            req.session.errMessage = "Cannot change asset owner",
+                res.status(status.BadRequest);
+            return res.redirect("/assets");
+        }
+
+        let update = { ...req.body, updatedAt: new Date() };
+        if (type == "stock") {
+            update.quantity = parseInt(update.quantity);
+            update.price = parseFloat(update.price)
+            update.value = update.quantity * update.price;
+            update.name = `${update.ticker} Stock`;
+        }
+        update.value = parseFloat(update.value);
+        delete update.id
+
+        assets.updateOne(
+            { "_id": new ObjectId(req.body.id) },
+            { $set: update },
+        ).then((result) => {
+            if (result.matchedCount === 0) {
+                console.log(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to update asset";
+                return res.status(status.NotFound).redirect("/assets");
+            }
+            if (result.modifiedCount === 0 && result.matchedCount === 1) {
+                console.log(`Asset data unchanged (already up-to-date): ${req.body.id}`);
+            }
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/assets");
+
+        }).catch((err) => {
+            console.error("Error updating asset: ", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            return res.status(status.InternalServerError).redirect("/assets");
+        });
+    });
+
+    router.post("/deleteAsset", (req, res) => {
+        const id = new ObjectId(req.body.id);
+
+        assets.deleteOne(
+            { "_id": id }
+        ).then((result) => {
+            if (result.deletedCount === 0) {
+                console.log(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to delete asset";
+                return res.status(status.NotFound).redirect("/assets");
+            }
+
+            if (!result.acknowledged) {
+                console.error("Error updating asset: ", err);
+                req.session.errMessage = "An error occurred while saving your information. Please try again.";
+                return res.status(status.InternalServerError).redirect("/assets");
+            }
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/assets");
+
+        }).catch((err) => {
+            console.error("Error updating asset: ", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            return res.status(status.InternalServerError).redirect("/assets");
         });
     });
 
