@@ -13,7 +13,7 @@ const userRoutes = userRouter.stack.map((layer) => layer.route.path.split("/")[1
 const createMiddleware = (users) => {
     return async (req, res, next) => {
         // Redirect not found pages to 404 page
-        if (!userRoutes.includes(req.url.substring(1))) {
+        if (!userRoutes.includes(req.url.split("/")[1])) {
             return res.status(status.NotFound).redirect("/notFound");
         }
 

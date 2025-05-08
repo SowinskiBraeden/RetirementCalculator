@@ -7,12 +7,11 @@ const bcrypt = require('bcrypt');
 const joi = require('joi');
 require('dotenv').config();
 
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
-const database = process.env.database || "knoldus"; // Database name
+const mongoURI = process.env.mongoURI;
+const database = process.env.database; // Database name
 const secret = process.env.secret || "123-secret-xyz";
 
 /*** Sessions ***/

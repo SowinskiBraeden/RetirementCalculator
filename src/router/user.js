@@ -1,5 +1,7 @@
+const getRates = require("../util/exchangeRate");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
+const session = require("express-session");
 const bcrypt = require("bcrypt");
 const joi = require("joi");
 const salt = 12;
@@ -16,7 +18,6 @@ const getAssetSchema = (type) => {
     switch (type) {
         case "other":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
@@ -27,7 +28,6 @@ const getAssetSchema = (type) => {
             break;
         case "saving":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
@@ -36,7 +36,6 @@ const getAssetSchema = (type) => {
             break;
         case "stock":
             assetSchema = joi.object({
-                ownerId: joi.string().alphanum().required(),
                 type: joi.string().valid("other", "stock", "saving").required(),
                 ticker: joi.string().alphanum().min(3).max(5).required(),
                 price: joi.number().min(0).required(),
@@ -64,12 +63,21 @@ module.exports = (middleware, users, plans, assets) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
-        res.render('dashboard', { user: req.session.user });
+        // if no session with geoData
+        if (!req.session.geoData) {
+            req.session.geoData = {
+                country: null,
+                toCurrencyRates: [],
+            };
+        }
+
+        res.render('dashboard', { user: req.user, geoData: req.session.geoData });
+
         return res.status(status.Ok);
     });
 
     router.get('/assets', async (req, res) => {
-        let userAssets = await assets.find({ "ownerId": req.session.user._id }).toArray();
+        let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
         res.render('assets', { user: req.session.user, errMessage: req.session.errMessage, assets: userAssets });
         return res.status(status.Ok);
     });
@@ -323,6 +331,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let newAsset = {
+            userId: new ObjectId(req.session.user._id),
             ...req.body,
             updatedAt: new Date(),
         };
@@ -365,7 +374,7 @@ module.exports = (middleware, users, plans, assets) => {
             return res.redirect("/assets");
         }
 
-        if (req.body.ownerId != req.session.user._id) {
+        if (req.body.userId != req.session.user._id) {
             req.session.errMessage = "Cannot change asset owner",
                 res.status(status.BadRequest);
             return res.redirect("/assets");
@@ -411,14 +420,14 @@ module.exports = (middleware, users, plans, assets) => {
             { "_id": id }
         ).then((result) => {
             if (result.deletedCount === 0) {
-                console.log(`Asset not found: ${req.body.id}`);
-                req.session.errMessage = "Unable to delete asset";
+                console.error(`Asset not found: ${req.body.id}`);
+                req.session.errMessage = "Unable to delete asset. Please try again.";
                 return res.status(status.NotFound).redirect("/assets");
             }
 
             if (!result.acknowledged) {
-                console.error("Error updating asset: ", err);
-                req.session.errMessage = "An error occurred while saving your information. Please try again.";
+                console.error("Error deleting asset: ", err);
+                req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
                 return res.status(status.InternalServerError).redirect("/assets");
             }
 
@@ -426,11 +435,65 @@ module.exports = (middleware, users, plans, assets) => {
             return res.status(status.Ok).redirect("/assets");
 
         }).catch((err) => {
-            console.error("Error updating asset: ", err);
-            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            console.error("Error deleting asset: ", err);
+            req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
             return res.status(status.InternalServerError).redirect("/assets");
         });
     });
+
+    router.post("/deleteUser", (req, res) => {
+        // not as critical if results aren't as expected only if crashing
+        assets.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+            console.error("Error deleting user assets: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
+        });
+
+        plans.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+            console.error("Error deleting user assets: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
+        });
+
+        users.deleteOne(
+            { _id: new ObjectId(req.session.user._id) },
+        ).then((result) => {
+            if (result.deletedCount === 0) {
+                console.error(`User not found: ${req.body.id}`);
+                req.session.errMessage = "Unabled to delete account. Please try again.";
+                return res.status(status.NotFound).redirect("/profile");
+            }
+
+            if (!result.acknowledged) {
+                console.error("Error deleting user: ", err);
+                req.session.errMessage = "An error occured while deleting your account. Please try again.";
+                return res.status(status.InternalServerError).redirect("/profile");
+            }
+
+            // Direct to logout to destroy session
+            req.session.destroy();
+            return res.status(status.Ok).redirect("/signup");
+        }).catch((err) => {
+            console.error("Error deleting user: ", err);
+            req.session.errMessage = "An error occured while deleting your account. Please try again.";
+            return res.status(status.InternalServerError).redirect("/profile");
+        });
+    });
+    router.get("/exRates/:lat/:lon", async (req, res) => {
+        if (!req.session.geoData.country) {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.geolocation_api}`);
+            const data = await response.json();
+
+            country = data.results[0].formatted_address;
+            let results = await getRates(country);
+            req.session.geoData = {
+                country: results.abbreviation,
+                toCurrencyRates: results.exRates
+            }
+        }
+
+        return res.status(status.Ok).send({ data: req.session.geoData });
+    })
 
     return router;
 };
