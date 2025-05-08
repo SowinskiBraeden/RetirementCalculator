@@ -1,5 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
+const joi = require('joi');
 const nodeMail = require('nodemailer');
 require('dotenv').config();
 
@@ -16,10 +17,19 @@ module.exports = (users) => {
 
     router.post('/auth/resetPass', async (req, res) => {
         console.log("we are inside of the post");
-        const { email } = req.body;
-        const user = await users.findOne({ email });
+        const resetSchema = joi.object({
+            email: joi.string().email().required(),
+        });
         req.session.error = '';
         req.session.reset = '';
+
+        const valid = resetSchema.validate(req.body);
+        if (valid.error) {
+            req.session.error = 'invalid email';
+            return res.redirect('/forgotPassword')
+        }
+        const { email } = req.body;
+        const user = await users.findOne({ email });
 
         if (!user) {
             req.session.error = 'No user found'
@@ -27,6 +37,7 @@ module.exports = (users) => {
         }
 
         const token = crypto.randomBytes(32).toString('hex');
+        console.log(`The reset token is ${token}`)
         const expiration = Date.now() + 360000;
 
         await users.updateOne({ email }, {
@@ -39,7 +50,7 @@ module.exports = (users) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password reset',
-            text: `reset your password here ${resetUrl} \n this link will expire within 1 hour`,
+            text: `reset your password here ${resetUrl}   this link will expire within 1 hour`,
 
         };
 

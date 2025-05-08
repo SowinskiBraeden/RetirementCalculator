@@ -76,7 +76,11 @@ app.get('/aboutUs', (req, res) => {
 });
 
 app.get('/forgotPassword', (req, res) => {
-    res.render('forgotPass', { error: req.session.error, reset: req.session.reset });
+    const error = req.session.error;
+    const reset = req.session.reset;
+    req.session.reset = '';
+    req.session.error = '';
+    res.render('forgotPass', { error: error, reset: reset });
     return res.status(status.Ok);
 });
 
@@ -105,7 +109,17 @@ app.get('/reset/:token', async (req, res) => {
 
 app.post('/resetLink', async (req, res) => {
     const { token, password, confirmPassword, } = req.body;
-
+    const passwordSchema = joi.object({
+        password: joi.string().max(20).min(6).required(),
+        confirmPassword: joi.string().max(20).min(6).required(),
+    });
+    const valid = passwordSchema.validate(req.body);
+    if (valid.error) {
+        console.log("houston we have a problem");
+        req.session.error = 'Invalid input';
+        res.status(status.BadRequest);
+        return res.redirect(`/reset/${token}`);
+    }
     if (!token || !password || !confirmPassword) {
         req.session.error = 'field may be missing';
         return res.redirect(`/reset/${token}`);
@@ -121,7 +135,7 @@ app.post('/resetLink', async (req, res) => {
 
     if (!user) {
         req.session.error = 'Reset link is invalid.';
-        return res.redirect('/forgotPassword');
+        return res.redirect(`/reset`);
     }
     const hashPassword = await bcrypt.hash(password, 12);
 
