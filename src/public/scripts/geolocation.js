@@ -54,7 +54,7 @@ function switchButton(clickedButton) {
 }
 
 function updateExchange(exRate) {
-    document.getElementById("exchange1").innerHTML = "$1.00 = $" +`${(1 * exRate).toFixed(2)}`;
+    document.getElementById("exchange").innerHTML = "$1.00 = $" +`${(1 * exRate).toFixed(2)}`;
 }
 
 async function getLatestExchange(position) {
