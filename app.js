@@ -9,9 +9,9 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI;
-const database = process.env.database; // Database name
-const secret   = process.env.secret   || "123-secret-xyz";
+const mongoURI = process.env.MONGO_URI;
+const database = process.env.DATABASE; // Database name
+const secret   = process.env.SECRET || "123-secret-xyz";
 
 /*** Sessions ***/
 app.use(session({
@@ -36,7 +36,7 @@ let users;
 let assets;
 let plans;
 async function initDatabase() {
-    const db = await connectMongo(mongoURI, database);
+    const db = connectMongo(mongoURI, database);
 
     // For any collection, init here
     users  = await getCollection(db, "users");
