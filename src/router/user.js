@@ -78,7 +78,11 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/assets', async (req, res) => {
         let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-        res.render('assets', { user: req.session.user, errMessage: req.session.errMessage, assets: userAssets });
+        res.render('assets', { 
+            user: req.session.user,
+            errMessage: req.session.errMessage,
+            assets: userAssets,
+            geoData: req.session.geoData });
         return res.status(status.Ok);
     });
 
@@ -89,7 +93,8 @@ module.exports = (middleware, users, plans, assets) => {
             // console.log(userPlans);
             res.render('plans', {
                 user: req.session.user,
-                plans: userPlans
+                plans: userPlans,
+                geoData: req.session.geoData
             });
         } catch (err) {
             console.error("Error fetching plans:", err);
@@ -119,7 +124,8 @@ module.exports = (middleware, users, plans, assets) => {
             // console.log("Found plan:", plan);
             res.render('planDetail', { 
                 user: req.session.user,
-                plan: plan
+                plan: plan,
+                geoData: req.session.geoData
             });
     
         } catch (err) {
@@ -136,7 +142,11 @@ module.exports = (middleware, users, plans, assets) => {
         }
         const errMessage = req.session.errMessage;
         req.session.errMessage = ""; 
-        res.render('newPlan', { user: req.session.user, errMessage: errMessage });
+        res.render('newPlan', { 
+            user: req.session.user,
+            errMessage: errMessage,
+            geoData: req.session.geoData
+        });
     });
 
     router.post('/newPlan', async (req, res) => {
@@ -180,24 +190,38 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/more', (req, res) => {
-        res.render('more', { user: req.session.user });
+        res.render('more', { 
+            user: req.session.user,
+            geoData: req.session.geoData
+        });
         return res.status(status.Ok);
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profile', { user: req.session.user, errMessage: req.session.errMessage });
+        res.render('profile', { 
+            user: req.session.user,
+            errMessage: req.session.errMessage,
+            geoData: req.session.geoData
+        });
         return res.status(status.Ok);
     });
 
     router.get('/settings', (req, res) => {
-        res.render('settings', { user: req.session.user });
+        res.render('settings', { 
+            user: req.session.user,
+            geoData: req.session.geoData
+        });
         return res.status(status.Ok);
     });
 
     router.get('/questionnaire', (req, res) => {
         const errMessage = req.session.errMessage;
         req.session.errMessage = ""; 
-        res.render('questionnaire', { user: req.session.user, errMessage: errMessage });
+        res.render('questionnaire', { 
+            user: req.session.user,
+            errMessage: errMessage,
+            geoData: req.session.geoData
+        });
     });
 
     router.post('/questionnaire', (req, res) => {
@@ -488,7 +512,8 @@ module.exports = (middleware, users, plans, assets) => {
             let results = await getRates(country);
             req.session.geoData = {
                 country: results.abbreviation,
-                toCurrencyRates: results.exRates
+                toCurrencyRates: results.exRates,
+                geoData: req.session.geoData
             }
         }
 
