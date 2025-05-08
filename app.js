@@ -6,13 +6,12 @@ const path = require('path');
 const joi = require('joi');
 require('dotenv').config();
 
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
-const database = process.env.database || "knoldus"; // Database name
-const secret = process.env.secret || "123-secret-xyz";
+const mongoURI = process.env.mongoURI;
+const database = process.env.database; // Database name
+const secret   = process.env.secret   || "123-secret-xyz";
 
 /*** Sessions ***/
 app.use(session({
@@ -72,22 +71,6 @@ app.get('/login', (req, res) => {
 app.get('/aboutUs', (req, res) => {
     res.render('aboutUs');
     return res.status(status.Ok);
-});
-
-app.post('/api/location', async (req,res) => {
-    const { latitude, longitude } = req.body;
-
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
-
-    const data = await response.json();
-
-    res.json(data);
-});
-
-// 404 handler - keep the actual notFound route please
-app.get('/notFound', (req, res) => {
-    res.render('notFound');
-    return res.status(status.NotFound);
 });
 
 // Initialize database and start app
