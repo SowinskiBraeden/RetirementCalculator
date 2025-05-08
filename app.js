@@ -110,10 +110,10 @@ app.get('/reset/:token', async (req, res) => {
 app.post('/resetLink', async (req, res) => {
     const { token, password, confirmPassword, } = req.body;
     const passwordSchema = joi.object({
-        password: joi.string().max(20).min(6).required(),
-        confirmPassword: joi.string().max(20).min(6).required(),
+        password: joi.string().max(20).required(),
+        confirmPassword: joi.string().max(20).required(),
     });
-    const valid = passwordSchema.validate(req.body);
+    const valid = passwordSchema.validate({ password, confirmPassword });
     if (valid.error) {
         console.log("houston we have a problem");
         req.session.error = 'Invalid input';
