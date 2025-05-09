@@ -4,7 +4,9 @@ const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const path = require("path");
 const joi = require("joi");
+const fs = require("fs");
 const salt = 12;
 
 /**
@@ -20,6 +22,7 @@ const getAssetSchema = (type) => {
         case "other":
             assetSchema = joi.object({
                 type: joi.string().valid("other", "stock", "saving").required(),
+                icon: joi.string().alphanum().required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 purchaseDate: joi.date().required(),
@@ -60,7 +63,11 @@ const getAssetSchema = (type) => {
  */
 module.exports = (middleware, users, plans, assets) => {
     const router = require("express").Router();
-    
+
+    // Create list of icon filenames
+    let icons = fs.readdirSync(path.join(__dirname, "../public/svgs/icons"));
+    icons = icons.map((icon) => icon.split(".")[0]);
+
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
@@ -83,7 +90,9 @@ module.exports = (middleware, users, plans, assets) => {
             user: req.session.user,
             errMessage: req.session.errMessage,
             assets: userAssets,
-            geoData: req.session.geoData });
+            geoData: req.session.geoData,
+            icons: icons,
+        });
         return res.status(status.Ok);
     });
 
@@ -388,6 +397,7 @@ module.exports = (middleware, users, plans, assets) => {
             newAsset.name = `${newAsset.ticker} Stock`;
         }
         newAsset.value = parseFloat(newAsset.value);
+        newAsset.icon = type == "stock" ? "Stock" : type == "saving" ? "Coins" : newAsset.icon;
 
         assets.insertOne(newAsset, (err, _) => {
             if (err) {
@@ -433,7 +443,8 @@ module.exports = (middleware, users, plans, assets) => {
             update.name = `${update.ticker} Stock`;
         }
         update.value = parseFloat(update.value);
-        delete update.id
+        delete update.id;
+        delete update.userId;
         
         assets.updateOne(
             { "_id": new ObjectId(req.body.id) },
@@ -524,6 +535,7 @@ module.exports = (middleware, users, plans, assets) => {
             return res.status(status.InternalServerError).redirect("/profile");
         });
     });
+
     router.get("/exRates/:lat/:lon", async (req, res) => {
         if (!req.session.geoData.country) {
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.GEOLOCATION_API}`);

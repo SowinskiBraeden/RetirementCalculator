@@ -8,6 +8,12 @@ const assetForms = [
  * resetAll asset creation forms
  */
 function resetAll() {
+    document.getElementById("dropdown-icon-button").innerHTML = `
+        <img src="/static/svgs/icons/Other.svg" class="h-4 w-4 me-2" alt="Other"> Other
+        <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+        </svg>
+    `;
     document.getElementById("create-other-asset-form").reset();
     document.getElementById("create-saving-asset-form").reset();
     document.getElementById("create-stock-asset-form").reset();
@@ -40,6 +46,7 @@ function resetRadio() {
 const assetKeys = {
     other: [
         "name",
+        "dropdown-icon-button",
         "value",
         "description",
         "purchaseDate",
@@ -59,8 +66,17 @@ const assetKeys = {
 /**
  * lockAsset prevents edits to asset view modal
  * @param {string} assetId
+ * @param {string} icon to defualt to
  */
-function lockAsset(assetId) {
+function lockAsset(assetId, icon) {
+    let dropdown = document.getElementById(`dropdown-icon-button-${assetId}`);
+    if (dropdown) dropdown.innerHTML = `
+        <img src="/static/svgs/icons/${icon}.svg" class="h-4 w-4 me-2" alt="${icon}"> ${icon}
+        <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+        </svg>
+    `;
+
     document.getElementById(`${assetId}-form`).reset();
 
     const type = document.getElementById(`type-${assetId}`).value;
@@ -74,14 +90,15 @@ function lockAsset(assetId) {
     document.getElementById(`save-${assetId}`).classList.add("cursor-not-allowed");
 
     document.getElementById(`edit-${assetId}`).innerHTML = "Edit";
-    document.getElementById(`edit-${assetId}`).onclick = () => { unlockAsset(assetId) };
+    document.getElementById(`edit-${assetId}`).onclick = () => { unlockAsset(assetId, icon) };
 }
 
 /**
  * unlockAsset allows edits to asset view modal
  * @param {string} assetId
+ * @param {string} icon to defualt to
  */
-function unlockAsset(assetId) {
+function unlockAsset(assetId, icon) {
     const type = document.getElementById(`type-${assetId}`).value;
 
     assetKeys[type].forEach((key) => {
@@ -92,8 +109,40 @@ function unlockAsset(assetId) {
     document.getElementById(`save-${assetId}`).classList.remove("cursor-not-allowed");
     document.getElementById(`save-${assetId}`).classList.add("cursor-pointer");
 
-    document.getElementById(`edit-${assetId}`).innerHTML = "Cancel changes";
-    document.getElementById(`edit-${assetId}`).onclick = () => { lockAsset(assetId) };
+    document.getElementById(`edit-${assetId}`).innerHTML = "Cancel";
+    document.getElementById(`edit-${assetId}`).onclick = () => { lockAsset(assetId, icon) };
+}
+
+/**
+ * autoOpenCreate checks if popup param
+ * in url to auto open create popup
+ */
+function autoOpenCreate() {
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    if (params.has("popup")) {
+        document.getElementById('create-asset-modal').showModal();
+    }
+}
+
+/**
+ * selectIcon updated selected icon while creating
+ * or modifying assets.
+ * @param {button element} selectedIcon
+ * @param {string} assetId
+ */
+function selectIcon(selectedIcon, assetId="") {
+    document.getElementById(`dropdown-icon-button${assetId != "" ? "-" : ""}${assetId}`).value = selectedIcon.value;
+    document.getElementById(`icon${assetId != "" ? "-" : ""}${assetId}`).value = selectedIcon.value
+
+    document.getElementById(`dropdown-icon-button${assetId != "" ? "-" : ""}${assetId}`).innerHTML = selectedIcon.innerHTML + 
+    `
+        <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+        </svg>
+    `;
 }
 
 resetRadio();
+autoOpenCreate();
