@@ -69,6 +69,13 @@ module.exports = (users) => {
             return res.redirect("/signup");
         }
 
+        let exists = await users.findOne({ email: req.body.email }).then((exists) => exists);
+        if (exists) {
+            req.session.errMessage = "Email already in use";
+            res.status(status.BadRequest);
+            return res.redirect("/signup");                
+        }
+
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
             res.status(status.BadRequest);
