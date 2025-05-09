@@ -37,8 +37,6 @@ function update(data) {
 
         dropdown.appendChild(listItem);
     });
-
-    // console.log(data);
 }
 
 function switchButton(clickedButton) {

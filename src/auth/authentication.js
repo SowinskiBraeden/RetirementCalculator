@@ -84,7 +84,7 @@ module.exports = (users) => {
             financialData: false,
         }).then((results, err) => {
             if (err) {
-                console.error(err);
+                console.error("Error creating user on signup: ", err);
                 res.session.errMessage = "Internal server error";
                 return res.status(status.InternalServerError).redirect("/signup");
             }

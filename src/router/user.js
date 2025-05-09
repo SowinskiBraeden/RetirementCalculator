@@ -98,9 +98,7 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/plans', async (req, res) => {
         try {
-            // console.log(new ObjectId(req.session.user._id));
             const userPlansFromDB = await plans.find({userId: new ObjectId(req.session.user._id) }).toArray();
-            // console.log(userPlansFromDB);
             
             // Use a for...of loop for proper async/await behavior in series for updates
             for (const plan of userPlansFromDB) {
@@ -142,7 +140,6 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
-            // console.log("Found plan:", plan);
             
             // The plan.progress should be up-to-date from the database as it was updated in the /plans route
             // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
@@ -254,9 +251,7 @@ module.exports = (middleware, users, plans, assets) => {
         });
     });
 
-    router.post('/questionnaire', (req, res) => {
-        // console.log("Questionnaire POST body:", req.body);
-  
+    router.post('/questionnaire', (req, res) => {  
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
