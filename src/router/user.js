@@ -163,7 +163,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/newPlan', (req, res) => {
-        if (!req.session.user.financialData) {
+        if (!req.session.user.financialData || !req.session.user) {
             req.session.errMessage = "Please complete your financial data before creating a plan.";
             return res.status(status.Unauthorized).redirect('/questionnaire');
         }
@@ -299,7 +299,13 @@ module.exports = (middleware, users, plans, assets) => {
 
             req.session.user.financialData = true;
             req.session.errMessage = "";
-            res.status(status.Ok).redirect("/home");
+
+            req.session.save(err => {
+                if (err) {
+                    res.status(status.InternalServerError).redirect("/plans");
+                }
+                res.status(status.Ok).redirect("/plans");
+            });
 
         }).catch(err => {
             console.error("Error updating questionnaire in database:", err);
