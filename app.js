@@ -73,6 +73,13 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
+// 404 handler - keep the actual notFound route please
+// REALLY DONT DELETE THIS
+app.get('/notFound', (req, res) => {
+    res.render('notFound');
+    return res.status(status.NotFound);
+});
+
 // Initialize database and start app
 initDatabase().then(() => {
     console.log("Successfully connected to MongoDB");
