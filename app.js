@@ -77,8 +77,8 @@ app.get('/aboutUs', (req, res) => {
 app.get('/forgotPassword', (req, res) => {
     const error = req.session.error;
     const reset = req.session.reset;
-    req.session.reset = '';
-    req.session.error = '';
+    delete req.session.reset;
+    delete req.session.error;
     res.render('forgotPass', { error: error, reset: reset });
     return res.status(status.Ok);
 });
