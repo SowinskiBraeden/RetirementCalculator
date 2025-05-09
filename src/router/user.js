@@ -1,4 +1,5 @@
 const getRates = require("../util/exchangeRate");
+const { calculatePlanProgress, updatePlanProgressInDB } = require("../util/calculations");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const session = require("express-session");
@@ -89,11 +90,21 @@ module.exports = (middleware, users, plans, assets) => {
     router.get('/plans', async (req, res) => {
         try {
             // console.log(new ObjectId(req.session.user._id));
-            const userPlans = await plans.find({userId: new ObjectId(req.session.user._id) }).toArray();
-            // console.log(userPlans);
+            const userPlansFromDB = await plans.find({userId: new ObjectId(req.session.user._id) }).toArray();
+            // console.log(userPlansFromDB);
+            
+            // Use a for...of loop for proper async/await behavior in series for updates
+            for (const plan of userPlansFromDB) {
+                const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
+                await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
+            }
+            
+            // Re-fetch plans to get updated progress for rendering
+            const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
             res.render('plans', {
                 user: req.session.user,
-                plans: userPlans,
+                plans: updatedUserPlans, // Send the most up-to-date plans
                 geoData: req.session.geoData
             });
         } catch (err) {
@@ -107,7 +118,8 @@ module.exports = (middleware, users, plans, assets) => {
     
         try {
             const planId = req.params.id;
-
+            let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+        
             
             if (!ObjectId.isValid(planId)) {
                 req.session.errMessage = "Invalid plan ID format.";
@@ -122,10 +134,19 @@ module.exports = (middleware, users, plans, assets) => {
                 return res.status(status.NotFound).redirect('/plans');
             }
             // console.log("Found plan:", plan);
+            
+            // The plan.progress should be up-to-date from the database as it was updated in the /plans route
+            // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
+            // (e.g., if assets were modified without an immediate plan progress update elsewhere),
+            // you could do it here:
+            // const currentProgress = await calculatePlanProgress(plan, assets, req.session.user._id);
+            // plan.progress = currentProgress; // This would only update the 'plan' object for this render, not in DB
+
             res.render('planDetail', { 
                 user: req.session.user,
-                plan: plan,
-                geoData: req.session.geoData
+                plan: plan, // This plan object will have the progress from the database
+                geoData: req.session.geoData,
+                assets: userAssets,
             });
     
         } catch (err) {
@@ -174,7 +195,7 @@ module.exports = (middleware, users, plans, assets) => {
             retirementExpenses: value.retirementExpenses,
             retirementAssets: value.retirementAssets,
             retirementLiabilities: value.retirementLiabilities,
-            progress: "0%"
+            progress: "0"
         };
 
         try{
