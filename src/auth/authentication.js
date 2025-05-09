@@ -20,7 +20,7 @@ module.exports = (users) => {
       
         const credentialSchema = joi.object({
             email: joi.string().email().required(),
-            password: joi.string().max(20).required(),
+            password: joi.string().alphanum().max(20).required(),
         });
 
         const valid = credentialSchema.validate(req.body);
@@ -56,9 +56,9 @@ module.exports = (users) => {
     router.post("/signup", async (req, res) => {
         const userSchema = joi.object({
             email: joi.string().email().required(),
-            name: joi.string().alphanum().max(20).required(),
-            password: joi.string().max(20).min(8).required(),
-            repassword: joi.string().max(20).min(8).required(),
+            name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20).required(),
+            password: joi.string().alphanum().max(20).min(8).required(),
+            repassword: joi.string().alphanum().max(20).min(8).required(),
         });
 
         const valid = userSchema.validate(req.body);
