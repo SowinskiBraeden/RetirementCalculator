@@ -1,7 +1,7 @@
 const status = require("../util/statuses");
 const session = require("express-session");
 
-// Get all user routes names
+// Get all names of user routes
 let userRouter = require("../router/user")((req, res, next) => next(), null, null, null);
 userRouter.stack.shift();
 const userRoutes = userRouter.stack.map((layer) => layer.route.path.split("/")[1]);
@@ -12,8 +12,9 @@ const userRoutes = userRouter.stack.map((layer) => layer.route.path.split("/")[1
 */
 const createMiddleware = (users) => {
     return async (req, res, next) => {
-        // Redirect not found pages to 404 page
-        if (!userRoutes.includes(req.url.split("/")[1])) {
+        // Check if incoming request route exists in user routes
+        // redirect to 404 if not
+        if (!userRoutes.includes(req.url.split("/")[1].split("?")[0])) {
             return res.status(status.NotFound).redirect("/notFound");
         }
 
