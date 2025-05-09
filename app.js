@@ -154,16 +154,6 @@ app.post('/resetLink', async (req, res) => {
     res.redirect('/login');
 });
 
-app.post('/api/location', async (req, res) => {
-    const { latitude, longitude } = req.body;
-
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
-
-    const data = await response.json();
-
-    res.json(data);
-});
-
 // 404 handler - keep the actual notFound route please
 // REALLY DONT DELETE THIS
 app.get('/notFound', (req, res) => {
