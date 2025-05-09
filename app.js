@@ -36,8 +36,8 @@ let users;
 let assets;
 let plans;
 async function initDatabase() {
-    const db = connectMongo(mongoURI, database);
-
+    const db = await connectMongo(mongoURI, database);
+    
     // For any collection, init here
     users  = await getCollection(db, "users");
     assets = await getCollection(db, "assets");
