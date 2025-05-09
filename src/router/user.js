@@ -86,7 +86,7 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/assets', async (req, res) => {
         let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-        res.render('assets', { 
+        res.render('assets', {
             user: req.session.user,
             errMessage: req.session.errMessage,
             assets: userAssets,
@@ -98,14 +98,14 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/plans', async (req, res) => {
         try {
-            const userPlansFromDB = await plans.find({userId: new ObjectId(req.session.user._id) }).toArray();
-            
+            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
             // Use a for...of loop for proper async/await behavior in series for updates
             for (const plan of userPlansFromDB) {
                 const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
                 await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
             }
-            
+
             // Re-fetch plans to get updated progress for rendering
             const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
 
@@ -122,12 +122,12 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/plans/:id', async (req, res) => {
-    
+
         try {
             const planId = req.params.id;
             let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-        
-            
+
+
             if (!ObjectId.isValid(planId)) {
                 req.session.errMessage = "Invalid plan ID format.";
                 return res.status(status.BadRequest).redirect('/plans');
@@ -140,7 +140,7 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
-            
+
             // The plan.progress should be up-to-date from the database as it was updated in the /plans route
             // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
             // (e.g., if assets were modified without an immediate plan progress update elsewhere),
@@ -148,13 +148,13 @@ module.exports = (middleware, users, plans, assets) => {
             // const currentProgress = await calculatePlanProgress(plan, assets, req.session.user._id);
             // plan.progress = currentProgress; // This would only update the 'plan' object for this render, not in DB
 
-            res.render('planDetail', { 
+            res.render('planDetail', {
                 user: req.session.user,
                 plan: plan, // This plan object will have the progress from the database
                 geoData: req.session.geoData,
                 assets: userAssets,
             });
-    
+
         } catch (err) {
             console.error("Error fetching plan:", err);
             req.session.errMessage = "Could not load your plan. Please try again.";
@@ -163,13 +163,13 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/newPlan', (req, res) => {
-        if(!req.session.user.financialData){
+        if (!req.session.user.financialData) {
             req.session.errMessage = "Please complete your financial data before creating a plan.";
             return res.status(status.Unauthorized).redirect('/questionnaire');
         }
         const errMessage = req.session.errMessage;
-        req.session.errMessage = ""; 
-        res.render('newPlan', { 
+        req.session.errMessage = "";
+        res.render('newPlan', {
             user: req.session.user,
             errMessage: errMessage,
             geoData: req.session.geoData
@@ -185,14 +185,14 @@ module.exports = (middleware, users, plans, assets) => {
             retirementLiabilities: joi.number().min(0).required(),
         });
 
-        const validationOptions = { convert: true, abortEarly: false }; 
+        const validationOptions = { convert: true, abortEarly: false };
         const { error, value } = planSchema.validate(req.body, validationOptions);
 
-        if (error) { 
+        if (error) {
             console.error("Plan validation error:", error.details);
-            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
-            res.status(status.BadRequest).redirect("/newPlan"); 
-            return; 
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/newPlan");
+            return;
         }
         const newPlan = {
             userId: new ObjectId(req.session.user._id),
@@ -204,12 +204,12 @@ module.exports = (middleware, users, plans, assets) => {
             progress: "0"
         };
 
-        try{
-            await plans.insertOne({userId: new ObjectId(req.session.user._id), ...newPlan});
-            req.session.errMessage = ""; 
-            res.redirect('/plans'); 
+        try {
+            await plans.insertOne({ userId: new ObjectId(req.session.user._id), ...newPlan });
+            req.session.errMessage = "";
+            res.redirect('/plans');
         }
-        catch(err){
+        catch (err) {
             console.error("Error saving plan:", err);
             req.session.errMessage = "An error occurred while saving your plan. Please try again.";
             res.status(status.InternalServerError).redirect("/newPlan");
@@ -217,7 +217,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/more', (req, res) => {
-        res.render('more', { 
+        res.render('more', {
             user: req.session.user,
             geoData: req.session.geoData
         });
@@ -225,7 +225,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/profile', (req, res) => {
-        res.render('profile', { 
+        res.render('profile', {
             user: req.session.user,
             errMessage: req.session.errMessage,
             geoData: req.session.geoData
@@ -234,7 +234,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/settings', (req, res) => {
-        res.render('settings', { 
+        res.render('settings', {
             user: req.session.user,
             geoData: req.session.geoData
         });
@@ -243,15 +243,15 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/questionnaire', (req, res) => {
         const errMessage = req.session.errMessage;
-        req.session.errMessage = ""; 
-        res.render('questionnaire', { 
+        req.session.errMessage = "";
+        res.render('questionnaire', {
             user: req.session.user,
             errMessage: errMessage,
             geoData: req.session.geoData
         });
     });
 
-    router.post('/questionnaire', (req, res) => {  
+    router.post('/questionnaire', (req, res) => {
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
@@ -261,22 +261,22 @@ module.exports = (middleware, users, plans, assets) => {
             assets: joi.number().min(0).required(),
             liabilities: joi.number().min(0).required(),
         });
-    
-        const validationOptions = { convert: true, abortEarly: false }; 
+
+        const validationOptions = { convert: true, abortEarly: false };
         const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
-    
-        if (error) { 
+
+        if (error) {
             console.error("Questionnaire validation error:", error.details);
-            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', '); 
-            res.status(status.BadRequest).redirect("/questionnaire"); 
-            return; 
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/questionnaire");
+            return;
         }
-    
-        users.updateOne( 
-            { _id: new ObjectId(req.session.user._id) }, 
-            { 
-                $set: { 
-                    financialData: true, 
+
+        users.updateOne(
+            { _id: new ObjectId(req.session.user._id) },
+            {
+                $set: {
+                    financialData: true,
                     dob: value.dob,
                     education: value.education,
                     maritalStatus: value.maritalStatus,
@@ -284,27 +284,27 @@ module.exports = (middleware, users, plans, assets) => {
                     expenses: value.expenses,
                     assets: value.assets,
                     liabilities: value.liabilities,
-                } 
+                }
             }
-        ).then((result) => { 
+        ).then((result) => {
             if (result.matchedCount === 0) {
                 console.log(`User not found during questionnaire update: ${req.session.user.email}`);
-                req.session.errMessage = "User session invalid. Please log in again."; 
-                res.status(status.NotFound).redirect("/login"); 
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
                 console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.user.email}`);
             }
-        
+
             req.session.user.financialData = true;
-            req.session.errMessage = ""; 
-            res.status(status.Ok).redirect("/home"); 
-    
-        }).catch(err => { 
+            req.session.errMessage = "";
+            res.status(status.Ok).redirect("/home");
+
+        }).catch(err => {
             console.error("Error updating questionnaire in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            res.status(status.InternalServerError).redirect("/questionnaire"); 
+            res.status(status.InternalServerError).redirect("/questionnaire");
         });
     });
 
@@ -320,7 +320,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/profile");
         }
 
@@ -343,20 +343,20 @@ module.exports = (middleware, users, plans, assets) => {
         ).then((result) => {
             if (result.matchedCount === 0) {
                 console.log(`User not found during account update: ${req.session.email}`);
-                req.session.errMessage = "User session invalid. Please log in again."; 
-                res.status(status.NotFound).redirect("/login"); 
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
                 console.log(`User account data unchanged (already up-to-date): ${req.session.email}`);
             }
-        
-            req.session.errMessage = ""; 
-            return res.status(status.Ok).redirect("/profile"); 
-        }).catch(err => { 
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/profile");
+        }).catch(err => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            return res.status(status.InternalServerError).redirect("/profile"); 
+            return res.status(status.InternalServerError).redirect("/profile");
         });
     });
 
@@ -375,7 +375,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 
@@ -402,7 +402,7 @@ module.exports = (middleware, users, plans, assets) => {
             }
         });
 
-        req.session.errMessage = ""; 
+        req.session.errMessage = "";
         return res.status(status.Ok).redirect("/assets");
     });
 
@@ -415,18 +415,18 @@ module.exports = (middleware, users, plans, assets) => {
             req.session.errMessage = "Invalid input";
             return res.status(status.BadRequest).redirect("/assets");
         }
-        
+
         const valid = assetSchema.validate(req.body);
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 
         if (req.body.userId != req.session.user._id) {
             req.session.errMessage = "Cannot change asset owner",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 
@@ -440,11 +440,11 @@ module.exports = (middleware, users, plans, assets) => {
         update.value = parseFloat(update.value);
         delete update.id;
         delete update.userId;
-        
+
         assets.updateOne(
             { "_id": new ObjectId(req.body.id) },
             { $set: update },
-        ).then((result) => { 
+        ).then((result) => {
             if (result.matchedCount === 0) {
                 console.log(`Asset not found: ${req.body.id}`);
                 req.session.errMessage = "Unable to update asset";
@@ -453,14 +453,14 @@ module.exports = (middleware, users, plans, assets) => {
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
                 console.log(`Asset data unchanged (already up-to-date): ${req.body.id}`);
             }
-        
-            req.session.errMessage = ""; 
-            return res.status(status.Ok).redirect("/assets"); 
-    
-        }).catch((err) => { 
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/assets");
+
+        }).catch((err) => {
             console.error("Error updating asset: ", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            return res.status(status.InternalServerError).redirect("/assets"); 
+            return res.status(status.InternalServerError).redirect("/assets");
         });
     });
 
@@ -469,7 +469,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         assets.deleteOne(
             { "_id": id }
-        ).then((result) => { 
+        ).then((result) => {
             if (result.deletedCount === 0) {
                 console.error(`Asset not found: ${req.body.id}`);
                 req.session.errMessage = "Unable to delete asset. Please try again.";
@@ -481,11 +481,11 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
                 return res.status(status.InternalServerError).redirect("/assets");
             }
-        
-            req.session.errMessage = ""; 
-            return res.status(status.Ok).redirect("/assets"); 
-    
-        }).catch((err) => { 
+
+            req.session.errMessage = "";
+            return res.status(status.Ok).redirect("/assets");
+
+        }).catch((err) => {
             console.error("Error deleting asset: ", err);
             req.session.errMessage = "An error occurred while deleting an asset. Please try again.";
             return res.status(status.InternalServerError).redirect("/assets");
@@ -535,7 +535,7 @@ module.exports = (middleware, users, plans, assets) => {
         if (!req.session.geoData.country) {
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.GEOLOCATION_API}`);
             const data = await response.json();
-            
+
             country = data.results[0].formatted_address;
             let results = await getRates(country);
             req.session.geoData = {
