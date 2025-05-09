@@ -106,53 +106,6 @@ app.get('/reset/:token', async (req, res) => {
     });
 });
 
-app.post('/resetLink', async (req, res) => {
-    const { token, password, confirmPassword, } = req.body;
-    const passwordSchema = joi.object({
-        password: joi.string().max(20).required(),
-        confirmPassword: joi.string().max(20).required(),
-    });
-    const valid = passwordSchema.validate({ password, confirmPassword });
-    if (valid.error) {
-        console.log("houston we have a problem");
-        req.session.error = 'Invalid input';
-        res.status(status.BadRequest);
-        return res.redirect(`/reset/${token}`);
-    }
-    if (!token || !password || !confirmPassword) {
-        req.session.error = 'field may be missing';
-        return res.redirect(`/reset/${token}`);
-    }
-    if (password !== confirmPassword) {
-        req.session.error = 'passwords do not match';
-        return res.redirect(`/reset/${token}`);
-    }
-    const user = await users.findOne({
-        resetToken: token,
-        resetTokenExpires: { $gt: Date.now() },
-    });
-
-    if (!user) {
-        req.session.error = 'Reset link is invalid.';
-        return res.redirect(`/reset`);
-    }
-    const hashPassword = await bcrypt.hash(password, 12);
-
-    await users.updateOne(
-        {
-            email: user.email
-        },
-        {
-            $set: {
-                password: hashPassword,
-                resetToken: '',
-                resetTokenExpires: 0,
-            },
-        }
-    );
-    req.session.success = 'Password has been reset';
-    res.redirect('/login');
-});
 
 // 404 handler - keep the actual notFound route please
 // REALLY DONT DELETE THIS
