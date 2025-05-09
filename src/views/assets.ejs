@@ -2,7 +2,6 @@
 <%- include("./partials/header") %>
 
 <main>
-
     <!-- Create Asset popup Modal -->
     <dialog id="create-asset-modal" class="w-lg mx-auto bg-white p-8 mt-10 rounded-lg shadow-md">
         <div class="flex flex-row justify-between">
@@ -38,7 +37,31 @@
 
         <!-- Create other asset form -->
         <form method="POST" action="/createAsset" id="create-other-asset-form">
-            <input style="display: none;" value="other" name="type" type="text">
+            <input style="display: none;" id="type" value="other" name="type" type="text">
+            <input style="display: none;" id="icon" value="other" name="icon" type="text">
+            
+            <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Select an Icon</label>            
+            <div class="flex items-center">
+                <button id="dropdown-icon-button" value="" data-dropdown-toggle="dropdown-icons" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" type="button">
+                    <img src="/static/svgs/icons/Other.svg" class="h-4 w-4 me-2" alt="Other"> Other
+                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                    </svg>
+                </button>
+                <div id="dropdown-icons" class="overflow-y-auto h-40 z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-32 dark:bg-gray-700">
+                    <ul id="dropdown" class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-icon-button">
+                        <% icons.forEach(icon => { %>
+                            <li>
+                                <button onclick="selectIcon(this)" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+                                    <span class="inline-flex items-center">
+                                        <img src="/static/svgs/icons/<%= icon %>.svg" class="h-4 w-4 me-2" alt="<%= icon %>"> (<%= icon %>)
+                                    </span>
+                                </button>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
 
             <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name</label>
             <input required id="name" type="text" name="name" minlength="3" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -178,7 +201,9 @@
                 <button onclick="document.getElementById('<%= asset._id %>-modal').showModal()" style="width: 100%; height: 100%;" class="px-4 py-4 cursor-pointer">
                     <div class="flex flex-row justify-between">
                         <div class="flex flex-row justify-between">
-                            <div class="mx-2">Icon</div>
+                            <div class="mx-2">
+                                <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-6 w-6 me-2" alt="<%= asset.icon %>">
+                            </div>
                             <div class="mx-2"><h3><%= asset.name %></h3></div>
                         </div>
                         <div>
@@ -237,7 +262,7 @@
                         <form method="dialog" style="width: 100%;">
                             <button
                                 style="width: 100%;"
-                                onclick="lockAsset('<%= asset._id %>')" 
+                                onclick="lockAsset('<%= asset._id %>', '<%= asset.icon %>')" 
                                 type="submit" 
                                 class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
                             >
@@ -259,24 +284,52 @@
                 <br>
 
                 <div class="flex flex-row justify-between">
-                    <div>
-                        ICON
-                    </div>
+                    <% if (asset.type == "other") { %>
+                        <div class="flex items-center">
+                            <button id="dropdown-icon-button-<%= asset._id %>" value="" data-dropdown-toggle="dropdown-icons-<%= asset._id %>" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+                                <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4 me-2" alt="<%= asset.icon %>"> <%= asset.icon %>
+                                <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                </svg>
+                            </button>
+                            <div id="dropdown-icons-<%= asset._id %>" class="overflow-y-auto h-40 z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-32 dark:bg-gray-700">
+                                <ul id="dropdown-<%= asset._id %>" class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-icon-button-<%= asset._id %>">
+                                    <% icons.forEach(icon => { %>
+                                        <li>
+                                            <button onclick="selectIcon(this, '<%= asset._id %>')" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+                                                <span class="inline-flex items-center">
+                                                    <img src="/static/svgs/icons/<%= icon %>.svg" class="h-4 w-4 me-2" alt="<%= icon %>"> (<%= icon %>)
+                                                </span>
+                                            </button>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <button disabled class="inline-flex items-center py-2.5 px-10 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+                            <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4" alt="<%= asset.icon %>">
+                        </button>
+                    <% } %>
+                    
+                    <h2 class="text-xl font-medium tracking-tight leading-none mt-3"><%= String(asset.type).charAt(0).toUpperCase() + String(asset.type).slice(1); %> Asset</h2>
                     <div>
                         <button
                             id="edit-<%= asset._id %>"
                             onclick="unlockAsset('<%= asset._id %>')"
-                            class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
+                            class="py-3 px-8 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
                         >
                             Edit
                         </button>
                     </div>
                 </div>
+                <br>
 
                 <form id="<%= asset._id %>-form" method="POST" action="/updateAsset">
                     <input id="type-<%= asset._id %>" name="type" type="text" hidden value="<%= asset.type %>">
                     <input id="id-<%= asset._id %>" name="id" type="text" hidden value="<%= asset._id %>">
                     <input id="userId-<%= asset.userId %>" name="userId" type="text" hidden value="<%= asset.userId %>">
+                    <input id="icon-<%= asset._id %>" name="icon" type="text" hidden value="<%= asset.icon %>">
 
                     <% if (asset.type != "stock") { %>
                         <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name</label>
@@ -328,16 +381,12 @@
 
 <script src="/static/scripts/assetManager.js"></script>
 <script>
-    // Ensure all assets popup modals are locked and reset on page load
-    let assetIds = [];
+    // Ensure all assets popup modals are locked and reset on page load    
     <% assets.forEach((asset) => { %>
-        assetIds.push("<%= asset._id %>");
+        lockAsset("<%= asset._id %>", "<%= asset.icon %>");
     <% }) %>
-    // EJS or JS may say this is an error above.
-    // I assure you its not, just leave it be.
-
-    assetIds.forEach((id) => lockAsset(id));
 </script>
 
 <%- include("./partials/navBar") %>
+<%- include("./partials/scriptLoader") %>
 <%- include("./partials/footer") %>

@@ -1,15 +1,26 @@
 <%- include("./partials/fileHeader") %>
     <%- include("./partials/header") %>
 
-        <main>
-            <!-- Buttons -->
-            <div class="flex justify-end gap-4 px-5 py-6">
-                <button
-                    class="cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
-                    type="button">Add Asset</button>
-                <a href="/newPlan"
-                    class="cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
-                    type="button">Create new plan </a>
+<main>
+    <!-- Buttons -->
+    <div class="flex justify-end gap-4 px-5 py-6">
+        <a href="/assets?popup" class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800" type="button">Add Asset</a>
+        <a href="/newPlan" class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800" type="button">Create new plan </a>
+    </div>
+    <!--This is the cards for plans and other things-->
+    <div class="mt-12">
+        <div class="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 mr-3 ml-3 xl:grid-cols-4">
+        <!--box to put logo icon if we want on in a box-->
+        <div class=" relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
+            <!-- <div -->
+            <!--   class="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute mt-2 grid h-16 w-16 place-items-center"> -->
+            <!-- </div> -->
+            <div class="p-4 flex items-center justify-between">
+            <p class="font-sans text-2xl leading-normal font-normal text-blue-gray-600">
+                Retirement goal</p>
+            <h4
+                class="block text-right antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900">
+                $53k</h4>
             </div>
             <!--This is the cards for plans and other things-->
             <div class="mt-12">
@@ -99,15 +110,6 @@
                 </div>
         </main>
 
-        <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-        <script src="/static/scripts/geolocation.js"></script>
-        <!-- <script src="/static/scripts/calcExchange.js"></script> -->
-        <script>
-            // If no geoData provided thorugh EJS, send update request to backend
-            let country = "<%= geoData.country %>";
-            if (!country) getLocation();
-        </script>
-
-
-        <%- include("./partials/navBar") %>
-            <%- include("./partials/footer") %>
+<%- include("./partials/navBar") %>
+<%- include("./partials/scriptLoader") %>
+<%- include("./partials/footer") %>

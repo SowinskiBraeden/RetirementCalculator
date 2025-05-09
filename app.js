@@ -10,9 +10,9 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI;
-const database = process.env.database; // Database name
-const secret = process.env.secret || "123-secret-xyz";
+const mongoURI = process.env.MONGO_URI;
+const database = process.env.DATABASE; // Database name
+const secret = process.env.SECRET || "123-secret-xyz";
 
 /*** Sessions ***/
 app.use(session({
@@ -165,6 +165,7 @@ app.post('/api/location', async (req, res) => {
 });
 
 // 404 handler - keep the actual notFound route please
+// REALLY DONT DELETE THIS
 app.get('/notFound', (req, res) => {
     res.render('notFound');
     return res.status(status.NotFound);

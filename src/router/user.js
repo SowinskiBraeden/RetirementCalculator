@@ -1,9 +1,12 @@
 const getRates = require("../util/exchangeRate");
+const { calculatePlanProgress, updatePlanProgressInDB } = require("../util/calculations");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const path = require("path");
 const joi = require("joi");
+const fs = require("fs");
 const salt = 12;
 
 /**
@@ -19,6 +22,7 @@ const getAssetSchema = (type) => {
         case "other":
             assetSchema = joi.object({
                 type: joi.string().valid("other", "stock", "saving").required(),
+                icon: joi.string().alphanum().required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 purchaseDate: joi.date().required(),
@@ -60,6 +64,10 @@ const getAssetSchema = (type) => {
 module.exports = (middleware, users, plans, assets) => {
     const router = require("express").Router();
 
+    // Create list of icon filenames
+    let icons = fs.readdirSync(path.join(__dirname, "../public/svgs/icons"));
+    icons = icons.map((icon) => icon.split(".")[0]);
+
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
@@ -82,19 +90,28 @@ module.exports = (middleware, users, plans, assets) => {
             user: req.session.user,
             errMessage: req.session.errMessage,
             assets: userAssets,
-            geoData: req.session.geoData
+            geoData: req.session.geoData,
+            icons: icons,
         });
         return res.status(status.Ok);
     });
 
     router.get('/plans', async (req, res) => {
         try {
-            // console.log(new ObjectId(req.session.user._id));
-            const userPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-            // console.log(userPlans);
+            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
+            // Use a for...of loop for proper async/await behavior in series for updates
+            for (const plan of userPlansFromDB) {
+                const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
+                await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
+            }
+
+            // Re-fetch plans to get updated progress for rendering
+            const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
             res.render('plans', {
                 user: req.session.user,
-                plans: userPlans,
+                plans: updatedUserPlans, // Send the most up-to-date plans
                 geoData: req.session.geoData
             });
         } catch (err) {
@@ -108,6 +125,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         try {
             const planId = req.params.id;
+            let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
 
 
             if (!ObjectId.isValid(planId)) {
@@ -122,11 +140,19 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
-            // console.log("Found plan:", plan);
+
+            // The plan.progress should be up-to-date from the database as it was updated in the /plans route
+            // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
+            // (e.g., if assets were modified without an immediate plan progress update elsewhere),
+            // you could do it here:
+            // const currentProgress = await calculatePlanProgress(plan, assets, req.session.user._id);
+            // plan.progress = currentProgress; // This would only update the 'plan' object for this render, not in DB
+
             res.render('planDetail', {
                 user: req.session.user,
-                plan: plan,
-                geoData: req.session.geoData
+                plan: plan, // This plan object will have the progress from the database
+                geoData: req.session.geoData,
+                assets: userAssets,
             });
 
         } catch (err) {
@@ -175,7 +201,7 @@ module.exports = (middleware, users, plans, assets) => {
             retirementExpenses: value.retirementExpenses,
             retirementAssets: value.retirementAssets,
             retirementLiabilities: value.retirementLiabilities,
-            progress: "0%"
+            progress: "0"
         };
 
         try {
@@ -226,8 +252,6 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.post('/questionnaire', (req, res) => {
-        // console.log("Questionnaire POST body:", req.body);
-
         const questionnaireSchema = joi.object({
             dob: joi.date().required(),
             education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
@@ -368,6 +392,7 @@ module.exports = (middleware, users, plans, assets) => {
             newAsset.name = `${newAsset.ticker} Stock`;
         }
         newAsset.value = parseFloat(newAsset.value);
+        newAsset.icon = type == "stock" ? "Stock" : type == "saving" ? "Coins" : newAsset.icon;
 
         assets.insertOne(newAsset, (err, _) => {
             if (err) {
@@ -413,7 +438,8 @@ module.exports = (middleware, users, plans, assets) => {
             update.name = `${update.ticker} Stock`;
         }
         update.value = parseFloat(update.value);
-        delete update.id
+        delete update.id;
+        delete update.userId;
 
         assets.updateOne(
             { "_id": new ObjectId(req.body.id) },
@@ -504,9 +530,10 @@ module.exports = (middleware, users, plans, assets) => {
             return res.status(status.InternalServerError).redirect("/profile");
         });
     });
+
     router.get("/exRates/:lat/:lon", async (req, res) => {
         if (!req.session.geoData.country) {
-            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.geolocation_api}`);
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${req.params.lat},${req.params.lon}&result_type=country&key=${process.env.GEOLOCATION_API}`);
             const data = await response.json();
 
             country = data.results[0].formatted_address;
