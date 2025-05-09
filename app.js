@@ -98,7 +98,7 @@ app.get('/reset/:token', async (req, res) => {
         return res.redirect('/forgotPassword');
     }
     const error = req.session.error;
-    req.session.error = '';
+    delete req.session.error;
 
     res.render('resetPass', {
         token: token,
