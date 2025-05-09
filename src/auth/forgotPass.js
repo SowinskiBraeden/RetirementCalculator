@@ -2,7 +2,9 @@ const express = require('express');
 const crypto = require('crypto');
 const joi = require('joi');
 const nodeMail = require('nodemailer');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
+const PORT = process.env.PORT;
 
 const transporter = nodeMail.createTransport({
     service: 'gmail',
@@ -16,7 +18,6 @@ module.exports = (users) => {
     const router = express.Router();
 
     router.post('/auth/resetPass', async (req, res) => {
-        console.log("we are inside of the post");
         const resetSchema = joi.object({
             email: joi.string().email().required(),
         });
@@ -44,7 +45,7 @@ module.exports = (users) => {
             $set: { resetToken: token, resetTokenExpires: expiration }
         });
 
-        const resetUrl = `http://localhost:3000/reset/${token}`;
+        const resetUrl = `http://localhost:${PORT}/reset/${token}`;
 
         const mailSend = {
             from: process.env.EMAIL_USER,
@@ -63,6 +64,55 @@ module.exports = (users) => {
             res.status(500).send('email failed to send try again');
         }
     });
+
+    router.post('/resetLink', async (req, res) => {
+        const { token, password, confirmPassword, } = req.body;
+        const passwordSchema = joi.object({
+            password: joi.string().max(20).required(),
+            confirmPassword: joi.string().max(20).required(),
+        });
+        const valid = passwordSchema.validate({ password, confirmPassword });
+        if (valid.error) {
+            console.log("houston we have a problem");
+            req.session.error = 'Invalid input';
+            res.status(status.BadRequest);
+            return res.redirect(`/reset/${token}`);
+        }
+        if (!token || !password || !confirmPassword) {
+            req.session.error = 'field may be missing';
+            return res.redirect(`/reset/${token}`);
+        }
+        if (password !== confirmPassword) {
+            req.session.error = 'passwords do not match';
+            return res.redirect(`/reset/${token}`);
+        }
+        const user = await users.findOne({
+            resetToken: token,
+            resetTokenExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            req.session.error = 'Reset link is invalid.';
+            return res.redirect(`/reset`);
+        }
+        const hashPassword = await bcrypt.hash(password, 12);
+
+        await users.updateOne(
+            {
+                email: user.email
+            },
+            {
+                $set: {
+                    password: hashPassword,
+                    resetToken: '',
+                    resetTokenExpires: 0,
+                },
+            }
+        );
+        req.session.success = 'Password has been reset';
+        res.redirect('/login');
+    });
+
     return router;
 }
 
