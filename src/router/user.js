@@ -544,11 +544,19 @@ module.exports = (middleware, users, plans, assets) => {
 
             country = data.results[0].formatted_address;
             let results = await getRates(country);
-            req.session.geoData = {
-                country: results.abbreviation,
-                toCurrencyRates: results.exRates,
-                geoData: req.session.geoData
+
+            if (!results.exRates) {
+                req.session.geoData = {
+                    message: "error"
+                }
+            } else {
+                req.session.geoData = {
+                    country: results.abbreviation,
+                    toCurrencyRates: results.exRates,
+                    geoData: req.session.geoData
+                }
             }
+
         }
 
         return res.status(status.Ok).send({ data: req.session.geoData });
