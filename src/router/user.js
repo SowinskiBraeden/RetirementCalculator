@@ -1,5 +1,6 @@
 const getRates = require("../util/exchangeRate");
 const { calculatePlanProgress, updatePlanProgressInDB } = require("../util/calculations");
+const suggestions = require("../util/suggestions");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const session = require("express-session");
@@ -153,6 +154,7 @@ module.exports = (middleware, users, plans, assets) => {
                 plan: plan, // This plan object will have the progress from the database
                 geoData: req.session.geoData,
                 assets: userAssets,
+                suggestions: await suggestions.generateSuggestions(),
             });
 
         } catch (err) {
@@ -214,6 +216,11 @@ module.exports = (middleware, users, plans, assets) => {
             req.session.errMessage = "An error occurred while saving your plan. Please try again.";
             res.status(status.InternalServerError).redirect("/newPlan");
         }
+    });
+
+    router.get('/pun', async (req, res) => {
+        const pun = await suggestions.generatePun();
+        return res.status(status.Ok).json({ pun });
     });
 
     router.get('/more', (req, res) => {
