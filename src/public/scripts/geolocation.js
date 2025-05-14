@@ -69,10 +69,18 @@ async function getLatestExchange(position) {
     let lon = position.coords.longitude;
     const res = await fetch(`/exRates/${lat}/${lon}`);
     const data = await res.json();
-
+    
     update(data);
 }
 
 function error(err) {
-    console.error("Geolocation error: ", err);
+    const data = {
+        data: {
+            message: "error"
+        }
+    }
+
+    console.log(data);
+
+    update(data);
 }
