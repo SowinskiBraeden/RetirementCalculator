@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/JoaquinPar/2800-202510-BBY14#readme",
   "dependencies": {
+    "@google/genai": "^0.14.0",
     "bcrypt": "^5.1.1",
     "connect-mongo": "^5.1.0",
     "crypto": "^1.0.1",
@@ -27,7 +28,8 @@
     "express-session": "^1.18.1",
     "joi": "^17.13.3",
     "mongodb": "^6.16.0",
-    "nodemailer": "^7.0.3"
+    "nodemailer": "^7.0.3",
+    "sweetalert2": "^11.21.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
