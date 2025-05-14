@@ -80,7 +80,5 @@ function error(err) {
         }
     }
 
-    console.log(data);
-
     update(data);
 }
