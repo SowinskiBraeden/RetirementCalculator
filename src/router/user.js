@@ -271,10 +271,12 @@ module.exports = (middleware, users, plans, assets) => {
         const validationOptions = { convert: true, abortEarly: false };
         const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
 
+        let referrer = req.get('Referrer') || "/home";
         if (error) {
             console.error("Questionnaire validation error:", error.details);
             req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
-            res.status(status.BadRequest).redirect("/questionnaire");
+            let redirect = referrer.includes("?profile") ? "/questionnaire?profile" : "/questionnaire";
+            res.status(status.BadRequest).redirect(redirect);
             return;
         }
 
@@ -303,20 +305,34 @@ module.exports = (middleware, users, plans, assets) => {
                 console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.userId}`);
             }
 
-            req.session.user.financialData = true;
             req.session.errMessage = "";
-
-            req.session.save(err => {
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
                 if (err) {
-                    res.status(status.InternalServerError).redirect("/plans");
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
                 }
-                res.status(status.Ok).redirect("/plans");
+
+                let redirect = referrer.includes("?profile") ? "/profile" :
+                                referrer != "/home"           ? "/plans" : referrer;
+                return res.status(status.Ok).redirect(redirect);
             });
 
         }).catch(err => {
             console.error("Error updating questionnaire in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            res.status(status.InternalServerError).redirect("/questionnaire");
+            let redirect = referrer.includes("?profile") ? "/questionnaire?profile" : "/questionnaire";
+            res.status(status.InternalServerError).redirect(redirect);
         });
     });
 
@@ -337,6 +353,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let update = {
+            email: req.body.email,
             name: req.body.name,
         };
 
@@ -364,7 +381,25 @@ module.exports = (middleware, users, plans, assets) => {
             }
 
             req.session.errMessage = "";
-            return res.status(status.Ok).redirect("/profile");
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
+                }
+
+                return res.status(status.Ok).redirect("/profile");
+            });
         }).catch(err => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
@@ -372,7 +407,81 @@ module.exports = (middleware, users, plans, assets) => {
         });
     });
 
-    router.post("/createAsset", async (req, res) => {
+    router.post("/updatePersonal", (req, res) => {
+        const questionnaireSchema = joi.object({
+            dob: joi.date().required(),
+            education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
+            maritalStatus: joi.string().valid('single', 'married', 'divorced', 'widowed').required(),
+            income: joi.number().min(0).required(),
+            expenses: joi.number().min(0).required(),
+            assets: joi.number().min(0).required(),
+            liabilities: joi.number().min(0).required(),
+        });
+
+        const validationOptions = { convert: true, abortEarly: false };
+        const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
+
+        if (error) {
+            console.error("Personal info validation error:", error.details);
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/profile");
+            return;
+        }
+
+        users.updateOne(
+            { _id: new ObjectId(req.session.userId) },
+            {
+                $set: {
+                    financialData: true,
+                    dob: value.dob,
+                    education: value.education,
+                    maritalStatus: value.maritalStatus,
+                    income: value.income,
+                    expenses: value.expenses,
+                    assets: value.assets,
+                    liabilities: value.liabilities,
+                }
+            }
+        ).then((result) => {
+            if (result.matchedCount === 0) {
+                console.log(`User not found during personal info update: ${req.session.userId}`);
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
+                return;
+            }
+            if (result.modifiedCount === 0 && result.matchedCount === 1) {
+                console.log(`User personal info unchanged (already up-to-date): ${req.session.userId}`);
+            }
+
+            req.session.errMessage = "";
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
+                }
+
+                return res.status(status.Ok).redirect("/profile");
+            });
+
+        }).catch(err => {
+            console.error("Error updating personal info in database:", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            res.status(status.InternalServerError).redirect("/profile");
+        });
+    });
+
+    router.post("/createAsset", (req, res) => {
         // Create asset, each asset has different data structure based on type
         const type = req.body.type;
         const assetSchema = getAssetSchema(type);
@@ -387,7 +496,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-                res.status(status.BadRequest);
+            res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 
@@ -418,7 +527,7 @@ module.exports = (middleware, users, plans, assets) => {
         return res.status(status.Ok).redirect("/assets");
     });
 
-    router.post("/updateAsset", async (req, res) => {
+    router.post("/updateAsset", (req, res) => {
         const type = req.body.type;
         const assetSchema = getAssetSchema(type);
 
