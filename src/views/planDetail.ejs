@@ -12,10 +12,10 @@
         <div>
             <div class="flex justify-between mb-1">
                 <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Progress</span>
-                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%= plan.progress %></span>
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%= plan.progress %>%</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
-                <div class="bg-blue-600 h-3 rounded-full dark:bg-blue-500" style="width: <%= plan.progress %>;"></div>
+                <div class="bg-blue-600 h-3 rounded-full dark:bg-blue-500" style="width: <%= plan.progress %>%;"></div>
             </div>
         </div>
 
@@ -25,11 +25,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Number of Assets:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white">16 MOCK</p>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= assets.length %></p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Total Value:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white">$165,000 MOCK</p>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= assets.reduce((total, asset) => total + asset.value, 0) %></p>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@
             
             <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
                 <p class="text-sm text-blue-700 dark:text-blue-300">
-                    USE YOUR HEAD MOCK
+                    <%= suggestions %>
                 </p>
             </div>
         </div>
@@ -71,4 +71,5 @@
 </main>
 
 <%- include("./partials/navBar") %>
+<%- include("./partials/scriptLoader") %>
 <%- include("./partials/footer") %>

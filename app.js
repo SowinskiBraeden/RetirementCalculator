@@ -3,16 +3,16 @@ const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const express = require('express');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const joi = require('joi');
 require('dotenv').config();
-
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.mongoURI || "mongodb://localhost:27017/";
-const database = process.env.database || "knoldus"; // Database name
-const secret = process.env.secret || "123-secret-xyz";
+const mongoURI = process.env.MONGO_URI;
+const database = process.env.DATABASE; // Database name
+const secret = process.env.SECRET || "123-secret-xyz";
 
 /*** Sessions ***/
 app.use(session({
@@ -40,9 +40,9 @@ async function initDatabase() {
     const db = await connectMongo(mongoURI, database);
 
     // For any collection, init here
-    users  = await getCollection(db, "users");
+    users = await getCollection(db, "users");
     assets = await getCollection(db, "assets");
-    plans  = await getCollection(db, "plans");
+    plans = await getCollection(db, "plans");
 }
 
 /*** ROUTINGS ***/
@@ -74,17 +74,39 @@ app.get('/aboutUs', (req, res) => {
     return res.status(status.Ok);
 });
 
-app.post('/api/location', async (req,res) => {
-    const { latitude, longitude } = req.body;
+app.get('/forgotPassword', (req, res) => {
+    const error = req.session.error;
+    const reset = req.session.reset;
+    delete req.session.reset;
+    delete req.session.error;
+    res.render('forgotPass', { error: error, reset: reset });
+    return res.status(status.Ok);
+});
 
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&result_type=country&key=${process.env.geolocation_api}`);
+// Reset with token given to user via email
+app.get('/reset/:token', async (req, res) => {
+    const token = req.params.token;
 
-    const data = await response.json();
+    const user = await users.findOne({
+        resetToken: token,
+        resetTokenExpires: { $gt: Date.now() },
+    });
 
-    res.json(data);
+    if (!user) {
+        req.session.error = 'reset link not valid or has expired';
+        return res.redirect('/forgotPassword');
+    }
+    const error = req.session.error;
+    delete req.session.error;
+
+    res.render('resetPass', {
+        token: token,
+        errMessage: error,
+    });
 });
 
 // 404 handler - keep the actual notFound route please
+// REALLY DONT DELETE THIS
 app.get('/notFound', (req, res) => {
     res.render('notFound');
     return res.status(status.NotFound);
@@ -96,7 +118,9 @@ initDatabase().then(() => {
 
     // Import authentication handler
     app.use(require("./src/auth/authentication")(users));
-    
+    app.use(require('./src/auth/forgotPass')(users));
+
+
     // Import middleware & apply to user routes
     const middleware = require("./src/auth/middleware")(users);
     app.use(require('./src/router/user')(middleware, users, plans, assets));
@@ -106,7 +130,7 @@ initDatabase().then(() => {
         res.render('notFound');
         return res.status(status.NotFound);
     });
-    
+
     // Start app
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);
