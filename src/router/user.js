@@ -80,7 +80,7 @@ module.exports = (middleware, users, plans, assets) => {
             };
         }
 
-        res.render('dashboard', { user: req.user, geoData: req.session.geoData });
+        res.render('dashboard', { user: req.session.user, geoData: req.session.geoData });
 
         return res.status(status.Ok);
     });
