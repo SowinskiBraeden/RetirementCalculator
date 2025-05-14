@@ -101,18 +101,16 @@ module.exports = (middleware, users, plans, assets) => {
         try {
             const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
 
-            // Use a for...of loop for proper async/await behavior in series for updates
             for (const plan of userPlansFromDB) {
                 const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
-                await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
+                await updatePlanProgressInDB(plan._id, percentage, plans);
             }
 
-            // Re-fetch plans to get updated progress for rendering
             const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
 
             res.render('plans', {
                 user: req.session.user,
-                plans: updatedUserPlans, // Send the most up-to-date plans
+                plans: updatedUserPlans,
                 geoData: req.session.geoData
             });
         } catch (err) {
@@ -142,16 +140,9 @@ module.exports = (middleware, users, plans, assets) => {
                 return res.status(status.NotFound).redirect('/plans');
             }
 
-            // The plan.progress should be up-to-date from the database as it was updated in the /plans route
-            // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
-            // (e.g., if assets were modified without an immediate plan progress update elsewhere),
-            // you could do it here:
-            // const currentProgress = await calculatePlanProgress(plan, assets, req.session.user._id);
-            // plan.progress = currentProgress; // This would only update the 'plan' object for this render, not in DB
-
             res.render('planDetail', {
                 user: req.session.user,
-                plan: plan, // This plan object will have the progress from the database
+                plan: plan,
                 geoData: req.session.geoData,
                 assets: userAssets,
                 suggestions: await suggestions.generateSuggestions(),
@@ -218,9 +209,10 @@ module.exports = (middleware, users, plans, assets) => {
         }
     });
 
-    router.get('/pun', async (req, res) => {
-        const pun = await suggestions.generatePun();
-        return res.status(status.Ok).json({ pun });
+    router.post('/fact', async (req, res) => {
+        const factInput = req.body.fact;
+        const fact = await suggestions.generateFact(factInput);
+        return res.status(status.Ok).json({ fact });
     });
 
     router.get('/more', (req, res) => {

@@ -2,10 +2,10 @@ const { GoogleGenAI } = require("@google/genai");
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
-async function generatePun() {
+async function generateFact(factInput) {
   const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
-    contents: "Return a funny pun about investments, answer the pun only, no additional text.",
+    contents: `Generate a concise investment fact about "${factInput}". If "${factInput}" is not directly investment-related, provide a general, useful investment fact instead. Deliver only the fact itself, with no extra text or explanation.`,
   });
   return response.text;
 }
@@ -19,6 +19,6 @@ async function generateSuggestions() {
 }
 
 module.exports = {
-    generatePun,
+    generateFact,
     generateSuggestions
 };
