@@ -24,10 +24,9 @@ const createMiddleware = (users) => {
             res.redirect("/login");
             return res.status(status.Unauthorized);
         }
-    
+        
         if (!req.session.user) {
             let user = await users.findOne({ _id: new ObjectId(req.session.userId) }).then((user) => user);
-        
             if (!user) {
                 return req.session.destroy((err) => {
                     if (err) {
@@ -49,7 +48,7 @@ const createMiddleware = (users) => {
                     console.error("Failed to save session: ", err);
 
                     return req.session.destroy((err) => {
-                        req.session.errMessage = "An error occured, please login again.";
+                        req.session.errMessage = "Failed to save session, please login again.";
 
                         if (err) {
                             console.error("Failed to destroy session: ", err);

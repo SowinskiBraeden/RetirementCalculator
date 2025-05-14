@@ -11,6 +11,7 @@ function lockAccount() {
   document.getElementById("password").disabled = true;
   document.getElementById("repassword").disabled = true;
   document.getElementById("save-account").classList.add("cursor-not-allowed");
+  document.getElementById("save-account").classList.remove("cursor-pointer");
 
   document.getElementById("edit-account").innerHTML = "Edit";
   document.getElementById("edit-account").onclick = unlockAccount;
@@ -30,7 +31,12 @@ function lockPersonal() {
   document.getElementById("ms-married").disabled = true;
   document.getElementById("ms-divorced").disabled = true;
   document.getElementById("ms-widowed").disabled = true;
+  document.getElementById("income").disabled = true;
+  document.getElementById("expenses").disabled = true;
+  document.getElementById("assets").disabled = true;
+  document.getElementById("liabilities").disabled = true;
   document.getElementById("save-personal").classList.add("cursor-not-allowed");
+  document.getElementById("save-personal").classList.remove("cursor-pointer");
 
   document.getElementById("edit-personal").innerHTML = "Edit";
   document.getElementById("edit-personal").onclick = unlockPersonal;
@@ -42,11 +48,12 @@ function lockPersonal() {
  */
 function unlockAccount() {
   document.getElementById("save-account").disabled = false;
-  // document.getElementById("email").disabled = false;
+  document.getElementById("email").disabled = false;
   document.getElementById("name").disabled = false;
   document.getElementById("password").disabled = false;
   document.getElementById("repassword").disabled = false;
   document.getElementById("save-account").classList.remove("cursor-not-allowed");
+  document.getElementById("save-account").classList.add("cursor-pointer");
 
   document.getElementById("edit-account").innerHTML = "Cancel changes";
   document.getElementById("edit-account").onclick = lockAccount;
@@ -64,7 +71,12 @@ function unlockPersonal() {
   document.getElementById("ms-married").disabled = false;
   document.getElementById("ms-divorced").disabled = false;
   document.getElementById("ms-widowed").disabled = false;
+  document.getElementById("income").disabled = false;
+  document.getElementById("expenses").disabled = false;
+  document.getElementById("assets").disabled = false;
+  document.getElementById("liabilities").disabled = false;
   document.getElementById("save-personal").classList.remove("cursor-not-allowed");
+  document.getElementById("save-personal").classList.add("cursor-pointer");
 
   document.getElementById("edit-personal").innerHTML = "Cancel changes";
   document.getElementById("edit-personal").onclick = lockPersonal;
@@ -72,4 +84,4 @@ function unlockPersonal() {
 
 // On page load, ensure forms are locked and reset
 lockAccount();
-// lockPersonal();
+lockPersonal();
