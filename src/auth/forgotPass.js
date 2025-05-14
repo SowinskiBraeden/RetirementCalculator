@@ -4,6 +4,7 @@ const joi = require('joi');
 const nodeMail = require('nodemailer');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
+
 const PORT = process.env.PORT;
 
 const transporter = nodeMail.createTransport({
@@ -13,7 +14,7 @@ const transporter = nodeMail.createTransport({
         pass: process.env.EMAIL_PASS,
     }
 });
-// users info
+
 module.exports = (users) => {
     const router = express.Router();
 
@@ -73,7 +74,7 @@ module.exports = (users) => {
         });
         const valid = passwordSchema.validate({ password, confirmPassword });
         if (valid.error) {
-            console.log("houston we have a problem");
+            console.log("houston we have a problem"); // nice
             req.session.error = 'Invalid input';
             res.status(status.BadRequest);
             return res.redirect(`/reset/${token}`);

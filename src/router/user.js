@@ -86,7 +86,7 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/assets', async (req, res) => {
-        let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+        let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
         res.render('assets', {
             user: req.session.user,
             errMessage: req.session.errMessage,
@@ -99,16 +99,16 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/plans', async (req, res) => {
         try {
-            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
             // Use a for...of loop for proper async/await behavior in series for updates
             for (const plan of userPlansFromDB) {
-                const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
+                const percentage = await calculatePlanProgress(plan, assets, req.session.userId);
                 await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
             }
 
             // Re-fetch plans to get updated progress for rendering
-            const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+            const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
             res.render('plans', {
                 user: req.session.user,
@@ -126,18 +126,17 @@ module.exports = (middleware, users, plans, assets) => {
 
         try {
             const planId = req.params.id;
-            let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-
+            let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
             if (!ObjectId.isValid(planId)) {
                 req.session.errMessage = "Invalid plan ID format.";
                 return res.status(status.BadRequest).redirect('/plans');
             }
 
-            const plan = await plans.findOne({ userId: new ObjectId(req.session.user._id), _id: new ObjectId(planId) });
+            const plan = await plans.findOne({ userId: new ObjectId(req.session.userId), _id: new ObjectId(planId) });
 
             if (!plan) {
-                console.log(`Plan not found with ID: ${planId} for user: ${req.session.user.email}`);
+                console.log(`Plan not found with ID: ${planId} for user: ${req.session.userId}`);
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
@@ -197,7 +196,7 @@ module.exports = (middleware, users, plans, assets) => {
             return;
         }
         const newPlan = {
-            userId: new ObjectId(req.session.user._id),
+            userId: new ObjectId(req.session.userId),
             name: value.name,
             retirementAge: value.retirementAge,
             retirementExpenses: value.retirementExpenses,
@@ -207,7 +206,7 @@ module.exports = (middleware, users, plans, assets) => {
         };
 
         try {
-            await plans.insertOne({ userId: new ObjectId(req.session.user._id), ...newPlan });
+            await plans.insertOne({ userId: new ObjectId(req.session.userId), ...newPlan });
             req.session.errMessage = "";
             res.redirect('/plans');
         }
@@ -280,7 +279,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         users.updateOne(
-            { _id: new ObjectId(req.session.user._id) },
+            { _id: new ObjectId(req.session.userId) },
             {
                 $set: {
                     financialData: true,
@@ -295,13 +294,13 @@ module.exports = (middleware, users, plans, assets) => {
             }
         ).then((result) => {
             if (result.matchedCount === 0) {
-                console.log(`User not found during questionnaire update: ${req.session.user.email}`);
+                console.log(`User not found during questionnaire update: ${req.session.userId}`);
                 req.session.errMessage = "User session invalid. Please log in again.";
                 res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.user.email}`);
+                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.userId}`);
             }
 
             req.session.user.financialData = true;
@@ -333,7 +332,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-                res.status(status.BadRequest);
+            res.status(status.BadRequest);
             return res.redirect("/profile");
         }
 
@@ -351,17 +350,17 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         users.updateOne(
-            { email: req.session.email },
+            { _id: new ObjectId(req.session.userId) },
             { $set: update }
         ).then((result) => {
             if (result.matchedCount === 0) {
-                console.log(`User not found during account update: ${req.session.email}`);
+                console.log(`User not found during account update: ${req.session.userId}`);
                 req.session.errMessage = "User session invalid. Please log in again.";
                 res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User account data unchanged (already up-to-date): ${req.session.email}`);
+                console.log(`User account data unchanged (already up-to-date): ${req.session.userId}`);
             }
 
             req.session.errMessage = "";
@@ -393,7 +392,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let newAsset = {
-            userId: new ObjectId(req.session.user._id),
+            userId: new ObjectId(req.session.userId),
             ...req.body,
             updatedAt: new Date(),
         };
@@ -437,7 +436,7 @@ module.exports = (middleware, users, plans, assets) => {
             return res.redirect("/assets");
         }
 
-        if (req.body.userId != req.session.user._id) {
+        if (req.body.userId != req.session.userId) {
             req.session.errMessage = "Cannot change asset owner",
                 res.status(status.BadRequest);
             return res.redirect("/assets");
@@ -507,20 +506,20 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.post("/deleteUser", (req, res) => {
         // not as critical if results aren't as expected only if crashing
-        assets.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+        assets.deleteMany({ userId: new ObjectId(req.session.userId) }).catch((err) => {
             console.error("Error deleting user assets: ", err);
             req.session.errMessage = "An error occured while deleting your account. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile");
         });
 
-        plans.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+        plans.deleteMany({ userId: new ObjectId(req.session.userId) }).catch((err) => {
             console.error("Error deleting user assets: ", err);
             req.session.errMessage = "An error occured while deleting your account. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile");
         });
 
         users.deleteOne(
-            { _id: new ObjectId(req.session.user._id) },
+            { _id: new ObjectId(req.session.userId) },
         ).then((result) => {
             if (result.deletedCount === 0) {
                 console.error(`User not found: ${req.body.id}`);

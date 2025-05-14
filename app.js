@@ -83,7 +83,6 @@ app.get('/forgotPassword', (req, res) => {
     return res.status(status.Ok);
 });
 
-
 // Reset with token given to user via email
 app.get('/reset/:token', async (req, res) => {
     const token = req.params.token;
@@ -105,7 +104,6 @@ app.get('/reset/:token', async (req, res) => {
         errMessage: error,
     });
 });
-
 
 // 404 handler - keep the actual notFound route please
 // REALLY DONT DELETE THIS
