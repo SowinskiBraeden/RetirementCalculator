@@ -61,7 +61,7 @@
 <script src="/static/scripts/assetManager.js"></script>
 <script>
     // Ensure all assets popup modals are locked and reset on page load    
-    let assets = JSON.parse("<%= assets %>");
+    let assets = <%- JSON.stringify(assets) %>;
     assets.forEach((asset) => {
         lockAsset(asset._id, asset.icon);
     });
