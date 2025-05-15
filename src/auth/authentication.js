@@ -12,10 +12,18 @@ module.exports = (users) => {
     const router = require("express").Router();
 
     router.get("/logout", (req, res) => {
-        req.session.destroy();
-        return res.redirect('/login');
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Failed to destroy session: ", err);
+                res.status(status.InternalServerError);
+                return res.redirect("back");
+            }
+
+            res.status(status.Ok);
+            return res.redirect('/login');
+        });
     });
-    
+
     router.post("/login", async (req, res) => {
       
         const credentialSchema = joi.object({
@@ -46,10 +54,19 @@ module.exports = (users) => {
 
             req.session.authenticated = true;
             req.session.userId = user._id;
-            req.session.email = req.body.email;
             req.session.errMessage = "";
-            res.redirect("/home");
-            return res.status(status.Ok);
+            
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+                    req.session.errMessage = "Failed to save session. Please try again.";
+                    res.status(status.InternalServerError);
+                    return res.redirect("/login");
+                }
+
+                res.status(status.Ok);
+                return res.redirect("/home");
+            });
         });
     });
 
@@ -97,11 +114,20 @@ module.exports = (users) => {
             }
 
             req.session.authenticated = true;
-            req.session.email = req.body.email;
             req.session.userId = results.insertedId;
-
             req.session.errMessage = "";
-            return res.status(status.Ok).redirect("/home");
+
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+                    req.session.errMessage = "Please login";
+                    res.status(status.Ok);
+                    return res.redirect("/login");
+                }
+
+                res.status(status.Ok);
+                return res.redirect("/home");
+            });
         });
     });
 
