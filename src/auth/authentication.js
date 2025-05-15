@@ -1,5 +1,5 @@
+const { passwordStrength } = require("check-password-strength");
 const status = require("../util/statuses");
-const session = require("express-session");
 const bcrypt = require('bcrypt');
 const joi = require("joi");
 const salt = 12;
@@ -95,6 +95,14 @@ module.exports = (users) => {
 
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
+            res.status(status.BadRequest);
+            return res.redirect("/signup");
+        }
+
+        let strength = passwordStrength(req.body.password);
+
+        if (strength.id < 2) {
+            req.session.errMessage = `Password ${strength.value}`;
             res.status(status.BadRequest);
             return res.redirect("/signup");
         }
