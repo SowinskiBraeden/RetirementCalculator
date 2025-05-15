@@ -55,6 +55,12 @@ const getAssetSchema = (type) => {
     return assetSchema;
 }
 
+/** 
+ * Function takes in a number and formats it to currency
+ * @param {integer}
+ * @returns nuber formatted in currency
+ */
+
 /**
  * @param {function} middleware handler
  * @param {MongoClient.collection} users db collection
@@ -71,6 +77,7 @@ module.exports = (middleware, users, plans, assets) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
+        let user = req.session.user._id;
         // if no session with geoData
         if (!req.session.geoData) {
             req.session.geoData = {
@@ -78,8 +85,10 @@ module.exports = (middleware, users, plans, assets) => {
                 toCurrencyRates: [],
             };
         }
-
-        res.render('dashboard', { user: req.user, geoData: req.session.geoData });
+        let planSchema = await plans.find({ userId: new ObjectId(user) }).project({
+            name: 1, retirementAssets: 1, progress: 1, _id: 1,
+        }).toArray();
+        res.render('dashboard', { user: req.user, geoData: req.session.geoData, plans: planSchema, });
 
         return res.status(status.Ok);
     });

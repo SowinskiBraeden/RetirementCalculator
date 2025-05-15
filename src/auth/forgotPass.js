@@ -65,6 +65,7 @@ module.exports = (users) => {
         }
     });
 
+    //Reset link verifies information from user and checks token
     router.post('/resetLink', async (req, res) => {
         const { token, password, confirmPassword, } = req.body;
         const passwordSchema = joi.object({
