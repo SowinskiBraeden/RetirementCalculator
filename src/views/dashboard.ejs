@@ -1,27 +1,27 @@
 <%- include("./partials/fileHeader") %>
-<%- include("./partials/header") %>
+    <%- include("./partials/header") %>
 
-<main class="pt-24 pb-14">
-    <!-- Buttons -->
-    <div class="flex justify-end gap-4 px-5 py-6">
-        <a href="/assets?popup"
-            class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
-            type="button">Add Asset</a>
-        <a href="/newPlan"
-            class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
-            type="button">Create new plan </a>
-    </div>
-    <div class="flex justify-center">
-        <div class="mb-12 grid gap-y-4 gap-x-6 md:grid-cols-2 mr-3 ml-3 ">
-            <% plans.forEach(plan=> { %>
-                <%- include('./partials/dashboardBox.ejs', {plan: plan}) %>
-            <% }); %>
-        </div>
-    </div>
-</main>
+        <main class="pt-24 pb-14">
+            <!-- Buttons -->
+            <div class="flex justify-end gap-4 px-5 py-6">
+                <a href="/assets?popup"
+                    class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
+                    type="button">Add Asset</a>
+                <a href="/newPlan"
+                    class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
+                    type="button">Create new plan </a>
+            </div>
+            <div class="flex justify-center sm:px-6 w-full ">
+                <div class="mb-12  grid gap-y-4 gap-x-6 md:grid-cols-2  ">
+                    <% plans.forEach(plan=> { %>
+                        <%- include('./partials/dashboardBox.ejs', {plan: plan}) %>
+                            <% }); %>
+                </div>
+            </div>
+        </main>
 
-<script src="/static/scripts/dollarFormat.js"></script>
+        <script src="/static/scripts/dollarFormat.js"></script>
 
-<%- include("./partials/navBar") %>
-<%- include("./partials/scriptLoader") %>
-<%- include("./partials/footer") %>
+        <%- include("./partials/navBar") %>
+            <%- include("./partials/scriptLoader") %>
+                <%- include("./partials/footer") %>
