@@ -3,6 +3,13 @@ const factMenu = document.getElementById("factMenu");
 const factInput = document.getElementById("factInput");
 const factSubmitButton = document.getElementById("factSubmitButton");
 
+var path = window.location.pathname;
+var page = path.split("/").pop();
+
+if(page !== "login" && page !== "signup" && page !== "forgotPassword" && page !== "") {
+    factButton.classList.remove("hidden");
+}
+
 factButton.addEventListener("click", () => {
     factMenu.classList.toggle("hidden");
 });
