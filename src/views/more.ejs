@@ -1,8 +1,52 @@
 <%- include("./partials/fileHeader") %>
 <%- include("./partials/header") %>
 
-<main>
-    The More Page
+<main class="pt-24">
+    <div class="mt-6">
+        <div class="mb-12 grid gap-y-6 gap-x-6 md:grid-cols-2 mr-3 ml-3 xl:grid-cols-4">
+            <!--box to put logo icon if we want on in a box-->
+            <a href="/profile" class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
+                <div class="p-4 flex items-center justify-between">
+                    <p class="font-sans text-2xl leading-normal font-normal text-blue-gray-600">
+                        Profile
+                    </p>
+                    <svg class="w-[40px] h-[40px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m10 16 4-4-4-4"/>
+                    </svg>
+                </div>
+            </a>
+            <a href="/settings" class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
+                <div class="p-4 flex items-center justify-between">
+                    <p class="font-sans text-2xl leading-normal font-normal text-blue-gray-600">
+                        Settings
+                    </p>
+                    <svg class="w-[40px] h-[40px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m10 16 4-4-4-4"/>
+                    </svg>
+                </div>
+            </a>
+            <a href="/aboutUs" class="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
+                <div class="p-4 flex items-center justify-between">
+                    <p class="font-sans text-2xl leading-normal font-normal text-blue-gray-600">
+                        About Us
+                    </p>
+                    <svg class="w-[40px] h-[40px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m10 16 4-4-4-4"/>
+                    </svg>
+                </div>
+            </a>
+            <a href="/logout" class="mt-77 relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
+                <div class="p-4 flex items-center justify-between">
+                    <p class="font-sans text-2xl leading-normal font-normal text-blue-gray-600">
+                        Log Out
+                    </p>
+                    <svg class="w-[40px] h-[40px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m10 16 4-4-4-4"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+    </div>
 </main>
 
 <%- include("./partials/navBar") %>

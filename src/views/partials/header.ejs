@@ -1,8 +1,8 @@
 
 <header>
-    <nav class="bg-gray-800 border-b border-gray-700">
-        <div class="w-screen flex flex-wrap items-center justify-between p-4">
-            <a href="/home" class="flex w-64 xl:w-[320px] items-center space-x-3 rtl:space-x-reverse">
+    <nav class="fixed bg-gray-800 border-b border-gray-700 z-50">
+        <div class="w-screen flex flex-col md:flex-row flex-wrap items-center justify-between p-3">
+            <a href="/home" class="flex xl:w-[320px] items-center space-x-3 rtl:space-x-reverse">
                 <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/rekor.png" class="h-8" alt="Flowbite Logo" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">RCalculator</span>
             </a>
@@ -16,13 +16,13 @@
                     <span class="sr-only">Loading...</span>
                 </div>
                 
-                <div style="display: none;" class="flex items-center" id="currencyExchange">
+                <div style="display: none;" class="flex items-center pt-2" id="currencyExchange">
                     <div id="exFrom" class="shrink-0 z-10 inline-flex w-[115px] items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
                         <img src="" id="yourFlag" class="h-4 w-4 me-2" alt="">
                         <p id="flagTag"></p>
                     </div>
                     <div class="relative w-full">
-                        <p id="exchange" class="block text-center p-2.5 w-40 z-20 text-sm border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500">
+                        <p id="exchange" class="block text-center p-2.5 w-35 z-20 text-sm border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500">
                         </p>
                     </div>
                     <button id="dropdown-country-button" value="" data-dropdown-toggle="dropdown-country" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-e-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600" type="button">
@@ -41,13 +41,13 @@
             <% } else if(geoData.message == "error") { %>
                 <p>error</p>
             <% } else { %>
-                <div class="flex items-center">
+                <div class="flex items-center pt-2">
                     <div class="shrink-0 z-10 w-[115px] inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
                         <img src="/static/svgs/flags/<%= geoData.country %>.svg" id="yourFlag" class="h-4 w-4 me-2" alt="<%= geoData.country %>"> (<%= geoData.country %>)
                         <p id="flagTag"></p>
                     </div>
                     <div class="relative w-full">
-                        <p id="exchange" class="block text-center p-2.5 w-40 z-20 text-sm text-gray-900 bg-gray-50 border-s-0 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                        <p id="exchange" class="block text-center p-2.5 w-35 z-20 text-sm text-gray-900 bg-gray-50 border-s-0 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
                             $1.00 = $<%= (1 * geoData.toCurrencyRates["USD"]).toFixed(2) %>
                         </p>
                     </div>
