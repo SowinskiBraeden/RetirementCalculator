@@ -89,10 +89,18 @@ module.exports = (middleware, users, plans, assets) => {
         let planSchema = await plans.find({ userId: new ObjectId(user) }).project({
             name: 1, retirementAssets: 1, progress: 1, _id: 1,
         }).toArray();
+
+        for (const plan of planSchema) {
+            const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
+            await updatePlanProgressInDB(plan._id, percentage, plans);
+        }
+
+        const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
         res.render('dashboard', { 
             user: req.session.user,
             geoData: req.session.geoData,
-            plans: planSchema, });
+            plans: updatedUserPlans, });
 
         return res.status(status.Ok);
     });
