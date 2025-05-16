@@ -11,7 +11,7 @@
             <a href="/plans/<%= plan._id %>" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><%= plan.name %></h5>
                 <div class="w-full bg-black rounded-full h-2.5 mb-4 dark:bg-black">
-                    <div class="bg-green-600 h-2.5 rounded-full dark:bg-green-500" style="width: <%= plan.progress %>%;"></div>
+                    <div class="bg-green-600 h-2.5 rounded-full dark:bg-green-500" style="width: <%= plan.progress > 100 ? 100 : plan.progress %>%;"></div>
                 </div>
                 <p class="font-normal text-gray-700 dark:text-gray-400"><%= plan.description %></p>
             </a>

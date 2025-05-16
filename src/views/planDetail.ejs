@@ -12,10 +12,10 @@
         <div>
             <div class="flex justify-between mb-1">
                 <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Progress</span>
-                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%= plan.progress %>%</span>
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%-plan.progress > 100 ? 100 : plan.progress%>%</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
-                <div class="bg-blue-600 h-3 rounded-full dark:bg-blue-500" style="width: <%= plan.progress %>%;"></div>
+                <div class="bg-blue-600 h-3 rounded-full dark:bg-blue-500" style="width: <%= plan.progress > 100 ? 100 : plan.progress %>%;"></div>
             </div>
         </div>
 

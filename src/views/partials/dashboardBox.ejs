@@ -22,11 +22,11 @@
                 </div>
                 <strong class="text-green-500">
                     <div class="float-right mb-2">
-                        <%=Math.floor(plan.progress) %>% complete
+                        <%=Math.floor(plan.progress) > 100 ? 100 : Math.floor(plan.progress) %>% complete
                     </div>
                     <div class="bg-gray-400 mt-7">
                         <div class="bg-green-600 h-2.5 rounded-full dark:bg-green-500"
-                            style="width: <%= plan.progress %>%;"></div>
+                            style="width: <%= plan.progress > 100 ? 100 : plan.progress %>%;"></div>
 
                     </div>
             </div>
