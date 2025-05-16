@@ -89,7 +89,10 @@ module.exports = (middleware, users, plans, assets) => {
         let planSchema = await plans.find({ userId: new ObjectId(user) }).project({
             name: 1, retirementAssets: 1, progress: 1, _id: 1,
         }).toArray();
-        res.render('dashboard', { user: req.user, geoData: req.session.geoData, plans: planSchema, });
+        res.render('dashboard', { 
+            user: req.session.user,
+            geoData: req.session.geoData,
+            plans: planSchema, });
 
         return res.status(status.Ok);
     });

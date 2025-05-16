@@ -70,8 +70,18 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/aboutUs', (req, res) => {
-    res.render('aboutUs');
-    return res.status(status.Ok);
+    if (!req.session.authenticated) {
+        res.render('aboutUs', {
+            geoData: undefined
+        });
+        return res.status(status.Ok);
+    } else {
+        res.render('aboutUs', {
+            user: req.session.user,
+            geoData: req.session.geoData
+        });
+        return res.status(status.Ok);
+    }
 });
 
 app.get('/forgotPassword', (req, res) => {
