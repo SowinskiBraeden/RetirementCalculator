@@ -95,10 +95,11 @@ module.exports = (middleware, users, plans, assets) => {
 
         const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
 
-        res.render('dashboard', { 
+        res.render('dashboard', {
             user: req.session.user,
             geoData: req.session.geoData,
-            plans: updatedUserPlans, });
+            plans: updatedUserPlans,
+        });
 
         return res.status(status.Ok);
     });
@@ -338,7 +339,7 @@ module.exports = (middleware, users, plans, assets) => {
                 }
 
                 let redirect = referrer.includes("?profile") ? "/profile" :
-                                referrer != "/home"           ? "/plans" : referrer;
+                    referrer != "/home" ? "/plans" : referrer;
                 return res.status(status.Ok).redirect(redirect);
             });
 
@@ -362,7 +363,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/profile");
         }
 
@@ -510,7 +511,7 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (valid.err) {
             req.session.errMessage = "Invalid input",
-            res.status(status.BadRequest);
+                res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 

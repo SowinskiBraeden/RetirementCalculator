@@ -11,10 +11,10 @@
                     class="text-center cursor-pointer min-w-[150px] bg-green-600 px-4 py-2 text-white rounded hover:bg-green-800"
                     type="button">Create new plan </a>
             </div>
-            <div class="flex justify-center sm:px-6 w-full ">
-                <div class="mb-12  grid gap-y-4 gap-x-6 md:grid-cols-2  ">
+            <div class="w-full">
+                <div class="mb-12 grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
                     <% plans.forEach(plan=> { %>
-                        <%- include('./partials/dashboardBox.ejs', {plan: plan}) %>
+                        <%- include('./partials/dashboardBox.ejs', {thing: plan}) %>
                             <% }); %>
                 </div>
             </div>
