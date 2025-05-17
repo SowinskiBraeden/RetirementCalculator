@@ -1,5 +1,5 @@
 const getRates = require("../util/exchangeRate");
-const { calculatePlanProgress, updatePlanProgressInDB } = require("../util/calculations");
+const { calculateProgress, updatePlanProgressInDB } = require("../util/calculations");
 const suggestions = require("../util/suggestions");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
@@ -86,13 +86,11 @@ module.exports = (middleware, users, plans, assets) => {
                 toCurrencyRates: [],
             };
         }
-        let planSchema = await plans.find({ userId: new ObjectId(user) }).project({
-            name: 1, retirementAssets: 1, progress: 1, _id: 1,
-        }).toArray();
+        const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
-        for (const plan of planSchema) {
-            const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
-            await updatePlanProgressInDB(plan._id, percentage, plans);
+        for (const plan of userPlansFromDB) {
+            const progress = await calculateProgress(plan, assets, users, req.session.user._id);
+            await updatePlanProgressInDB(plan._id, progress.percentage, plans);
         }
 
         const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
@@ -122,8 +120,8 @@ module.exports = (middleware, users, plans, assets) => {
             const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
             for (const plan of userPlansFromDB) {
-                const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
-                await updatePlanProgressInDB(plan._id, percentage, plans);
+                const progress = await calculateProgress(plan, assets, users, req.session.user._id);
+                await updatePlanProgressInDB(plan._id, progress.percentage, plans);
             }
 
             const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
@@ -159,12 +157,15 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
+            const progress = await calculateProgress(plan, assets, users, req.session.userId);
+
 
             res.render('planDetail', {
                 user: req.session.user,
                 plan: plan,
                 geoData: req.session.geoData,
                 assets: userAssets,
+                progress: progress,
                 suggestions: await suggestions.generateSuggestions(),
             });
 
