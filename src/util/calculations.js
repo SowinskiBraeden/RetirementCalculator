@@ -42,4 +42,72 @@ async function updatePlanProgressInDB(planId, percentage, plans) {
     }
 }
 
-module.exports = { calculatePlanProgress, updatePlanProgressInDB };
+
+async function calculateProgress(plan, assets, users, userId) {
+    if (!plan || typeof plan !== 'object') {
+        console.error("Error with the plan");
+        return;
+    }
+    if (!assets || typeof assets.find !== 'function') {
+        console.error("Error with the assets collection");
+        return;
+    }
+    if (!users || typeof users.findOne !== 'function') {
+        console.error("Error with the users collection");
+        return;
+    }
+    if (!userId) {
+        console.error("No user ID provided");
+        return;
+    }
+
+    try {
+        const userAssets = await assets.find({ userId: new ObjectId(userId) }).toArray();
+        const totalUserAssetValue = userAssets.reduce((total, asset) => total + asset.value, 0);
+        const totalUserPlanValue = plan.retirementAssets;
+        
+        const userDoc = await users.findOne({ _id: new ObjectId(userId) });
+        if (!userDoc || !userDoc.dob) {
+            console.error("User document or DOB not found for userId:", userId);
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+        }
+        const userDob = new Date(userDoc.dob);
+
+        if (isNaN(userDob.getTime())) {
+            console.error("userDob is an invalid date. Aborting calculation.");
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+        }
+
+        const today = new Date();
+        const userUnalivedBy = new Date(userDob);
+        userUnalivedBy.setFullYear(userUnalivedBy.getFullYear() + 90);
+        const yearOfRetirement = userDob.getFullYear() + plan.retirementAge;
+        const monthsUntilRetirement = (yearOfRetirement - today.getFullYear()) * 12;
+        const yearsRetired = userUnalivedBy.getFullYear() - yearOfRetirement;
+        
+        const totalCostOfRetirement = ((plan.retirementExpenses + plan.retirementLiabilities) * 12) * yearsRetired;
+        
+        const monthlyInvestment = (totalUserPlanValue - totalUserAssetValue + totalCostOfRetirement) / monthsUntilRetirement;
+        
+        const percentageCalculated = (totalUserAssetValue / (totalUserPlanValue + totalCostOfRetirement)) * 100;
+        
+        const progress = {};
+
+        progress.monthlyInvestment = Math.round(monthlyInvestment);
+        progress.totalCostOfRetirement = totalCostOfRetirement;
+        progress.monthsUntilRetirement = monthsUntilRetirement;
+        progress.yearsRetired = yearsRetired;
+        progress.yearsUntilRetirement = (yearOfRetirement - today.getFullYear());
+        progress.percentage = percentageCalculated;
+        
+        return progress;
+
+    } catch (err) {
+        console.error("Error in calculateProgress:", err);
+        return;
+    }
+}
+    
+
+
+module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateProgress};

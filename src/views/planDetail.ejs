@@ -2,9 +2,7 @@
 <%- include("./partials/header") %>
 
 <main class="container mx-auto p-4 pt-28">
-    <h2 class="text-xl text-white font-semibold mb-4">Welcome: <%= user.name %></h2>
     <div class="max-w-lg mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg space-y-6 dark:bg-gray-800">
-        
         <div class="text-center">
             <h3 class="text-2xl font-bold text-gray-800 dark:text-white"><%= plan.name %></h3>
         </div>
@@ -19,6 +17,13 @@
             </div>
         </div>
 
+        <div>
+            <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Calculated Monthly Investment</span>
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.monthlyInvestment > 0 ? progress.monthlyInvestment : 0) %></span>
+            </div>
+        </div>
+
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
             <h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Assets:</h4>
             
@@ -29,7 +34,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Total Value:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= assets.reduce((total, asset) => total + asset.value, 0) %></p>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, asset) => total + asset.value, 0)) %></p>
                 </div>
             </div>
         </div>
@@ -43,16 +48,32 @@
                     <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementAge %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Monthly Expenses:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementExpenses %></p>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementExpenses) %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Assets:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementAssets %></p>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Assets (Total):</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementAssets) %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Liabilities:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementLiabilities %></p>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Liabilities (Monthly):</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementLiabilities) %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Years Until Retirement:</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- progress.yearsUntilRetirement %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Years Retired:</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- progress.yearsRetired %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Total Cost of Retirement:</label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.totalCostOfRetirement) %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Total amount needed (Assets + Retirement Expenses): </label>
+                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.totalCostOfRetirement + progress.monthlyInvestment * progress.monthsUntilRetirement) %></p>
                 </div>
             </div>
         </div>
