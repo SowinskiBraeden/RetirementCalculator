@@ -67,15 +67,17 @@ async function calculateProgress(plan, assets, users, userId) {
         const totalUserPlanValue = plan.retirementAssets;
         
         const userDoc = await users.findOne({ _id: new ObjectId(userId) });
+
         if (!userDoc || !userDoc.dob) {
-            console.error("User document or DOB not found for userId:", userId);
-            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+            console.error("[calculateProgress] User document or DOB not found for userId:", userId);
+            // Ensure a structured return even on error to avoid undefined.progress issues
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN }; 
         }
         const userDob = new Date(userDoc.dob);
 
         if (isNaN(userDob.getTime())) {
-            console.error("userDob is an invalid date. Aborting calculation.");
-            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+            console.error("[calculateProgress] userDob is an invalid date. Aborting calculation.");
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN };
         }
 
         const today = new Date();
@@ -104,10 +106,23 @@ async function calculateProgress(plan, assets, users, userId) {
 
     } catch (err) {
         console.error("Error in calculateProgress:", err);
-        return;
+        // Ensure a structured return even on error to avoid undefined.progress issues
+        return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN }; 
     }
 }
+
+async function updateProgress(plans, assets, users, userId) {
+                const userPlansFromDB = await plans.find({ userId: new ObjectId(userId) }).toArray();
     
+                for (const plan of userPlansFromDB) {
+                    const progress = await calculateProgress(plan, assets, users, userId);
+                    await updatePlanProgressInDB(plan._id, progress.percentage, plans);
+                }
+    
+                const updatedUserPlans = await plans.find({ userId: new ObjectId(userId) }).toArray();
+                return updatedUserPlans;
+            }
 
 
-module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateProgress};
+
+module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateProgress, updateProgress};
