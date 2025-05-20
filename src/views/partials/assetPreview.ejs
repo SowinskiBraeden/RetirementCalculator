@@ -10,7 +10,7 @@
             </div>
             <div>
                 <h3><strong>
-                    $<%= asset.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                    <%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(asset.value) %>
                 </strong></h3>
             </div>
         </div>

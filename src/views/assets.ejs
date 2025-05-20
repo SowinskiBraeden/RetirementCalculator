@@ -19,7 +19,7 @@
                 <h1 class="text-2xl font-bold tracking-tight leading-none">Total Value:</h1>
                 <h1 class="text-xl font-medium tracking-tight leading-none">
                     <!-- sum of assets array values and formated as proper dollar amount -->
-                    $<%= assets.reduce((total, e) => total + e.value, 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                    <%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, e) => total + e.value, 0)) %>
                 </h1>
             </div>
         </div>
