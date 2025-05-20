@@ -96,7 +96,7 @@ module.exports = (users) => {
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
             res.status(status.BadRequest);
-            return res.redirect("/signup");
+            return res.redirect(`/signup/${req.body.name}/${req.body.email}`);
         }
 
         let strength = passwordStrength(req.body.password);
@@ -104,7 +104,7 @@ module.exports = (users) => {
         if (strength.id < 2) {
             req.session.errMessage = `Password ${strength.value}`;
             res.status(status.BadRequest);
-            return res.redirect("/signup");
+            return res.redirect(`/signup/${req.body.name}/${req.body.email}`);
         }
 
         let hashedPassword = await bcrypt.hashSync(req.body.password, salt);

@@ -60,6 +60,17 @@ app.get('/signup', (req, res) => {
     return res.status(status.Ok);
 });
 
+app.get('/signup/:name/:email', (req, res) => {
+    const ignore = ["User not found", "Incorrect password"];
+    if (ignore.includes(req.session.errMessage)) req.session.errMessage = "";
+    res.render('signup', { 
+        errMessage: req.session.errMessage,
+        name: req.params.name,
+        email: req.params.email
+    });
+    return res.status(status.Ok);
+});
+
 app.get('/login', (req, res) => {
     if (req.session.authenticated) {
         res.redirect("/home");
