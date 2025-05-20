@@ -36,11 +36,11 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                     </svg>
                 </button>
-                <div id="dropdown-icons-<%= asset._id %>" class="overflow-y-auto h-40 z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-32 dark:bg-gray-700">
-                    <ul id="dropdown-<%= asset._id %>" class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-icon-button-<%= asset._id %>">
+                <div id="dropdown-icons-<%= asset._id %>" class="overflow-y-auto h-40 z-10 hidden divide-y divide-gray-100 rounded-lg shadow-sm w-32 bg-gray-700">
+                    <ul id="dropdown-<%= asset._id %>" class="py-2 text-sm text-gray-200" aria-labelledby="dropdown-icon-button-<%= asset._id %>">
                         <% icons.forEach(icon => { %>
                             <li>
-                                <button onclick="selectIcon(this, '<%= asset._id %>')" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+                                <button onclick="selectIcon(this, '<%= asset._id %>')" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 hover:text-white" role="menuitem">
                                     <span class="inline-flex items-center">
                                         <img src="/static/svgs/icons/<%= icon %>.svg" class="h-4 w-4 me-2" alt="<%= icon %>"> (<%= icon %>)
                                     </span>
