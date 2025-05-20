@@ -1,0 +1,102 @@
+<%- include('./partials/fileHeader') %>
+<%- include('./partials/header') %>
+
+<main class="container mx-auto p-4 pt-28">
+    <div class="max-w-2xl mx-auto bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl">
+        <h2 class="text-2xl font-bold text-center text-white mb-8">Edit Plan: <%= plan.name %></h2>
+
+        <form id="editPlanForm" action="/plans/<%= plan._id %>/edit" method="POST" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-300">Plan Name</label>
+                <input type="text" name="name" id="name" value="<%= plan.name %>" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
+            </div>
+
+            <div>
+                <label for="retirementAge" class="block text-sm font-medium text-gray-300">Desired Retirement Age</label>
+                <input type="number" name="retirementAge" id="retirementAge" value="<%= plan.retirementAge %>" required min="18"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
+            </div>
+
+            <div>
+                <label for="retirementExpenses" class="block text-sm font-medium text-gray-300">Estimated Monthly Expenses at Retirement (<%= geoData.currency || 'CAD' %>)</label>
+                <input type="number" name="retirementExpenses" id="retirementExpenses" value="<%= plan.retirementExpenses %>" required min="0" step="any"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
+            </div>
+
+            <div>
+                <label for="retirementAssets" class="block text-sm font-medium text-gray-300">Target Retirement Assets (<%= geoData.currency || 'CAD' %>)</label>
+                <input type="number" name="retirementAssets" id="retirementAssets" value="<%= plan.retirementAssets %>" required min="0" step="any"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
+            </div>
+
+            <div>
+                <label for="retirementLiabilities" class="block text-sm font-medium text-gray-300">Estimated Monthly Liabilities at Retirement (<%= geoData.currency || 'CAD' %>)</label>
+                <input type="number" name="retirementLiabilities" id="retirementLiabilities" value="<%= plan.retirementLiabilities %>" required min="0" step="any"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
+            </div>
+            
+            <div id="formErrorMessages" class="text-red-400 text-sm my-2" style="display: none;"></div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4">
+                <a href="/plans/<%= plan._id %>" class="inline-flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm bg-gray-600 text-sm font-medium text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    // Basic client-side form submission handler to process JSON response
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('editPlanForm');
+        const errorMessagesDiv = document.getElementById('formErrorMessages');
+
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent traditional form submission
+                errorMessagesDiv.textContent = '';
+                errorMessagesDiv.style.display = 'none';
+
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // alert('Plan updated successfully!'); // Optional: show an alert
+                        window.location.href = `/plans/<%= plan._id %>`; // Redirect to plan detail page
+                    } else {
+                        errorMessagesDiv.textContent = result.message || 'An error occurred while updating the plan.';
+                        errorMessagesDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    errorMessagesDiv.textContent = 'A network error occurred. Please try again.';
+                    errorMessagesDiv.style.display = 'block';
+                }
+            });
+        }
+    });
+</script>
+
+<%- include('./partials/navBar') %>
+<%- include('./partials/scriptLoader') %>
+<%- include('./partials/footer') %>

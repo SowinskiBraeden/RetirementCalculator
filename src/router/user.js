@@ -1,5 +1,5 @@
 const getRates = require("../util/exchangeRate");
-const { calculateProgress, updatePlanProgressInDB } = require("../util/calculations");
+const { calculateProgress, updatePlanProgressInDB, updateProgress } = require("../util/calculations");
 const suggestions = require("../util/suggestions");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
@@ -118,16 +118,9 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/plans', async (req, res) => {
         try {
-            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
-            for (const plan of userPlansFromDB) {
-                const progress = await calculateProgress(plan, assets, users, req.session.user._id);
-                await updatePlanProgressInDB(plan._id, progress.percentage, plans);
-            }
-
-            const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-
-
+            const updatedUserPlans = await updateProgress(plans, assets, users, req.session.user._id);
+            
             res.render('plans', {
                 user: req.session.user,
                 plans: updatedUserPlans,
@@ -150,23 +143,21 @@ module.exports = (middleware, users, plans, assets) => {
                 req.session.errMessage = "Invalid plan ID format.";
                 return res.status(status.BadRequest).redirect('/plans');
             }
-
             const plan = await plans.findOne({ userId: new ObjectId(req.session.userId), _id: new ObjectId(planId) });
 
             if (!plan) {
-                console.log(`Plan not found with ID: ${planId} for user: ${req.session.userId}`);
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
-            const progress = await calculateProgress(plan, assets, users, req.session.userId);
 
+            const progress = await calculateProgress(plan, assets, users, req.session.userId);
 
             res.render('planDetail', {
                 user: req.session.user,
-                plan: plan,
+                plan: plan, 
                 geoData: req.session.geoData,
                 assets: userAssets,
-                progress: progress,
+                progress: progress, 
                 suggestions: await suggestions.generateSuggestions(),
             });
 
@@ -205,29 +196,134 @@ module.exports = (middleware, users, plans, assets) => {
 
         if (error) {
             console.error("Plan validation error:", error.details);
-            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
-            res.status(status.BadRequest).redirect("/newPlan");
+            const errorMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).json({ success: false, message: errorMessage });
             return;
         }
-        const newPlan = {
+
+        const planToInsert = {
             userId: new ObjectId(req.session.userId),
             name: value.name,
             retirementAge: value.retirementAge,
             retirementExpenses: value.retirementExpenses,
             retirementAssets: value.retirementAssets,
             retirementLiabilities: value.retirementLiabilities,
-            progress: "0"
+            progress: "0" 
         };
 
         try {
-            await plans.insertOne({ userId: new ObjectId(req.session.userId), ...newPlan });
-            req.session.errMessage = "";
-            res.redirect('/plans');
+            await plans.insertOne(planToInsert);
+            res.status(status.Ok).json({ success: true, message: "Plan created successfully." });
         }
         catch (err) {
             console.error("Error saving plan:", err);
-            req.session.errMessage = "An error occurred while saving your plan. Please try again.";
-            res.status(status.InternalServerError).redirect("/newPlan");
+            res.status(status.InternalServerError).json({ success: false, message: "An error occurred while saving your plan. Please try again." });
+        }
+    });
+
+    router.delete('/plans/:id', async (req, res) => {
+        const planId = req.params.id;
+        const plan = await plans.findOne({ _id: new ObjectId(planId) });
+        if(!plan) {
+            console.log(`Plan not found with ID: ${planId}`);
+            res.status(status.NotFound).json({ success: false, message: "Plan not found or you do not have permission to delete it." });
+            return;
+        }
+        if(plan.userId.toString() !== req.session.userId) {
+            console.log(`User ${req.session.userId} does not have permission to delete plan ${planId}`);
+            res.status(status.Forbidden).json({ success: false, message: "You do not have permission to delete this plan." });
+            return;
+        }
+        try {
+            await plans.deleteOne({ _id: new ObjectId(planId) });
+            res.status(status.Ok).json({ success: true, message: "Plan deleted successfully." });
+        }
+        catch (err) {
+            console.error("Error deleting plan:", err);
+            res.status(status.InternalServerError).json({ success: false, message: "An error occurred while deleting your plan. Please try again." });
+        }
+    });
+
+    router.get('/plans/:id/edit', async (req, res) => {
+        const planId = req.params.id;
+        const plan = await plans.findOne({ _id: new ObjectId(planId) });
+        if(!plan) {
+            console.log(`Plan not found with ID: ${planId}`);
+            res.status(status.NotFound).json({ success: false, message: "Plan not found or you do not have permission to edit it." });
+            return;
+        }
+        if(plan.userId.toString() !== req.session.userId) {
+            console.log(`User ${req.session.userId} does not have permission to edit plan ${planId}`);
+            res.status(status.Forbidden).json({ success: false, message: "You do not have permission to edit this plan." });
+            return;
+        }
+        res.render('editPlan', {
+            user: req.session.user,
+            plan: plan,
+            geoData: req.session.geoData
+        });
+    });
+
+    router.post('/plans/:id/edit', async (req, res) => {
+        const planId = req.params.id;
+        const plan = await plans.findOne({ _id: new ObjectId(planId) });
+        if(!plan) {
+            console.log(`Plan not found with ID: ${planId}`);
+            res.status(status.NotFound).json({ success: false, message: "Plan not found or you do not have permission to edit it." });
+            return;
+        }
+        if(plan.userId.toString() !== req.session.userId) {
+            console.log(`User ${req.session.userId} does not have permission to edit plan ${planId}`);
+            res.status(status.Forbidden).json({ success: false, message: "You do not have permission to edit this plan." });
+            return;
+        }
+
+        const planSchema = joi.object({
+            name: joi.string().min(3).max(100).required(),
+            retirementAge: joi.number().min(18).max(120).required(),
+            retirementExpenses: joi.number().min(0).required(),
+            retirementAssets: joi.number().min(0).required(),
+            retirementLiabilities: joi.number().min(0).required(),
+        });
+
+        // Object for Joi validation - only fields from req.body
+        const dataToValidate = {
+            name: req.body.name,
+            retirementAge: Number(req.body.retirementAge),
+            retirementExpenses: parseFloat(req.body.retirementExpenses),
+            retirementAssets: parseFloat(req.body.retirementAssets),
+            retirementLiabilities: parseFloat(req.body.retirementLiabilities),
+        };
+
+        const { error, value } = planSchema.validate(dataToValidate);
+        if (error) {
+            console.error("Plan validation error:", error.details);
+            const errorMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).json({ success: false, message: errorMessage });
+            return;
+        }
+
+        const progressCalculated = await calculateProgress(value, assets, users, req.session.userId);
+
+        const planToSet = {
+            name: value.name,
+            retirementAge: value.retirementAge,
+            retirementExpenses: value.retirementExpenses,
+            retirementAssets: value.retirementAssets,
+            retirementLiabilities: value.retirementLiabilities,
+            progress: progressCalculated.percentage,
+        };
+        try {
+            await plans.updateOne(
+                { _id: new ObjectId(planId), userId: new ObjectId(req.session.userId) }, 
+                { $set: planToSet }
+            );
+            await updateProgress(plans, assets, users, req.session.user._id);
+            res.status(status.Ok).json({ success: true, message: "Plan updated successfully." });
+        }
+        catch (err) {
+            console.error("Error updating plan:", err);
+            res.status(status.InternalServerError).json({ success: false, message: "An error occurred while updating your plan. Please try again." });
         }
     });
 
@@ -415,6 +511,7 @@ module.exports = (middleware, users, plans, assets) => {
 
                 return res.status(status.Ok).redirect("/profile");
             });
+
         }).catch(err => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";

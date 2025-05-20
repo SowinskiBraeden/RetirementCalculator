@@ -87,9 +87,15 @@
                 </p>
             </div>
         </div>
+        <div class="flex items-center justify-center space-x-2">
+            <button type="button" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" onclick="editPlan('<%= plan._id %>')">Edit Plan</button>
+            <button type="button" class="py-2 px-4 border border-red-600 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer" onclick="deletePlan('<%= plan._id %>')">Delete Plan</button>
+        </div>
 
     </div>
 </main>
+
+<script src="/static/scripts/planManager.js"></script>
 
 <%- include("./partials/navBar") %>
 <%- include("./partials/scriptLoader") %>
