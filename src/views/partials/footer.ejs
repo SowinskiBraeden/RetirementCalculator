@@ -1,13 +1,28 @@
-
-<footer class="mt-16">
-    <div class="fixed bottom-0 left-0 z-50 hidden lg:block w-full h-16 bg-gray-800 border-t border-gray-700 p-6 text-center text-gray-400 text-sm">
-        <div class="container mx-auto">
-            <p>&copy; 2025 RCalculator. All rights reserved.</p>
+    <div class="fixed end-6 bottom-20 group">
+        <div id="factMenu" class="absolute right-0 bottom-full mb-2 hidden">
+            <div id="factContainer" class="p-4 rounded-lg shadow-md bg-gray-700 w-64">
+                <p class="mb-2 text-sm text-gray-300">Insert the kind of short fact you would like to know more about:</p>
+                <input type="text" id="factInput" placeholder="Enter your topic here" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 bg-gray-600 border-gray-500 text-white placeholder-gray-400">
+                <button type="button" id="factSubmitButton" class="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-700">Submit</button>
+            </div>
         </div>
+        <button type="button" id="factButton" class="flex items-center justify-center text-white rounded-full w-14 h-14 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span class="sr-only">Get a Fact</span>
+        </button>
     </div>
-</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-
+    <footer class="mt-16">
+        <div class="fixed bottom-0 left-0 z-30 hidden lg:block w-full h-16 bg-gray-800 border-t border-gray-700 p-6 text-center text-gray-400 text-sm">
+            <div class="container mx-auto">
+                <p>&copy; 2025 RCalculator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/static/scripts/footer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 </body>
 </html>

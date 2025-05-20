@@ -1,0 +1,119 @@
+
+<!-- View/edit popup modal for asset -->
+<dialog id="<%= asset._id %>-modal" class="w-lg mx-auto bg-white p-8 mt-10 rounded-lg shadow-md">
+    <div class="flex flex-row justify-between">
+        <div style="width: 45%;">
+            <form method="dialog" style="width: 100%;">
+                <button
+                    style="width: 100%;"
+                    onclick="lockAsset('<%= asset._id %>', '<%= asset.icon %>')" 
+                    type="submit" 
+                    class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
+                >
+                    Close
+                </button>
+            </form>
+        </div>
+        <div style="width: 45%;">
+            <button
+                style="width: 100%;"
+                type="submit" 
+                class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
+                onclick="document.getElementById('<%= asset._id %>-delete-modal').showModal()"
+            >
+                Delete
+            </button>
+        </div>
+    </div>
+    <br>
+
+    <div class="flex flex-row justify-between">
+        <% if (asset.type == "other") { %>
+            <div class="flex items-center">
+                <button id="dropdown-icon-button-<%= asset._id %>" value="" data-dropdown-toggle="dropdown-icons-<%= asset._id %>" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+                    <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4 me-2" alt="<%= asset.icon %>"> <%= asset.icon %>
+                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                    </svg>
+                </button>
+                <div id="dropdown-icons-<%= asset._id %>" class="overflow-y-auto h-40 z-10 hidden divide-y divide-gray-100 rounded-lg shadow-sm w-32 bg-gray-700">
+                    <ul id="dropdown-<%= asset._id %>" class="py-2 text-sm text-gray-200" aria-labelledby="dropdown-icon-button-<%= asset._id %>">
+                        <% icons.forEach(icon => { %>
+                            <li>
+                                <button onclick="selectIcon(this, '<%= asset._id %>')" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 hover:text-white" role="menuitem">
+                                    <span class="inline-flex items-center">
+                                        <img src="/static/svgs/icons/<%= icon %>.svg" class="h-4 w-4 me-2" alt="<%= icon %>"> (<%= icon %>)
+                                    </span>
+                                </button>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        <% } else { %>
+            <button disabled class="inline-flex items-center py-2.5 px-10 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+                <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4" alt="<%= asset.icon %>">
+            </button>
+        <% } %>
+        
+        <h2 class="text-xl font-medium tracking-tight leading-none mt-3"><%= String(asset.type).charAt(0).toUpperCase() + String(asset.type).slice(1); %> Asset</h2>
+        <div>
+            <button
+                id="edit-<%= asset._id %>"
+                onclick="unlockAsset('<%= asset._id %>')"
+                class="py-3 px-8 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
+            >
+                Edit
+            </button>
+        </div>
+    </div>
+    <br>
+
+    <form id="<%= asset._id %>-form" method="POST" action="/updateAsset">
+        <input id="type-<%= asset._id %>" name="type" type="text" hidden value="<%= asset.type %>">
+        <input id="id-<%= asset._id %>" name="id" type="text" hidden value="<%= asset._id %>">
+        <input id="userId-<%= asset.userId %>" name="userId" type="text" hidden value="<%= asset.userId %>">
+        <input id="icon-<%= asset._id %>" name="icon" type="text" hidden value="<%= asset.icon %>">
+
+        <% if (asset.type != "stock") { %>
+            <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name</label>
+            <input id="name-<%= asset._id %>" disabled type="text" name="name" value="<%= asset.name %>" class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+        <% } else { %>
+            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
+            <input id="ticker-<%= asset._id %>" disabled type="text" name="ticker" value="<%= asset.ticker %>" class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+        <% } %>
+
+        <hr class="h-px mt-6 mb-4 bg-gray-500 border-0 mx-10">
+
+        <% if (asset.type != "stock") { %>
+            <label for="value" class="block text-sm font-medium text-gray-700">Value</label>
+            <input id="value-<%= asset._id %>" disabled type="number" name="value" value="<%= asset.value %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+        <% } else { %>
+            <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
+            <input id="price-<%= asset._id %>" disabled type="number" name="price" value="<%= asset.price %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            
+            <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
+            <input id="quantity-<%= asset._id %>" disabled type="number" name="quantity" value="<%= asset.quantity %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+        <% } %>
+
+        <% if (asset.type == "other") { %>
+            <label for="description" class="block text-sm font-medium text-gray-700 mt-2">Description</label>
+            <textarea disabled maxlength="240" id="description-<%= asset._id %>" name="description" rows="4" cols="50" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"><%= asset.description %></textarea>
+        <% } %>
+
+        <% if (asset.type != "saving") { %>
+            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Purchased on</label>
+            <input id="purchaseDate-<%= asset._id %>" disabled type="date" name="purchaseDate" value="<%= asset.purchaseDate %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+        <% } %>
+
+        <br>
+        <small class="block text-sm font-medium text-gray-700">Last Modified: <%= asset.updatedAt %></small>
+        <br>
+
+        <div>
+            <button id="save-<%= asset._id %>" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed">
+                Save
+            </button>
+        </div>
+    </form>
+</dialog>

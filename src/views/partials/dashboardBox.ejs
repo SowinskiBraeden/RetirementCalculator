@@ -1,0 +1,35 @@
+<div class="w-full h-full mt-3">
+    <a href="/plans/<%=thing._id%>"
+        class="block p-4 w-full h-full rounded-xl transition-shadow duration-300 ease-in-out hover:shadow-xl">
+        <div
+            class="relative flex flex-col bg-white text-gray-700 shadow-md rounded-xl w-full h-full overflow-hidden min-h-[175px]">
+            <!-- Header Section -->
+            <div class="p-4 flex items-center justify-between border-b ">
+                <p class="text-xl font-semibold text-blue-gray-700 truncate" title="<%= thing.name %>">
+                    <%= thing.name %>
+                </p>
+                <h4 class="planGoal text-xl font-semibold whitespace-nowrap">
+                    <%= thing.retirementAssets %>
+                </h4>
+            </div>
+
+            <!-- Progress Bar Section - Pushed to the bottom -->
+            <div class="mt-2">
+                <div class="p-4 mt-auto border-gray-900">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-sm font-medium text-blue-gray-600">
+                            Progress:
+                        </p>
+                        <p class="text-sm font-semibold justify-between text-green-500">
+                            <%=Math.floor(thing.progress)> 100 ? 100 : Math.floor(thing.progress) %>%
+                        </p>
+                    </div>
+                    <div class="w-full bg-gray-300 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full"
+                            style="width: <%= thing.progress > 100 ? 100 : thing.progress %>%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>

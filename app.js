@@ -70,8 +70,18 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/aboutUs', (req, res) => {
-    res.render('aboutUs');
-    return res.status(status.Ok);
+    if (!req.session.authenticated) {
+        res.render('aboutUs', {
+            geoData: undefined
+        });
+        return res.status(status.Ok);
+    } else {
+        res.render('aboutUs', {
+            user: req.session.user,
+            geoData: req.session.geoData
+        });
+        return res.status(status.Ok);
+    }
 });
 
 app.get('/forgotPassword', (req, res) => {
@@ -82,7 +92,6 @@ app.get('/forgotPassword', (req, res) => {
     res.render('forgotPass', { error: error, reset: reset });
     return res.status(status.Ok);
 });
-
 
 // Reset with token given to user via email
 app.get('/reset/:token', async (req, res) => {
@@ -105,7 +114,6 @@ app.get('/reset/:token', async (req, res) => {
         errMessage: error,
     });
 });
-
 
 // 404 handler - keep the actual notFound route please
 // REALLY DONT DELETE THIS

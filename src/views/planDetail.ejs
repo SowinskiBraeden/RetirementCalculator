@@ -1,68 +1,89 @@
 <%- include("./partials/fileHeader") %>
 <%- include("./partials/header") %>
 
-<main class="container mx-auto p-4">
-    <h2 class="text-xl text-white font-semibold mb-4">Welcome: <%= user.name %></h2>
-    <div class="max-w-lg mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg space-y-6 dark:bg-gray-800">
-        
+<main class="container mx-auto p-4 pt-28">
+    <div class="max-w-lg mx-auto p-6 sm:p-8 rounded-xl shadow-lg space-y-6 bg-gray-800">
         <div class="text-center">
-            <h3 class="text-2xl font-bold text-gray-800 dark:text-white"><%= plan.name %></h3>
+            <h3 class="text-2xl font-bold text-white"><%= plan.name %></h3>
         </div>
 
         <div>
             <div class="flex justify-between mb-1">
-                <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Progress</span>
-                <span class="text-sm font-medium text-blue-700 dark:text-blue-400"><%= plan.progress %>%</span>
+                <span class="text-sm font-medium text-blue-400">Progress</span>
+                <span class="text-sm font-medium text-blue-400"><%-plan.progress > 100 ? 100 : plan.progress%>%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
-                <div class="bg-blue-600 h-3 rounded-full dark:bg-blue-500" style="width: <%= plan.progress %>%;"></div>
+            <div class="w-full rounded-full h-3 bg-gray-700">
+                <div class="h-3 rounded-full bg-blue-500" style="width: <%= plan.progress > 100 ? 100 : plan.progress %>%;"></div>
             </div>
         </div>
 
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-            <h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Assets:</h4>
+        <div>
+            <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium text-blue-400">Calculated Monthly Investment</span>
+                <span class="text-sm font-medium text-blue-400"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.monthlyInvestment > 0 ? progress.monthlyInvestment : 0) %></span>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-700 pt-6 space-y-4">
+            <h4 class="text-lg font-semibold text-gray-300 mb-3">Assets:</h4>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Number of Assets:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= assets.length %></p>
+                    <label class="block text-sm font-medium text-gray-400">Number of Assets:</label>
+                    <p class="mt-1 text-md text-white"><%= assets.length %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Total Value:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= assets.reduce((total, asset) => total + asset.value, 0) %></p>
+                    <label class="block text-sm font-medium text-gray-400">Total Value:</label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, asset) => total + asset.value, 0)) %></p>
                 </div>
             </div>
         </div>
 
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-            <h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Plan Details:</h4>
+        <div class="border-t border-gray-700 pt-6 space-y-4">
+            <h4 class="text-lg font-semibold text-gray-300 mb-3">Plan Details:</h4>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Retirement Age:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementAge %></p>
+                    <label class="block text-sm font-medium text-gray-400">Retirement Age:</label>
+                    <p class="mt-1 text-md text-white"><%= plan.retirementAge %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Monthly Expenses:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementExpenses %></p>
+                    <label class="block text-sm font-medium0 text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementExpenses) %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Assets:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementAssets %></p>
+                    <label class="block text-sm font-medium text-gray-400">Target Retirement Assets (Total):</label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementAssets) %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Target Retirement Liabilities:</label>
-                    <p class="mt-1 text-md text-gray-900 dark:text-white"><%= plan.retirementLiabilities %></p>
+                    <label class="block text-sm font-medium text-gray-400">Target Retirement Liabilities (Monthly):</label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementLiabilities) %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Years Until Retirement:</label>
+                    <p class="mt-1 text-md text-white"><%- progress.yearsUntilRetirement %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Years Retired:</label>
+                    <p class="mt-1 text-md text-white"><%- progress.yearsRetired %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Total Cost of Retirement:</label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.totalCostOfRetirement) %></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Total amount needed (Assets + Retirement Expenses): </label>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(progress.totalCostOfRetirement + progress.monthlyInvestment * progress.monthsUntilRetirement) %></p>
                 </div>
             </div>
         </div>
 
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-            <h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Suggestions:</h4>
+        <div class="border-t border-gray-700 pt-6 space-y-4">
+            <h4 class="text-lg font-semibold text-gray-300 mb-3">Suggestions:</h4>
             
-            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                <p class="text-sm text-blue-700 dark:text-blue-300">
-                    USE YOUR HEAD MOCK
+            <div class="mt-6 p-4 border rounded-lg bg-gray-700 border-gray-600">
+                <p class="text-sm text-blue-300">
+                    <%= suggestions %>
                 </p>
             </div>
         </div>

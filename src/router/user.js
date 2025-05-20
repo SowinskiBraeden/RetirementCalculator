@@ -1,5 +1,6 @@
 const getRates = require("../util/exchangeRate");
-const { calculatePlanProgress, updatePlanProgressInDB } = require("../util/calculations");
+const { calculateProgress, updatePlanProgressInDB } = require("../util/calculations");
+const suggestions = require("../util/suggestions");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
 const session = require("express-session");
@@ -55,6 +56,12 @@ const getAssetSchema = (type) => {
     return assetSchema;
 }
 
+/** 
+ * Function takes in a number and formats it to currency
+ * @param {integer}
+ * @returns nuber formatted in currency
+ */
+
 /**
  * @param {function} middleware handler
  * @param {MongoClient.collection} users db collection
@@ -71,6 +78,7 @@ module.exports = (middleware, users, plans, assets) => {
     router.use(middleware);
 
     router.get('/home', async (req, res) => {
+        let user = req.session.user._id;
         // if no session with geoData
         if (!req.session.geoData) {
             req.session.geoData = {
@@ -78,14 +86,26 @@ module.exports = (middleware, users, plans, assets) => {
                 toCurrencyRates: [],
             };
         }
+        const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
-        res.render('dashboard', { user: req.user, geoData: req.session.geoData });
+        for (const plan of userPlansFromDB) {
+            const progress = await calculateProgress(plan, assets, users, req.session.user._id);
+            await updatePlanProgressInDB(plan._id, progress.percentage, plans);
+        }
+
+        const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
+        res.render('dashboard', {
+            user: req.session.user,
+            geoData: req.session.geoData,
+            plans: updatedUserPlans,
+        });
 
         return res.status(status.Ok);
     });
 
     router.get('/assets', async (req, res) => {
-        let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+        let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
         res.render('assets', {
             user: req.session.user,
             errMessage: req.session.errMessage,
@@ -98,20 +118,19 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/plans', async (req, res) => {
         try {
-            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+            const userPlansFromDB = await plans.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
-            // Use a for...of loop for proper async/await behavior in series for updates
             for (const plan of userPlansFromDB) {
-                const percentage = await calculatePlanProgress(plan, assets, req.session.user._id);
-                await updatePlanProgressInDB(plan._id, percentage, plans); // Pass the 'plans' collection
+                const progress = await calculateProgress(plan, assets, users, req.session.user._id);
+                await updatePlanProgressInDB(plan._id, progress.percentage, plans);
             }
 
-            // Re-fetch plans to get updated progress for rendering
             const updatedUserPlans = await plans.find({ userId: new ObjectId(req.session.user._id) }).toArray();
+
 
             res.render('plans', {
                 user: req.session.user,
-                plans: updatedUserPlans, // Send the most up-to-date plans
+                plans: updatedUserPlans,
                 geoData: req.session.geoData
             });
         } catch (err) {
@@ -125,34 +144,30 @@ module.exports = (middleware, users, plans, assets) => {
 
         try {
             const planId = req.params.id;
-            let userAssets = await assets.find({ userId: new ObjectId(req.session.user._id) }).toArray();
-
+            let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
 
             if (!ObjectId.isValid(planId)) {
                 req.session.errMessage = "Invalid plan ID format.";
                 return res.status(status.BadRequest).redirect('/plans');
             }
 
-            const plan = await plans.findOne({ userId: new ObjectId(req.session.user._id), _id: new ObjectId(planId) });
+            const plan = await plans.findOne({ userId: new ObjectId(req.session.userId), _id: new ObjectId(planId) });
 
             if (!plan) {
-                console.log(`Plan not found with ID: ${planId} for user: ${req.session.user.email}`);
+                console.log(`Plan not found with ID: ${planId} for user: ${req.session.userId}`);
                 req.session.errMessage = "Plan not found or you do not have permission to view it.";
                 return res.status(status.NotFound).redirect('/plans');
             }
+            const progress = await calculateProgress(plan, assets, users, req.session.userId);
 
-            // The plan.progress should be up-to-date from the database as it was updated in the /plans route
-            // or when assets/plans are modified. If an immediate recalculation for this specific view is absolutely needed,
-            // (e.g., if assets were modified without an immediate plan progress update elsewhere),
-            // you could do it here:
-            // const currentProgress = await calculatePlanProgress(plan, assets, req.session.user._id);
-            // plan.progress = currentProgress; // This would only update the 'plan' object for this render, not in DB
 
             res.render('planDetail', {
                 user: req.session.user,
-                plan: plan, // This plan object will have the progress from the database
+                plan: plan,
                 geoData: req.session.geoData,
                 assets: userAssets,
+                progress: progress,
+                suggestions: await suggestions.generateSuggestions(),
             });
 
         } catch (err) {
@@ -195,7 +210,7 @@ module.exports = (middleware, users, plans, assets) => {
             return;
         }
         const newPlan = {
-            userId: new ObjectId(req.session.user._id),
+            userId: new ObjectId(req.session.userId),
             name: value.name,
             retirementAge: value.retirementAge,
             retirementExpenses: value.retirementExpenses,
@@ -205,7 +220,7 @@ module.exports = (middleware, users, plans, assets) => {
         };
 
         try {
-            await plans.insertOne({ userId: new ObjectId(req.session.user._id), ...newPlan });
+            await plans.insertOne({ userId: new ObjectId(req.session.userId), ...newPlan });
             req.session.errMessage = "";
             res.redirect('/plans');
         }
@@ -214,6 +229,12 @@ module.exports = (middleware, users, plans, assets) => {
             req.session.errMessage = "An error occurred while saving your plan. Please try again.";
             res.status(status.InternalServerError).redirect("/newPlan");
         }
+    });
+
+    router.post('/fact', async (req, res) => {
+        const factInput = req.body.fact;
+        const fact = await suggestions.generateFact(factInput);
+        return res.status(status.Ok).json({ fact });
     });
 
     router.get('/more', (req, res) => {
@@ -265,15 +286,17 @@ module.exports = (middleware, users, plans, assets) => {
         const validationOptions = { convert: true, abortEarly: false };
         const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
 
+        let referrer = req.get('Referrer') || "/home";
         if (error) {
             console.error("Questionnaire validation error:", error.details);
             req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
-            res.status(status.BadRequest).redirect("/questionnaire");
+            let redirect = referrer.includes("?profile") ? "/questionnaire?profile" : "/questionnaire";
+            res.status(status.BadRequest).redirect(redirect);
             return;
         }
 
         users.updateOne(
-            { _id: new ObjectId(req.session.user._id) },
+            { _id: new ObjectId(req.session.userId) },
             {
                 $set: {
                     financialData: true,
@@ -288,29 +311,43 @@ module.exports = (middleware, users, plans, assets) => {
             }
         ).then((result) => {
             if (result.matchedCount === 0) {
-                console.log(`User not found during questionnaire update: ${req.session.user.email}`);
+                console.log(`User not found during questionnaire update: ${req.session.userId}`);
                 req.session.errMessage = "User session invalid. Please log in again.";
                 res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.user.email}`);
+                console.log(`User questionnaire data unchanged (already up-to-date): ${req.session.userId}`);
             }
 
-            req.session.user.financialData = true;
             req.session.errMessage = "";
-
-            req.session.save(err => {
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
                 if (err) {
-                    res.status(status.InternalServerError).redirect("/plans");
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
                 }
-                res.status(status.Ok).redirect("/plans");
+
+                let redirect = referrer.includes("?profile") ? "/profile" :
+                    referrer != "/home" ? "/plans" : referrer;
+                return res.status(status.Ok).redirect(redirect);
             });
 
         }).catch(err => {
             console.error("Error updating questionnaire in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
-            res.status(status.InternalServerError).redirect("/questionnaire");
+            let redirect = referrer.includes("?profile") ? "/questionnaire?profile" : "/questionnaire";
+            res.status(status.InternalServerError).redirect(redirect);
         });
     });
 
@@ -331,6 +368,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let update = {
+            email: req.body.email,
             name: req.body.name,
         };
 
@@ -344,21 +382,39 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         users.updateOne(
-            { email: req.session.email },
+            { _id: new ObjectId(req.session.userId) },
             { $set: update }
         ).then((result) => {
             if (result.matchedCount === 0) {
-                console.log(`User not found during account update: ${req.session.email}`);
+                console.log(`User not found during account update: ${req.session.userId}`);
                 req.session.errMessage = "User session invalid. Please log in again.";
                 res.status(status.NotFound).redirect("/login");
                 return;
             }
             if (result.modifiedCount === 0 && result.matchedCount === 1) {
-                console.log(`User account data unchanged (already up-to-date): ${req.session.email}`);
+                console.log(`User account data unchanged (already up-to-date): ${req.session.userId}`);
             }
 
             req.session.errMessage = "";
-            return res.status(status.Ok).redirect("/profile");
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
+                }
+
+                return res.status(status.Ok).redirect("/profile");
+            });
         }).catch(err => {
             console.error("Error updating account in database:", err);
             req.session.errMessage = "An error occurred while saving your information. Please try again.";
@@ -366,7 +422,81 @@ module.exports = (middleware, users, plans, assets) => {
         });
     });
 
-    router.post("/createAsset", async (req, res) => {
+    router.post("/updatePersonal", (req, res) => {
+        const questionnaireSchema = joi.object({
+            dob: joi.date().required(),
+            education: joi.string().valid('primary', 'secondary', 'tertiary', 'postgraduate').required(),
+            maritalStatus: joi.string().valid('single', 'married', 'divorced', 'widowed').required(),
+            income: joi.number().min(0).required(),
+            expenses: joi.number().min(0).required(),
+            assets: joi.number().min(0).required(),
+            liabilities: joi.number().min(0).required(),
+        });
+
+        const validationOptions = { convert: true, abortEarly: false };
+        const { error, value } = questionnaireSchema.validate(req.body, validationOptions);
+
+        if (error) {
+            console.error("Personal info validation error:", error.details);
+            req.session.errMessage = "Invalid input: " + error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest).redirect("/profile");
+            return;
+        }
+
+        users.updateOne(
+            { _id: new ObjectId(req.session.userId) },
+            {
+                $set: {
+                    financialData: true,
+                    dob: value.dob,
+                    education: value.education,
+                    maritalStatus: value.maritalStatus,
+                    income: value.income,
+                    expenses: value.expenses,
+                    assets: value.assets,
+                    liabilities: value.liabilities,
+                }
+            }
+        ).then((result) => {
+            if (result.matchedCount === 0) {
+                console.log(`User not found during personal info update: ${req.session.userId}`);
+                req.session.errMessage = "User session invalid. Please log in again.";
+                res.status(status.NotFound).redirect("/login");
+                return;
+            }
+            if (result.modifiedCount === 0 && result.matchedCount === 1) {
+                console.log(`User personal info unchanged (already up-to-date): ${req.session.userId}`);
+            }
+
+            req.session.errMessage = "";
+            req.session.user = null; // set user to null so middleware updates user
+            req.session.save((err) => {
+                if (err) {
+                    console.error("Failed to save session: ", err);
+
+                    return req.session.destroy((err) => {
+                        req.session.errMessage = "Failed to save session, please login again.";
+
+                        if (err) {
+                            console.error("Failed to destroy session: ", err);
+                        }
+
+                        res.status(status.InternalServerError);
+                        return res.redirect("/login");
+                    });
+                }
+
+                return res.status(status.Ok).redirect("/profile");
+            });
+
+        }).catch(err => {
+            console.error("Error updating personal info in database:", err);
+            req.session.errMessage = "An error occurred while saving your information. Please try again.";
+            res.status(status.InternalServerError).redirect("/profile");
+        });
+    });
+
+    router.post("/createAsset", (req, res) => {
         // Create asset, each asset has different data structure based on type
         const type = req.body.type;
         const assetSchema = getAssetSchema(type);
@@ -386,7 +516,7 @@ module.exports = (middleware, users, plans, assets) => {
         }
 
         let newAsset = {
-            userId: new ObjectId(req.session.user._id),
+            userId: new ObjectId(req.session.userId),
             ...req.body,
             updatedAt: new Date(),
         };
@@ -412,7 +542,7 @@ module.exports = (middleware, users, plans, assets) => {
         return res.status(status.Ok).redirect("/assets");
     });
 
-    router.post("/updateAsset", async (req, res) => {
+    router.post("/updateAsset", (req, res) => {
         const type = req.body.type;
         const assetSchema = getAssetSchema(type);
 
@@ -430,7 +560,7 @@ module.exports = (middleware, users, plans, assets) => {
             return res.redirect("/assets");
         }
 
-        if (req.body.userId != req.session.user._id) {
+        if (req.body.userId != req.session.userId) {
             req.session.errMessage = "Cannot change asset owner",
                 res.status(status.BadRequest);
             return res.redirect("/assets");
@@ -500,20 +630,20 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.post("/deleteUser", (req, res) => {
         // not as critical if results aren't as expected only if crashing
-        assets.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+        assets.deleteMany({ userId: new ObjectId(req.session.userId) }).catch((err) => {
             console.error("Error deleting user assets: ", err);
             req.session.errMessage = "An error occured while deleting your account. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile");
         });
 
-        plans.deleteMany({ userId: new ObjectId(req.session.user._id) }).catch((err) => {
+        plans.deleteMany({ userId: new ObjectId(req.session.userId) }).catch((err) => {
             console.error("Error deleting user assets: ", err);
             req.session.errMessage = "An error occured while deleting your account. Please try again.";
             return res.status(status.InternalServerError).redirect("/profile");
         });
 
         users.deleteOne(
-            { _id: new ObjectId(req.session.user._id) },
+            { _id: new ObjectId(req.session.userId) },
         ).then((result) => {
             if (result.deletedCount === 0) {
                 console.error(`User not found: ${req.body.id}`);
@@ -544,11 +674,19 @@ module.exports = (middleware, users, plans, assets) => {
 
             country = data.results[0].formatted_address;
             let results = await getRates(country);
-            req.session.geoData = {
-                country: results.abbreviation,
-                toCurrencyRates: results.exRates,
-                geoData: req.session.geoData
+
+            if (!results.exRates) {
+                req.session.geoData = {
+                    message: "error"
+                }
+            } else {
+                req.session.geoData = {
+                    country: results.abbreviation,
+                    toCurrencyRates: results.exRates,
+                    geoData: req.session.geoData
+                }
             }
+
         }
 
         return res.status(status.Ok).send({ data: req.session.geoData });
