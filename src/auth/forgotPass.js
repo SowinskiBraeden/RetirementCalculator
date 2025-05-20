@@ -3,7 +3,9 @@ const crypto = require('crypto');
 const joi = require('joi');
 const nodeMail = require('nodemailer');
 const bcrypt = require('bcrypt');
+const path = require('path');
 require('dotenv').config();
+const PATH = path.join(__dirname, '..', 'public', 'images', 'wallet.png');
 
 const PORT = process.env.PORT;
 
@@ -40,7 +42,7 @@ module.exports = (users) => {
 
         const token = crypto.randomBytes(32).toString('hex');
         console.log(`The reset token is ${token}`)
-        const expiration = Date.now() + 360000;
+        const expiration = Date.now() + 3600000;
 
         await users.updateOne({ email }, {
             $set: { resetToken: token, resetTokenExpires: expiration }
@@ -52,8 +54,13 @@ module.exports = (users) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password reset',
-            text: `reset your password here ${resetUrl}   this link will expire within 1 hour`,
-
+            text: `reset your password here ${resetUrl}   this link will expire within 1 hour, \n Do not share this link with anyone
+            \n \n Thankyou, The RCalculator team.`,
+            html: `
+            <p>Reset your password <a href="${resetUrl}">here</a>. This link will expire in 1 hour.</p>
+            <p><img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/rekor.png" alt="wallet icon" width="150"/></p>
+            <p>Thank you,<br/>The RCalculator team</p>`,
+            
         };
 
         try {
