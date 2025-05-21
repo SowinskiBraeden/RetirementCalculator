@@ -153,9 +153,7 @@
                 rows="4" 
                 cols="50" 
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
-            >
-                <%= asset.description %>
-            </textarea>
+            ><%= asset.description %></textarea>
         <% } %>
 
         <% if (asset.type != "saving") { %>
@@ -171,7 +169,8 @@
         <% } %>
 
         <br>
-        <small class="block text-sm font-medium text-gray-700">Last Modified: <%= asset.updatedAt %></small>
+        <% let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
+        <small class="block text-sm font-medium text-gray-700">Last Modified: <%= asset.updatedAt.toLocaleDateString("en-US", options); %></small>
         <br>
 
         <div>
