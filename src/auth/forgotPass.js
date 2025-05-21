@@ -53,13 +53,14 @@ module.exports = (users) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password reset',
-            text: `reset your password here ${resetUrl}   this link will expire within 1 hour, \n Do not share this link with anyone
+            text: `Hi ${user.name},\nA request was sent to reset your password. If this wasn't you, please ignore this email.\nIf you sent the request, reset your password here ${resetUrl}   this link will expire within 1 hour, \n Do not share this link with anyone.
                 \n \n Thankyou, The RCalculator team.`,
                 html: `
-                <p>Reset your password <a href="${resetUrl}">here</a>. This link will expire in 1 hour.</p>
+                <p>Hi ${user.name}</p>
+                <p>A request was sent to reset your password. <strong>If this wasn't you, please ignore this email.</strong></p>
+                <p>If you sent the request, reset your password <a href="${resetUrl}">here</a>. This link will expire in 1 hour.</p>
                 <p><img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/rekor.png" alt="wallet icon" width="150"/></p>
                 <p>Thank you,<br/>The RCalculator team</p>`,
-            
         };
 
         try {
