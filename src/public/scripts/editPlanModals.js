@@ -49,8 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // alert('Plan updated successfully!'); // Optional: show an alert
-                    window.location.href = `/plans/<%= plan._id %>`; // Redirect to plan detail page
+                    const actionUrl = form.action;
+                    const urlParts = actionUrl.split('/');
+                    const planId = urlParts[urlParts.length - 2];
+                    window.location.href = `/plans/${planId}`;
                 } else {
                     errorMessagesDiv.textContent = result.message || 'An error occurred while updating the plan.';
                     errorMessagesDiv.style.display = 'block';
