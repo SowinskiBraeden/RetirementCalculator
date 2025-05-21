@@ -43,13 +43,13 @@ module.exports = (users) => {
             if (!user) {
                 req.session.errMessage = "User not found";
                 res.status(status.NotFound);
-                return res.redirect("/login");
+                return res.redirect(`/login/?email=${req.body.email}`);
             }
 
             if (!bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.errMessage = "Incorrect password";
                 res.status(status.Unauthorized);
-                return res.redirect("/login");
+                return res.redirect(`/login/?email=${req.body.email}`);
             }
 
             req.session.authenticated = true;
@@ -96,7 +96,7 @@ module.exports = (users) => {
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
             res.status(status.BadRequest);
-            return res.redirect(`/signup/${req.body.name}/${req.body.email}`);
+            return res.redirect(`/signup/?name=${req.body.name}&email=${req.body.email}`);
         }
 
         let strength = passwordStrength(req.body.password);
@@ -104,7 +104,7 @@ module.exports = (users) => {
         if (strength.id < 2) {
             req.session.errMessage = `Password ${strength.value}`;
             res.status(status.BadRequest);
-            return res.redirect(`/signup/${req.body.name}/${req.body.email}`);
+            return res.redirect(`/signup/?name=${req.body.name}&email=${req.body.email}`);
         }
 
         let hashedPassword = await bcrypt.hashSync(req.body.password, salt);
