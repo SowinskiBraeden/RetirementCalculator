@@ -451,8 +451,8 @@ module.exports = (middleware, users, plans, assets) => {
         const accountSchema = joi.object({
             email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }),
             name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20),
-            password: joi.string().alphanum().max(20).min(8),
-            repassword: joi.string().alphanum().max(20).min(8),
+            password: joi.string().max(20).min(8),
+            repassword: joi.string().max(20).min(8),
         });
 
         const valid = accountSchema.validate(req.body);
