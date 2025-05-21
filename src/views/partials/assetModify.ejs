@@ -120,6 +120,27 @@
                 value="<%= asset.value %>" 
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
             >
+
+            <div 
+                id="year-modify-<%= asset._id %>"
+                <% if (asset.icon != "Car" && asset.icon != "Motorcycle") { %>
+                    style="display: none;"
+                <% } %>
+            >
+                <label for="year" class="block text-sm font-medium text-gray-700 mt-2">Year <span class="text-red-500">*</span></label>
+                <input
+                    id="year-<%= asset._id %>"
+                    disabled
+                    required 
+                    placeholder="2000" 
+                    min="1900" 
+                    max="<% new Date().getFullYear() %>" 
+                    type="number"
+                    name="year" 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+                    value="<%= asset.year %>"
+                >
+            </div>
         <% } else { %>
             <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share <span class="text-red-500">*</span></label>
             <input 

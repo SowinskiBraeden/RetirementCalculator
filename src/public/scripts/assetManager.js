@@ -85,6 +85,8 @@ function lockAsset(assetId, icon) {
         document.getElementById(`${key}-${assetId}`).disabled = true;
     });
 
+    if (icon === "Car" || icon === "Motorcycle") document.getElementById(`year-${assetId}`).disabled = true;
+
     document.getElementById(`save-${assetId}`).disabled = true;
     document.getElementById(`save-${assetId}`).classList.remove("cursor-pointer");
     document.getElementById(`save-${assetId}`).classList.add("cursor-not-allowed");
@@ -104,6 +106,8 @@ function unlockAsset(assetId, icon) {
     assetKeys[type].forEach((key) => {
         document.getElementById(`${key}-${assetId}`).disabled = false;
     });
+
+    if (icon === "Car" || icon === "Motorcycle") document.getElementById(`year-${assetId}`).disabled = false;
 
     document.getElementById(`save-${assetId}`).disabled = false;
     document.getElementById(`save-${assetId}`).classList.remove("cursor-not-allowed");
@@ -133,6 +137,8 @@ function autoOpenCreate() {
  * @param {string} assetId
  */
 function selectIcon(selectedIcon, assetId="") {
+    toggleYear(selectedIcon.value, assetId);
+    
     document.getElementById(`dropdown-icon-button${assetId != "" ? "-" : ""}${assetId}`).value = selectedIcon.value;
     document.getElementById(`icon${assetId != "" ? "-" : ""}${assetId}`).value = selectedIcon.value
 
@@ -142,6 +148,30 @@ function selectIcon(selectedIcon, assetId="") {
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
         </svg>
     `;
+}
+
+/**
+ * toggleYear shows or hides year input
+ * @param {string} type of asset
+ */
+function toggleYear(type, assetId="") {
+    if (type === "Car" || type === "Motorcycle") {
+        if (assetId) {
+            document.getElementById(`year-${assetId}`).disabled = false;
+            document.getElementById(`year-modify-${assetId}`).style.display = 'block';
+        } else {
+            document.getElementById('year-input').disabled = false;
+            document.getElementById('year-create').style.display = 'block';
+        }
+    } else {
+        if (assetId) {
+            document.getElementById(`year-${assetId}`).disabled = true;
+            document.getElementById(`year-modify-${assetId}`).style.display = 'none';
+        } else {
+            document.getElementById('year-input').disabled = true;
+            document.getElementById('year-create').style.display = 'none';
+        }
+    }
 }
 
 resetRadio();

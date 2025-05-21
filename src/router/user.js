@@ -26,6 +26,7 @@ const getAssetSchema = (type) => {
                 icon: joi.string().alphanum().required(),
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
+                year: joi.number().min(1900).max(new Date().getFullYear()),
                 purchaseDate: joi.date().required(),
                 description: joi.string().max(240).min(0),
                 id: joi.string().alphanum(), // May be passed when updating existing asset
@@ -627,6 +628,7 @@ module.exports = (middleware, users, plans, assets) => {
             newAsset.value = newAsset.quantity * newAsset.price;
             newAsset.name = `${newAsset.ticker} Stock`;
         }
+        if (type == "other" && newAsset.year != "") newAsset.year = parseInt(newAsset.year);
         newAsset.value = parseFloat(newAsset.value);
         newAsset.icon = type == "stock" ? "Stock" : type == "saving" ? "Coins" : newAsset.icon;
 
@@ -673,6 +675,7 @@ module.exports = (middleware, users, plans, assets) => {
             update.value = update.quantity * update.price;
             update.name = `${update.ticker} Stock`;
         }
+        if (type == "other" && update.year != "") update.year = parseInt(update.year);
         update.value = parseFloat(update.value);
         delete update.id;
         delete update.userId;
