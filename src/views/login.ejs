@@ -10,13 +10,13 @@
                 <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
                 <div class="mt-4">
                     <label for="email" class="block text-base mb-2 text-slate-600">Email <span class="text-red-500">*</span></label>
-                    <input type="text" id="email" name="email"
+                    <input required  type="text" id="email" name="email"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Email" value="<%= typeof email != 'undefined' ? email : '' %>"/>
                 </div>
                 <div class="mt-4">
                     <label for="password" class="block text-base mb-2 text-slate-600">Password <span class="text-red-500">*</span></label>
-                    <input type="password" id="password" name="password"
+                    <input required type="password" id="password" name="password"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Password" />
                 </div>
