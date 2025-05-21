@@ -10,14 +10,14 @@
 
     <!-- Main display -->
     <section>
-        <div class="mt-8 max-w-md mx-auto bg-white px-8 py-6 rounded-lg shadow-md flex flex-col justify-center">
+        <div class="mt-2 max-w-md mx-auto bg-white px-8 py-6 rounded-lg shadow-md flex flex-col justify-center">
             <div class="flex flex-row justify-between text-right">
-                <h1 class="text-2xl font-bold tracking-tight leading-none">Assets:</h1>
-                <h1 class="text-xl font-medium tracking-tight leading-none"><%= assets.length %></h1>
+                <h1 class="text-lg font-medium">Assets:</h1>
+                <h1 class="text-lg font-medium"><%= assets.length %></h1>
             </div>
             <div class="flex flex-row justify-between text-right mt-6">
-                <h1 class="text-2xl font-bold tracking-tight leading-none">Total Value:</h1>
-                <h1 class="text-xl font-medium tracking-tight leading-none">
+                <h1 class="text-lg font-medium">Total Value:</h1>
+                <h1 class="text-lg font-medium">
                     <!-- sum of assets array values and formated as proper dollar amount -->
                     <%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, e) => total + e.value, 0)) %>
                 </h1>
