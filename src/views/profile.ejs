@@ -51,24 +51,24 @@
     <div class="max-w-md mx-auto bg-white p-8 mb-10 rounded-lg shadow-md">
         <div class="flex flex-row justify-between">
             <h3 class="pt-2 pr-2 pb-2">Account settings</h3>
-            <button id="edit-account" onclick="unlockAccount()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Edit</button>
+            <button id="edit-account" onclick="unlockAccount()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Edit</button>
         </div>
         <form action="/updateAccount" method="post" class="space-y-4 mt-4" id="account-form">
  
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-            <input id="email" disabled type="email" name="email" value="<%= user.email %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="email" disabled type="email" name="email" value="<%= user.email %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
 
             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-            <input id="name" disabled type="text" name="name" value="<%= user.name %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="name" disabled type="text" name="name" value="<%= user.name %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
 
             <label for="password" class="block text-sm font-medium text-gray-700">New password</label>
-            <input id="password" disabled type="password" name="password" minlength="8" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="password" disabled type="password" name="password" minlength="8" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
 
             <label for="repassword" class="block text-sm font-medium text-gray-700">Confirm new password</label>
-            <input id="repassword" disabled type="password" name="repassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="repassword" disabled type="password" name="repassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
 
             <div>
-                <button id="save-account" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed">Save</button>
+                <button id="save-account" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-not-allowed">Save</button>
             </div>
         </form>
     </div>
@@ -78,7 +78,7 @@
         <div class="flex flex-row justify-between">
             <h3 class="pt-2 pr-2 pb-2">Personal information</h3>
             <% if (user.financialData) { %>
-                <button id="edit-personal" onclick="unlockPersonal()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Edit</button>
+                <button id="edit-personal" onclick="unlockPersonal()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Edit</button>
             <% } %>
         </div>
 
@@ -91,7 +91,7 @@
                         id="dob" 
                         type="date" 
                         name="dob" 
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
                         <% let year  = typeof(user.dob) == "object" ? user.dob.getFullYear() : user.dob.split('-')[0]; %>
                         <% let month = typeof(user.dob) == "object" ? user.dob.getMonth()    : user.dob.split('-')[1] - 1;  %>
                         <% let day   = typeof(user.dob) == "object" ? user.dob.getDate() + 1 : user.dob.split('-')[2].split('T')[0];%>
@@ -101,7 +101,7 @@
                 </div>
                 <div>
                     <label for="education" class="block text-sm font-medium text-gray-700">Education</label>
-                    <select disabled id="education" name="education" id="education" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    <select disabled id="education" name="education" id="education" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                         <option <%= user.education == "primary"      ? 'selected' : '' %> value="primary">Primary (Elementary)</option>
                         <option <%= user.education == "secondary"    ? 'selected' : '' %> value="secondary">Secondary (High School)</option>
                         <option <%= user.education == "tertiary"     ? 'selected' : '' %> value="tertiary">Tertiary (College/University)</option>
@@ -112,19 +112,19 @@
                     <label class="block text-sm font-medium text-gray-700">Marital Status</label>
                     <div class="mt-1 space-x-4">
                         <label class="inline-flex items-center">
-                            <input disabled <%= user.maritalStatus == "single" ? 'checked' : '' %> id="ms-single" type="radio" name="maritalStatus" value="single" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                            <input disabled <%= user.maritalStatus == "single" ? 'checked' : '' %> id="ms-single" type="radio" name="maritalStatus" value="single" class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                             <span class="ml-2 text-sm text-gray-700">Single</span>
                         </label>
                         <label class="inline-flex items-center">
-                            <input disabled <%= user.maritalStatus == "married" ? 'checked' : '' %> id="ms-married" type="radio" name="maritalStatus" value="married" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                            <input disabled <%= user.maritalStatus == "married" ? 'checked' : '' %> id="ms-married" type="radio" name="maritalStatus" value="married" class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                             <span class="ml-2 text-sm text-gray-700">Married</span>
                         </label>
                             <label class="inline-flex items-center">
-                            <input disabled <%= user.maritalStatus == "divorced" ? 'checked' : '' %> id="ms-divorced" type="radio" name="maritalStatus" value="divorced" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                            <input disabled <%= user.maritalStatus == "divorced" ? 'checked' : '' %> id="ms-divorced" type="radio" name="maritalStatus" value="divorced" class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                             <span class="ml-2 text-sm text-gray-700">Divorced</span>
                         </label>
                             <label class="inline-flex items-center">
-                            <input disabled <%= user.maritalStatus == "widowed" ? 'checked' : '' %> id="ms-widowed" type="radio" name="maritalStatus" value="widowed" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                            <input disabled <%= user.maritalStatus == "widowed" ? 'checked' : '' %> id="ms-widowed" type="radio" name="maritalStatus" value="widowed" class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                             <span class="ml-2 text-sm text-gray-700">Widowed</span>
                         </label>
                     </div>
@@ -132,31 +132,31 @@
                 
                 <div>
                     <label for="income" class="block text-sm font-medium text-gray-700">Annual Gross Income</label>
-                    <input disabled value="<%= user.income %>" id="income" type="number" name="income" min="0" placeholder="e.g., 50000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    <input disabled value="<%= user.income %>" id="income" type="number" name="income" min="0" placeholder="e.g., 50000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                 </div>
                 
                 <div>
                     <label for="expenses" class="block text-sm font-medium text-gray-700">Monthly Expenses</label>
-                    <input disabled value="<%= user.expenses %>" id="expenses" type="number" name="expenses" min="0" placeholder="e.g., 2000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    <input disabled value="<%= user.expenses %>" id="expenses" type="number" name="expenses" min="0" placeholder="e.g., 2000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                 </div>
                 
                 <div>
                     <label for="assets" class="block text-sm font-medium text-gray-700">Net Worth</label>
-                    <input disabled value="<%= user.assets %>" id="assets" type="number" name="assets" min="0" placeholder="Estimated Net Worth" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    <input disabled value="<%= user.assets %>" id="assets" type="number" name="assets" min="0" placeholder="Estimated Net Worth" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                 </div>
                 
                 <div>
                     <label for="liabilities" class="block text-sm font-medium text-gray-700">Liabilities</label>
-                    <input disabled value="<%= user.liabilities %>" id="liabilities" type="number" name="liabilities" min="0" placeholder="Estimated Liabilities" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    <input disabled value="<%= user.liabilities %>" id="liabilities" type="number" name="liabilities" min="0" placeholder="Estimated Liabilities" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                 </div>
 
                 <div>
-                    <button id="save-personal" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed">Save</button>
+                    <button id="save-personal" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-not-allowed">Save</button>
                 </div>
             </form>
         <% } else { %>
             <div>
-                <a href="/questionnaire?profile" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer">Answer Questionnare</a>
+                <a href="/questionnaire?profile" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">Answer Questionnare</a>
             </div>
         <% } %>
 
