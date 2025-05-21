@@ -27,8 +27,9 @@ const getAssetSchema = (type) => {
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 purchaseDate: joi.date().required(),
-                description: joi.string().alphanum().max(240),
+                description: joi.string().max(240).min(0),
                 id: joi.string().alphanum(), // May be passed when updating existing asset
+                userId: joi.string().alphanum(),
             });
             break;
         case "saving":
@@ -37,6 +38,7 @@ const getAssetSchema = (type) => {
                 name: joi.string().alphanum().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 id: joi.string().alphanum(), // May be passed when updating existing asset
+                userId: joi.string().alphanum(),
             });
             break;
         case "stock":
@@ -47,6 +49,7 @@ const getAssetSchema = (type) => {
                 quantity: joi.number().min(1).required(),
                 purchaseDate: joi.date().required(),
                 id: joi.string().alphanum(), // May be passed when updating existing asset
+                userId: joi.string().alphanum(),
             });
             break;
         default:
