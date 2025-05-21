@@ -1,9 +1,17 @@
+/**
+ * getLocation gets the geolocation of user on page load.
+ */
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(getLatestExchange, error);
     }
 }
 
+/**
+ * update the currency exchange rate dropdown 
+ * or display error
+ * @param {object} data
+ */
 function update(data) {
     if (data.data.message != "error") {
         document.getElementById("loading").style = "display: none";
@@ -48,6 +56,10 @@ function update(data) {
     }
 }
 
+/**
+ * switchButton changes the selected exchange rate icon
+ * @param {element} clickedButton
+ */
 function switchButton(clickedButton) {
     document.getElementById("dropdown-country-button").value = clickedButton.value;
     updateExchange(document.getElementById("dropdown-country-button").value);
@@ -60,10 +72,18 @@ function switchButton(clickedButton) {
     `;
 }
 
+/**
+ * updateExchange updates the exchange rate
+ * @param {number} exRate
+ */
 function updateExchange(exRate) {
     document.getElementById("exchange").innerHTML = "$1.00 = $" +`${(1 * exRate).toFixed(2)}`;
 }
 
+/**
+ * getLatestExchange gets rates from API from a given location.
+ * @param {object} position coordinates
+ */
 async function getLatestExchange(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
@@ -73,6 +93,10 @@ async function getLatestExchange(position) {
     update(data);
 }
 
+/**
+ * error displays error message
+ * @param {string} err
+ */
 function error(err) {
     const data = {
         data: {

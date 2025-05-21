@@ -13,6 +13,7 @@ if(page !== "login" && page !== "signup" && page !== "forgotPassword" && page !=
 factButton.addEventListener("click", () => {
     factMenu.classList.toggle("hidden");
 });
+
 factSubmitButton.addEventListener("click", () => {
     fetch("/fact", {
         method: "POST",

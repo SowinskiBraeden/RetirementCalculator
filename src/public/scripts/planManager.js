@@ -1,3 +1,7 @@
+/**
+ * editPlan redirect
+ * @param {string} planId
+ */
 function editPlan(planId) {
     if (planId) {
         window.location.href = `/plans/${planId}/edit`;
@@ -7,6 +11,10 @@ function editPlan(planId) {
     }
 }
 
+/**
+ * deletePlan handler
+ * @param {string} planId
+ */
 async function deletePlan(planId) {
     if (!planId) {
         console.error('deletePlan called without a planId');
