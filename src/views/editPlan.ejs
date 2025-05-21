@@ -4,34 +4,35 @@
 <main class="container mx-auto p-4 pt-28">
     <div class="max-w-2xl mx-auto bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl">
         <h2 class="text-2xl font-bold text-center text-white mb-8">Edit Plan: <%= plan.name %></h2>
+        <p class="text-sm text-gray-400 text-left mb-8"><span class="text-red-500">*</span> Indicates a required field</p>
 
         <form id="editPlanForm" action="/plans/<%= plan._id %>/edit" method="POST" class="space-y-6">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-300">Plan Name</label>
+                <label for="name" class="block text-sm font-medium text-gray-300">Plan Name <span class="text-red-500">*</span></label>
                 <input type="text" name="name" id="name" value="<%= plan.name %>" required
                        class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
             </div>
 
             <div>
-                <label for="retirementAge" class="block text-sm font-medium text-gray-300">Desired Retirement Age</label>
+                <label for="retirementAge" class="block text-sm font-medium text-gray-300">Desired Retirement Age <span class="text-red-500">*</span></label>
                 <input type="number" name="retirementAge" id="retirementAge" value="<%= plan.retirementAge %>" required min="18"
                        class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
             </div>
 
             <div>
-                <label for="retirementExpenses" class="block text-sm font-medium text-gray-300">Estimated Monthly Expenses at Retirement (<%= geoData.currency || 'CAD' %>)</label>
+                <label for="retirementExpenses" class="block text-sm font-medium text-gray-300">Estimated Monthly Expenses at Retirement (<%= geoData.currency || 'CAD' %>) <span class="text-red-500">*</span></label>
                 <input type="number" name="retirementExpenses" id="retirementExpenses" value="<%= plan.retirementExpenses %>" required min="0" step="any"
                        class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
             </div>
 
             <div>
-                <label for="retirementAssets" class="block text-sm font-medium text-gray-300">Target Retirement Assets (<%= geoData.currency || 'CAD' %>)</label>
+                <label for="retirementAssets" class="block text-sm font-medium text-gray-300">Target Retirement Assets (<%= geoData.currency || 'CAD' %>) <span class="text-red-500">*</span></label>
                 <input type="number" name="retirementAssets" id="retirementAssets" value="<%= plan.retirementAssets %>" required min="0" step="any"
                        class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
             </div>
 
             <div>
-                <label for="retirementLiabilities" class="block text-sm font-medium text-gray-300">Estimated Monthly Liabilities at Retirement (<%= geoData.currency || 'CAD' %>)</label>
+                <label for="retirementLiabilities" class="block text-sm font-medium text-gray-300">Estimated Monthly Liabilities at Retirement (<%= geoData.currency || 'CAD' %>) <span class="text-red-500">*</span></label>
                 <input type="number" name="retirementLiabilities" id="retirementLiabilities" value="<%= plan.retirementLiabilities %>" required min="0" step="any"
                        class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400">
             </div>

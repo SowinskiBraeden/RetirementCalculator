@@ -48,7 +48,7 @@
                     <p class="mt-1 text-md text-white"><%= plan.retirementAge %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium0 text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
+                    <label class="block text-sm font-medium text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
                     <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementExpenses) %></p>
                 </div>
                 <div>
