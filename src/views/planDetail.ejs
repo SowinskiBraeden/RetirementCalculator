@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-400">Total Value:</label>
-                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, asset) => total + asset.value, 0)) %></p>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(totalUserAssetValue) %></p>
                 </div>
             </div>
         </div>

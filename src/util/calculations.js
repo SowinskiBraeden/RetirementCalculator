@@ -12,7 +12,7 @@ async function calculatePlanProgress(plans, assets, userId) {
 
     try {
         const userAssets = await assets.find({ userId: new ObjectId(userId) }).toArray();
-        const totalUserAssetValue = userAssets.reduce((total, asset) => total + asset.value, 0);
+        const totalUserAssetValue = await calculateTotalAssetValue(userAssets);
         let percentage = 0;
 
         if (plans.retirementAssets > 0) {
@@ -42,6 +42,31 @@ async function updatePlanProgressInDB(planId, percentage, plans) {
     }
 }
 
+async function calculateTotalAssetValue(assets) {
+    if (!assets || typeof assets.find !== 'function') {
+        console.error("Error with the assets collection");
+        return;
+    }
+    try {
+        let totalAssetValue = 0;
+        for (const asset of assets) {
+            if(asset.icon == "Motorcycle" || asset.icon == "Car"){
+                today = new Date();
+                asset.year = new Date(asset.year).getFullYear();
+                let age = today.getFullYear() - asset.year;
+                let value = asset.value * Math.pow(0.85, age);
+                totalAssetValue += value;
+            } else {
+            totalAssetValue += asset.value;
+            }
+        }
+        return totalAssetValue;
+    } catch (err) {
+        console.error("Error in calculateTotalAssetValue:", err);
+        return 0;
+    }
+}
+
 
 async function calculateProgress(plan, assets, users, userId) {
     if (!plan || typeof plan !== 'object') {
@@ -63,8 +88,9 @@ async function calculateProgress(plan, assets, users, userId) {
 
     try {
         const userAssets = await assets.find({ userId: new ObjectId(userId) }).toArray();
-        const totalUserAssetValue = userAssets.reduce((total, asset) => total + asset.value, 0);
+        const totalUserAssetValue = await calculateTotalAssetValue(userAssets);
         const totalUserPlanValue = plan.retirementAssets;
+    
         
         const userDoc = await users.findOne({ _id: new ObjectId(userId) });
 
@@ -125,4 +151,4 @@ async function updateProgress(plans, assets, users, userId) {
 
 
 
-module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateProgress, updateProgress};
+module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateTotalAssetValue, calculateProgress, updateProgress};
