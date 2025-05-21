@@ -10,23 +10,23 @@
                 <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
                 <div class="mt-4">
                     <label for="name" class="block text-base mb-2 text-slate-600">Name <span class="text-red-500">*</span></label>
-                    <input type="text" id="name" name="name"
+                    <input required type="text" id="name" name="name"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Name" value="<%= typeof name != 'undefined' ? name : '' %>"/>
                 </div>
                 <div class="mt-4">
                     <label for="email" class="block text-base mb-2 text-slate-600">Email <span class="text-red-500">*</span></label>
-                    <input type="email" id="email" name="email"
+                    <input required type="email" id="email" name="email"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Email" value="<%= typeof email != 'undefined' ? email : '' %>"/>
                 </div>
                 <div class="mt-4">
                     <label for="password" class="block text-base mb-2 text-slate-600">Password <span class="text-red-500">*</span></label>
-                    <input type="password" id="password" name="password"
+                    <input required type="password" id="password" name="password"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Password" />
                     <label for="repassword" class="block text-base mb-2 mt-3 text-slate-600">Re-type Password <span class="text-red-500">*</span></label>
-                    <input type="password" id="repassword" name="repassword"
+                    <input required type="password" id="repassword" name="repassword"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Password" />
                 </div>
