@@ -12,6 +12,7 @@
             </button>
         </form>
     </div>
+    <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
 
     <div class="my-4">
         <label class="block text-sm font-medium text-gray-700">Asset Type</label>
@@ -92,7 +93,7 @@
             </div>
         </div>
 
-        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name <span class="text-red-500">*</span></label>
         <input 
             required 
             id="name" 
@@ -103,7 +104,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Asset Value</label>
+        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Asset Value <span class="text-red-500">*</span></label>
         <input 
             required 
             placeholder="CAD" 
@@ -115,7 +116,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase</label>
+        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase <span class="text-red-500">*</span></label>
         <input 
             required 
             type="date" 
@@ -155,7 +156,7 @@
     <form style="display: none;" method="POST" action="/createAsset" id="create-saving-asset-form">
         <input style="display: none;" value="saving" name="type" type="text">
 
-        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Savings Name</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Savings Name <span class="text-red-500">*</span></label>
         <input 
             required 
             id="name" 
@@ -166,7 +167,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Savings Value</label>
+        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Savings Value <span class="text-red-500">*</span></label>
         <input 
             required 
             placeholder="CAD" 
@@ -199,7 +200,7 @@
     <form style="display: none;" method="POST" action="/createAsset" id="create-stock-asset-form">
         <input style="display: none;" value="stock" name="type" type="text">
 
-        <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
+        <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker <span class="text-red-500">*</span></label>
         <input 
             required 
             id="ticker" 
@@ -210,7 +211,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
+        <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share <span class="text-red-500">*</span></label>
         <input 
             required 
             placeholder="CAD" 
@@ -222,7 +223,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
+        <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares <span class="text-red-500">*</span></label>
         <input 
             required 
             type="number" 
@@ -232,7 +233,7 @@
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
 
-        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase</label>
+        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase <span class="text-red-500">*</span></label>
         <input 
             required 
             type="date" 

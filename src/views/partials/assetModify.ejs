@@ -86,7 +86,7 @@
         <input id="icon-<%= asset._id %>"      name="icon"   type="text" hidden value="<%= asset.icon %>">
 
         <% if (asset.type != "stock") { %>
-            <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name</label>
+            <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name <span class="text-red-500">*</span></label>
             <input 
                 id="name-<%= asset._id %>" 
                 disabled 
@@ -96,7 +96,7 @@
                 class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
             >
         <% } else { %>
-            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
+            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker <span class="text-red-500">*</span></label>
             <input 
                 id="ticker-<%= asset._id %>" 
                 disabled 
@@ -110,7 +110,7 @@
         <hr class="h-px mt-6 mb-4 bg-gray-500 border-0 mx-10">
 
         <% if (asset.type != "stock") { %>
-            <label for="value" class="block text-sm font-medium text-gray-700">Value</label>
+            <label for="value" class="block text-sm font-medium text-gray-700">Value <span class="text-red-500">*</span></label>
             <input 
                 id="value-<%= asset._id %>" 
                 disabled 
@@ -121,7 +121,7 @@
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
             >
         <% } else { %>
-            <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
+            <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share <span class="text-red-500">*</span></label>
             <input 
                 id="price-<%= asset._id %>" 
                 disabled 
@@ -132,7 +132,7 @@
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
             >
             
-            <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
+            <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares <span class="text-red-500">*</span></label>
             <input 
                 id="quantity-<%= asset._id %>" 
                 disabled 
@@ -159,7 +159,7 @@
         <% } %>
 
         <% if (asset.type != "saving") { %>
-            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Purchased on</label>
+            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Purchased on <span class="text-red-500">*</span></label>
             <input 
                 id="purchaseDate-<%= asset._id %>" 
                 disabled 

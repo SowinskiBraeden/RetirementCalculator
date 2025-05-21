@@ -6,15 +6,16 @@
         <form action="/login" method="POST">
             <div class="w-96 p-8 bg-white rounded-lg shadow-xl border border-slate-200">
                 <h1 class="text-3xl block text-center font-semibold text-slate-700">Login</h1>
-                <hr class="mt-4 mb-6 border-slate-300">
+                <hr class="mt-4 mb-4 border-slate-300">
+                <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
                 <div class="mt-4">
-                    <label for="email" class="block text-base mb-2 text-slate-600">Email</label>
+                    <label for="email" class="block text-base mb-2 text-slate-600">Email <span class="text-red-500">*</span></label>
                     <input type="text" id="email" name="email"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Email" value="<%= typeof email != 'undefined' ? email : '' %>"/>
                 </div>
                 <div class="mt-4">
-                    <label for="password" class="block text-base mb-2 text-slate-600">Password</label>
+                    <label for="password" class="block text-base mb-2 text-slate-600">Password <span class="text-red-500">*</span></label>
                     <input type="password" id="password" name="password"
                         class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
                         placeholder="Enter Password" />
