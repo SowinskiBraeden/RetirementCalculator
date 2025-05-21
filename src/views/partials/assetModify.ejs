@@ -87,10 +87,10 @@
 
         <% if (asset.type != "stock") { %>
             <label for="value" class="block text-sm font-medium text-gray-700">Value</label>
-            <input id="value-<%= asset._id %>" disabled type="number" name="value" value="<%= asset.value %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="value-<%= asset._id %>" disabled type="number" step=".01" name="value" value="<%= asset.value %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
         <% } else { %>
             <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
-            <input id="price-<%= asset._id %>" disabled type="number" name="price" value="<%= asset.price %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <input id="price-<%= asset._id %>" disabled type="number" step=".01" name="price" value="<%= asset.price %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
             
             <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
             <input id="quantity-<%= asset._id %>" disabled type="number" name="quantity" value="<%= asset.quantity %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
