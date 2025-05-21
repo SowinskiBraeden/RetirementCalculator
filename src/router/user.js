@@ -1,5 +1,5 @@
 const getRates = require("../util/exchangeRate");
-const { calculateProgress, updatePlanProgressInDB, updateProgress } = require("../util/calculations");
+const { calculateProgress, updatePlanProgressInDB, updateProgress, calculateTotalAssetValue } = require("../util/calculations");
 const suggestions = require("../util/suggestions");
 const status = require("../util/statuses");
 const ObjectId = require('mongodb').ObjectId;
@@ -110,11 +110,14 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.get('/assets', async (req, res) => {
         let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
+        let totalUserAssetValue = await calculateTotalAssetValue(userAssets);
+
         res.render('assets', {
             user: req.session.user,
             errMessage: req.session.errMessage,
             assets: userAssets,
             geoData: req.session.geoData,
+            totalUserAssetValue: totalUserAssetValue,
             icons: icons,
         });
         return res.status(status.Ok);
@@ -142,6 +145,7 @@ module.exports = (middleware, users, plans, assets) => {
         try {
             const planId = req.params.id;
             let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
+            let totalUserAssetValue = await calculateTotalAssetValue(userAssets);
 
             if (!ObjectId.isValid(planId)) {
                 req.session.errMessage = "Invalid plan ID format.";
@@ -160,6 +164,7 @@ module.exports = (middleware, users, plans, assets) => {
                 user: req.session.user,
                 plan: plan, 
                 geoData: req.session.geoData,
+                totalUserAssetValue: totalUserAssetValue,
                 assets: userAssets,
                 progress: progress, 
                 suggestions: await suggestions.generateSuggestions(),
