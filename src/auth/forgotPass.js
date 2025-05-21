@@ -1,10 +1,10 @@
+const { passwordStrength } = require("check-password-strength");
+const nodeMail = require('nodemailer');
 const express = require('express');
+const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const joi = require('joi');
-const nodeMail = require('nodemailer');
-const path = require('path');
 require('dotenv').config();
-const PATH = path.join(__dirname, '..', 'public', 'images', 'wallet.png');
 
 const PORT = process.env.PORT;
 
@@ -103,6 +103,13 @@ module.exports = (users) => {
             req.session.error = 'Reset link is invalid.';
             return res.redirect(`/reset`);
         }
+
+        let strength = passwordStrength(password);
+        if (strength.id < 2) {
+            req.session.errMessage = `Password ${strength.value}`;
+            return res.redirect(`/reset/${token}`);
+        }
+
         const hashPassword = await bcrypt.hash(password, 12);
 
         await users.updateOne(
