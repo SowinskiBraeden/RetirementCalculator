@@ -449,7 +449,7 @@ module.exports = (middleware, users, plans, assets) => {
 
     router.post("/updateAccount", async (req, res) => {
         const accountSchema = joi.object({
-            email: joi.string().email(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }),
             name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20),
             password: joi.string().alphanum().max(20).min(8),
             repassword: joi.string().alphanum().max(20).min(8),
@@ -457,9 +457,9 @@ module.exports = (middleware, users, plans, assets) => {
 
         const valid = accountSchema.validate(req.body);
 
-        if (valid.err) {
-            req.session.errMessage = "Invalid input",
-                res.status(status.BadRequest);
+        if (valid.error) {
+            req.session.errMessage = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest);
             return res.redirect("/profile");
         }
 
@@ -606,9 +606,9 @@ module.exports = (middleware, users, plans, assets) => {
 
         const valid = assetSchema.validate(req.body);
 
-        if (valid.err) {
-            req.session.errMessage = "Invalid input",
-                res.status(status.BadRequest);
+        if (valid.error) {
+            req.session.errMessage = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 
@@ -651,9 +651,9 @@ module.exports = (middleware, users, plans, assets) => {
 
         const valid = assetSchema.validate(req.body);
 
-        if (valid.err) {
-            req.session.errMessage = "Invalid input",
-                res.status(status.BadRequest);
+        if (valid.error) {
+            req.session.errMessage = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');
+            res.status(status.BadRequest);
             return res.redirect("/assets");
         }
 

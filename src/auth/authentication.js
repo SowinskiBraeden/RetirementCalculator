@@ -27,14 +27,14 @@ module.exports = (users) => {
     router.post("/login", async (req, res) => {
       
         const credentialSchema = joi.object({
-            email: joi.string().email().required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
             password: joi.string().alphanum().max(20).required(),
         });
 
         const valid = credentialSchema.validate(req.body);
 
-        if (valid.err) {
-            req.session.errMessage = "Invalid input";
+        if (valid.error) {
+            req.session.errMessage = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');
             res.status(status.BadRequest);
             return res.redirect("/login");
         }
@@ -72,16 +72,16 @@ module.exports = (users) => {
 
     router.post("/signup", async (req, res) => {
         const userSchema = joi.object({
-            email: joi.string().email().required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
             name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20).required(),
             password: joi.string().alphanum().max(20).min(8).required(),
             repassword: joi.string().alphanum().max(20).min(8).required(),
         });
 
         const valid = userSchema.validate(req.body);
-
-        if (valid.err) {
-            req.session.errMessage = "Invalid input",
+        
+        if (valid.error) {
+            req.session.errMessage = valid.error.details[0].message,
             res.status(status.BadRequest);
             return res.redirect("/signup");
         }
@@ -95,6 +95,7 @@ module.exports = (users) => {
 
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
+
             res.status(status.BadRequest);
             return res.redirect(`/signup/?name=${req.body.name}&email=${req.body.email}`);
         }

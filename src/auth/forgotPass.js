@@ -21,7 +21,7 @@ module.exports = (users) => {
 
     router.post('/auth/resetPass', async (req, res) => {
         const resetSchema = joi.object({
-            email: joi.string().email().required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
         });
         req.session.error = '';
         req.session.reset = '';
@@ -83,7 +83,7 @@ module.exports = (users) => {
         const valid = passwordSchema.validate({ password, confirmPassword });
         if (valid.error) {
             console.log("houston we have a problem"); // nice
-            req.session.error = 'Invalid input';
+            req.session.error = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');;
             res.status(status.BadRequest);
             return res.redirect(`/reset/${token}`);
         }
