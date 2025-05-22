@@ -128,6 +128,10 @@ async function calculateProgress(plan, assets, users, userId) {
         const monthlyInvestment = (totalUserPlanValue - totalUserAssetValue + totalCostOfRetirement) / monthsUntilRetirement;
         
         const percentageCalculated = (totalUserAssetValue / (totalUserPlanValue + totalCostOfRetirement)) * 100;
+
+        if (monthsUntilRetirement <= 0) {
+            return { monthlyInvestment: 0, totalCostOfRetirement: totalCostOfRetirement, monthsUntilRetirement: 0, yearsRetired: yearsRetired, yearsUntilRetirement: 0, percentage: 0 };
+        }
         
         const progress = {};
 
