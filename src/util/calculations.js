@@ -55,6 +55,9 @@ async function calculateTotalAssetValue(assets) {
                 asset.year = new Date(asset.year).getFullYear();
                 let age = today.getFullYear() - asset.year;
                 let value = asset.value * Math.pow(0.85, age);
+                if (value < 1000) {
+                    value = 1000;
+                }
                 totalAssetValue += value;
             } else {
             totalAssetValue += asset.value;
