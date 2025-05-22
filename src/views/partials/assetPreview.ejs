@@ -1,5 +1,5 @@
 <!-- Clickable asset list item -->
-<div class="mt-4 max-w-md mx-auto bg-white rounded-lg shadow-md">
+<div class="mt-4 max-w-md mx-auto bg-white rounded-lg shadow-md <%= asset.type %>-asset">
     <button 
         onclick="document.getElementById('<%= asset._id %>-modal').showModal()" 
         style="width: 100%; height: 100%;" 
