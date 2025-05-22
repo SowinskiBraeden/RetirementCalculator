@@ -109,6 +109,12 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/assets', async (req, res) => {
+
+        if (!req.session.user.financialData || !req.session.user) {
+            req.session.errMessage = "Please complete your financial data before creating a plan.";
+            return res.status(status.Unauthorized).redirect('/questionnaire');
+        }
+
         let userAssets = await assets.find({ userId: new ObjectId(req.session.userId) }).toArray();
         let totalUserAssetValue = await calculateTotalAssetValue(userAssets);
 
@@ -124,6 +130,12 @@ module.exports = (middleware, users, plans, assets) => {
     });
 
     router.get('/plans', async (req, res) => {
+
+        if (!req.session.user.financialData || !req.session.user) {
+            req.session.errMessage = "Please complete your financial data before creating a plan.";
+            return res.status(status.Unauthorized).redirect('/questionnaire');
+        }
+
         try {
 
             const updatedUserPlans = await updateProgress(plans, assets, users, req.session.user._id);
@@ -177,21 +189,27 @@ module.exports = (middleware, users, plans, assets) => {
         }
     });
 
-    router.get('/newPlan', (req, res) => {
+    // router.get('/newPlan', (req, res) => {
+    //     if (!req.session.user.financialData || !req.session.user) {
+    //         req.session.errMessage = "Please complete your financial data before creating a plan.";
+    //         return res.status(status.Unauthorized).redirect('/questionnaire');
+    //     }
+    //     const errMessage = req.session.errMessage;
+    //     req.session.errMessage = "";
+    //     res.render('newPlan', {
+    //         user: req.session.user,
+    //         errMessage: errMessage,
+    //         geoData: req.session.geoData
+    //     });
+    // });
+
+    router.post('/newPlan', async (req, res) => {
+
         if (!req.session.user.financialData || !req.session.user) {
             req.session.errMessage = "Please complete your financial data before creating a plan.";
             return res.status(status.Unauthorized).redirect('/questionnaire');
         }
-        const errMessage = req.session.errMessage;
-        req.session.errMessage = "";
-        res.render('newPlan', {
-            user: req.session.user,
-            errMessage: errMessage,
-            geoData: req.session.geoData
-        });
-    });
 
-    router.post('/newPlan', async (req, res) => {
         const planSchema = joi.object({
             name: joi.string().min(3).max(100).required(),
             retirementAge: joi.number().min(18).max(120).required(),
