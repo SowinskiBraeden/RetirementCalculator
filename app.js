@@ -54,9 +54,21 @@ app.get('/', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
+    let error = req.session.errMessage;
+    delete req.session.errMessage;
+
     const ignore = ["User not found", "Incorrect password"];
-    if (ignore.includes(req.session.errMessage)) req.session.errMessage = "";
-    res.render('signup', { errMessage: req.session.errMessage });
+    if (ignore.includes(error)) error = "";
+    
+    if (req.query.name && req.query.email) {
+        res.render('signup', { 
+            errMessage: error,
+            name: req.query.name,
+            email: req.query.email
+        });    
+    } else {
+        res.render('signup', { errMessage: error });
+    }
     return res.status(status.Ok);
 });
 
@@ -65,7 +77,15 @@ app.get('/login', (req, res) => {
         res.redirect("/home");
         return res.status(status.Ok);
     }
-    res.render('login', { errMessage: req.session.errMessage });
+
+    if (req.query.email) {
+        res.render('login', { 
+            errMessage: req.session.errMessage,
+            email: req.query.email
+        });
+    } else {
+        res.render('login', { errMessage: req.session.errMessage });
+    }
     return res.status(status.Ok);
 });
 

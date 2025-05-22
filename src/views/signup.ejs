@@ -6,27 +6,28 @@
         <form action="/signup" method="POST">
             <div class="w-96 p-8 bg-white rounded-lg shadow-xl border border-slate-200">
                 <h1 class="text-3xl block text-center font-semibold text-slate-700">Signup</h1>
-                <hr class="mt-4 mb-6 border-slate-300">
+                <hr class="mt-4 mb-4 border-slate-300">
+                <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
                 <div class="mt-4">
-                    <label for="name" class="block text-base mb-2 text-slate-600">Name</label>
-                    <input type="text" id="name" name="name"
-                        class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
-                        placeholder="Enter Name" />
+                    <label for="name" class="block text-base mb-2 text-slate-600">Name <span class="text-red-500">*</span></label>
+                    <input required type="text" id="name" name="name"
+                        class="border border-slate-300 focus:border-blue-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
+                        placeholder="Enter Name" value="<%= typeof name != 'undefined' ? name : '' %>"/>
                 </div>
                 <div class="mt-4">
-                    <label for="email" class="block text-base mb-2 text-slate-600">Email</label>
-                    <input type="email" id="email" name="email"
-                        class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
-                        placeholder="Enter Email" />
+                    <label for="email" class="block text-base mb-2 text-slate-600">Email <span class="text-red-500">*</span></label>
+                    <input required type="email" id="email" name="email"
+                        class="border border-slate-300 focus:border-blue-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
+                        placeholder="Enter Email" value="<%= typeof email != 'undefined' ? email : '' %>"/>
                 </div>
                 <div class="mt-4">
-                    <label for="password" class="block text-base mb-2 text-slate-600">Password</label>
-                    <input type="password" id="password" name="password"
-                        class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
+                    <label for="password" class="block text-base mb-2 text-slate-600">Password <span class="text-red-500">*</span></label>
+                    <input required type="password" id="password" name="password"
+                        class="border border-slate-300 focus:border-blue-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
                         placeholder="Enter Password" />
-                    <label for="repassword" class="block text-base mb-2 mt-3 text-slate-600">Re-type Password</label>
-                    <input type="password" id="repassword" name="repassword"
-                        class="border border-slate-300 focus:border-indigo-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors duration-200"
+                    <label for="repassword" class="block text-base mb-2 mt-3 text-slate-600">Re-type Password <span class="text-red-500">*</span></label>
+                    <input required type="password" id="repassword" name="repassword"
+                        class="border border-slate-300 focus:border-blue-500 w-full rounded-md text-base px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
                         placeholder="Enter Password" />
                 </div>
                 <% if (errMessage && errMessage.length > 0) { %>
@@ -36,11 +37,11 @@
                 <% } %>
                 <div class="mt-6">
                     <button type="submit"
-                        class="border-2 border-indigo-600 bg-indigo-600 text-white py-2 w-full rounded-md hover:bg-indigo-700 hover:border-indigo-700 font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Signup</button>
+                        class="border-2 border-blue-600 bg-blue-600 text-white py-2 w-full rounded-md hover:bg-blue-700 hover:border-blue-700 font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Signup</button>
                 </div>
                 <div class="mt-6 text-center">
                     <span class="text-sm text-slate-600">Already have an account?</span>
-                    <a href="/login" class="text-sm text-indigo-600 hover:text-indigo-500 font-semibold ml-1 transition-colors duration-200">Login</a>
+                    <a href="/login" class="text-sm text-blue-600 hover:text-blue-500 font-semibold ml-1 transition-colors duration-200">Login</a>
                 </div>
             </div>
         </form>

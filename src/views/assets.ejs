@@ -10,26 +10,29 @@
 
     <!-- Main display -->
     <section>
-        <div class="mt-8 max-w-md mx-auto bg-white px-8 py-6 rounded-lg shadow-md flex flex-col justify-center">
+        <div class="mt-2 max-w-md mx-auto bg-white px-8 py-6 rounded-lg shadow-md flex flex-col justify-center">
             <div class="flex flex-row justify-between text-right">
-                <h1 class="text-2xl font-bold tracking-tight leading-none">Assets:</h1>
-                <h1 class="text-xl font-medium tracking-tight leading-none"><%= assets.length %></h1>
+                <h1 class="text-lg font-medium">Assets:</h1>
+                <h1 class="text-lg font-medium"><%= assets.length %></h1>
             </div>
             <div class="flex flex-row justify-between text-right mt-6">
-                <h1 class="text-2xl font-bold tracking-tight leading-none">Total Value:</h1>
-                <h1 class="text-xl font-medium tracking-tight leading-none">
+                <h1 class="text-lg font-medium">Total Value:</h1>
+                <h1 class="text-lg font-medium">
                     <!-- sum of assets array values and formated as proper dollar amount -->
-                    $<%= assets.reduce((total, e) => total + e.value, 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                    <%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(totalUserAssetValue) %>
                 </h1>
             </div>
         </div>
 
         <div class="w-md my-6 max-w-md mx-auto px-4 flex flex-row justify-between">
-            <a href="/home" class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a href="/home" class="text-center w-sm py-2 mx-2 px-4 border 
+            border-transparent rounded-md shadow-sm text-sm font-medium 
+            text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                 Back to Dashboard
             </a>
             <button 
-                class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 
+                hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
                 onclick="document.getElementById('create-asset-modal').showModal()"
             >
                 Add New Asset

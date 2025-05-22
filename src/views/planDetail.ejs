@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-400">Total Value:</label>
-                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(assets.reduce((total, asset) => total + asset.value, 0)) %></p>
+                    <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(totalUserAssetValue) %></p>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
                     <p class="mt-1 text-md text-white"><%= plan.retirementAge %></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium0 text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
+                    <label class="block text-sm font-medium text-gray-400">Target Monthly Expenses (Minus Liabilities):</label>
                     <p class="mt-1 text-md text-white"><%- new Intl.NumberFormat('en-US', { style: 'currency', currency: geoData.currency ? geoData.currency : 'CAD' }).format(plan.retirementExpenses) %></p>
                 </div>
                 <div>
@@ -87,9 +87,15 @@
                 </p>
             </div>
         </div>
+        <div class="flex items-center justify-center space-x-2">
+            <button type="button" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer" onclick="editPlan('<%= plan._id %>')">Edit Plan</button>
+            <button type="button" class="py-2 px-4 border border-red-600 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer" onclick="deletePlan('<%= plan._id %>')">Delete Plan</button>
+        </div>
 
     </div>
 </main>
+
+<script src="/static/scripts/planManager.js"></script>
 
 <%- include("./partials/navBar") %>
 <%- include("./partials/scriptLoader") %>

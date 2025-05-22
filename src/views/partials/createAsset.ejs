@@ -6,26 +6,49 @@
             <button 
                 onclick="resetAll()"
                 type="submit"
-                class="text-center py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer"
             >
                 Cancel
             </button>
         </form>
     </div>
+    <p class="text-sm text-gray-400 text-left mb-4"><span class="text-red-500">*</span> Indicates a required field</p>
 
     <div class="my-4">
         <label class="block text-sm font-medium text-gray-700">Asset Type</label>
         <div class="mt-1 space-x-4">
             <label class="inline-flex items-center">
-                <input checked onclick="selectAssetForm('create-other-asset-form')" id="asset-other" type="radio" name="type" value="other" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                <input 
+                    checked 
+                    onclick="selectAssetForm('create-other-asset-form')" 
+                    id="asset-other" 
+                    type="radio" 
+                    name="type" 
+                    value="other" 
+                    class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                >
                 <span class="ml-2 text-sm text-gray-700">Other Assets</span>
             </label>
             <label class="inline-flex items-center">
-                <input onclick="selectAssetForm('create-saving-asset-form')" id="asset-saving" type="radio" name="type" value="saving" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                <input 
+                    onclick="selectAssetForm('create-saving-asset-form')" 
+                    id="asset-saving" 
+                    type="radio" 
+                    name="type" 
+                    value="saving" 
+                    class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                >
                 <span class="ml-2 text-sm text-gray-700">Savings</span>
             </label>
             <label class="inline-flex items-center">
-                <input onclick="selectAssetForm('create-stock-asset-form')" id="asset-stock" type="radio" name="type" value="stock" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                <input 
+                    onclick="selectAssetForm('create-stock-asset-form')" 
+                    id="asset-stock" 
+                    type="radio" 
+                    name="type" 
+                    value="stock" 
+                    class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                >
                 <span class="ml-2 text-sm text-gray-700">Stocks</span>
             </label>
         </div>
@@ -38,7 +61,12 @@
         
         <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Select an Icon</label>            
         <div class="flex items-center">
-            <button id="dropdown-icon-button" value="" data-dropdown-toggle="dropdown-icons" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" type="button">
+            <button 
+                id="dropdown-icon-button" 
+                data-dropdown-toggle="dropdown-icons" 
+                class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                type="button"
+            >
                 <img src="/static/svgs/icons/Other.svg" class="h-4 w-4 me-2" alt="Other"> Other
                 <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -48,7 +76,13 @@
                 <ul id="dropdown" class="py-2 text-sm text-gray-200" aria-labelledby="dropdown-icon-button">
                     <% icons.forEach(icon => { %>
                         <li>
-                            <button onclick="selectIcon(this)" type="button" value="<%= icon %>" class="inline-flex w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 hover:text-white" role="menuitem">
+                            <button 
+                                onclick="selectIcon(this)" 
+                                type="button" 
+                                value="<%= icon %>" 
+                                class="inline-flex w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 hover:text-white" 
+                                role="menuitem"
+                            >
                                 <span class="inline-flex items-center">
                                     <img src="/static/svgs/icons/<%= icon %>.svg" class="h-4 w-4 me-2" alt="<%= icon %>"> (<%= icon %>)
                                 </span>
@@ -59,29 +93,74 @@
             </div>
         </div>
 
-        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name</label>
-        <input required id="name" type="text" name="name" minlength="3" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Asset Name <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            id="name" 
+            type="text" 
+            name="name" 
+            minlength="3" 
+            maxlength="30" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
-        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Asset Value</label>
-        <input required placeholder="CAD" min="0" id="value" type="number" name="value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <div style="display: none;" id="year-create">
+            <label for="year" class="block text-sm font-medium text-gray-700 mt-2">Year <span class="text-red-500">*</span></label>
+            <input
+                id="year-input"
+                disabled
+                required 
+                placeholder="2000" 
+                min="1900" 
+                max="<% new Date().getFullYear() %>" 
+                type="number"
+                name="year" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >   
+        </div>
 
-        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase</label>
-        <input required type="date" id="purchaseDate" name="purchaseDate" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Asset Value <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            placeholder="CAD" 
+            min="0" 
+            step=".01" 
+            id="value" 
+            type="number" 
+            name="value" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
+
+        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            type="date" 
+            id="purchaseDate" 
+            name="purchaseDate" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
         <label for="description" class="block text-sm font-medium text-gray-700 mt-2">Description</label>
-        <textarea maxlength="240" id="description" name="description" rows="4" cols="50" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+        <textarea 
+            maxlength="240" 
+            id="description" 
+            name="description" 
+            rows="4" 
+            cols="50" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        ></textarea>
 
         <div class="mt-6 flex flex-row justify-between">
             <button 
                 type="reset"
                 onclick="document.getElementById('create-other-asset-form').reset()"
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Clear
             </button>
             <button 
                 type="submit"
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Create
             </button>
@@ -92,23 +171,40 @@
     <form style="display: none;" method="POST" action="/createAsset" id="create-saving-asset-form">
         <input style="display: none;" value="saving" name="type" type="text">
 
-        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Savings Name</label>
-        <input required id="name" type="text" name="name" minlength="3" maxlength="30" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="name" class="block text-sm font-medium text-gray-700 mt-2">Savings Name <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            id="name" 
+            type="text" 
+            name="name" 
+            minlength="3" 
+            maxlength="30" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
-        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Savings Value</label>
-        <input required placeholder="CAD" min="0" id="value" type="number" name="value" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="value" class="block text-sm font-medium text-gray-700 mt-2">Savings Value <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            placeholder="CAD" 
+            min="0" 
+            step=".01" 
+            id="value" 
+            type="number" 
+            name="value" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
         <div class="mt-6 flex flex-row justify-between">
             <button 
                 type="reset"
                 onclick="document.getElementById('create-saving-asset-form').reset()"
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Clear
             </button>
             <button 
                 type="submit" 
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Create
             </button>
@@ -119,29 +215,59 @@
     <form style="display: none;" method="POST" action="/createAsset" id="create-stock-asset-form">
         <input style="display: none;" value="stock" name="type" type="text">
 
-        <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
-        <input required id="ticker" type="text" name="ticker" minlength="3" maxlength="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            id="ticker" 
+            type="text" 
+            name="ticker" 
+            minlength="3" 
+            maxlength="5" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
-        <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
-        <input required placeholder="CAD" min="0" id="price" type="number" name="price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            placeholder="CAD" 
+            min="0" 
+            step=".01" 
+            id="price" 
+            type="number" 
+            name="price" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
-        <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
-        <input required type="number" min="1" id="quantity" name="quantity" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            type="number" 
+            min="1" 
+            id="quantity" 
+            name="quantity" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
-        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase</label>
-        <input required type="date" id="purchaseDate" name="purchaseDate" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Date of Purchase <span class="text-red-500">*</span></label>
+        <input 
+            required 
+            type="date" 
+            id="purchaseDate" 
+            name="purchaseDate" 
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
 
         <div class="mt-6 flex flex-row justify-between">
             <button 
                 type="reset"
                 onclick="document.getElementById('create-stock-asset-form').reset()"
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Clear
             </button>
             <button 
                 type="submit"
-                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                class="text-center w-sm py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
                 Create
             </button>

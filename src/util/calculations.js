@@ -12,7 +12,7 @@ async function calculatePlanProgress(plans, assets, userId) {
 
     try {
         const userAssets = await assets.find({ userId: new ObjectId(userId) }).toArray();
-        const totalUserAssetValue = userAssets.reduce((total, asset) => total + asset.value, 0);
+        const totalUserAssetValue = await calculateTotalAssetValue(userAssets);
         let percentage = 0;
 
         if (plans.retirementAssets > 0) {
@@ -42,6 +42,41 @@ async function updatePlanProgressInDB(planId, percentage, plans) {
     }
 }
 
+async function calculateTotalAssetValue(assets) {
+    if (!assets || typeof assets.find !== 'function') {
+        console.error("Error with the assets collection");
+        return 0; 
+    }
+    try {
+        let totalAssetValue = 0;
+        const today = new Date();
+
+        for (const asset of assets) {
+            if (asset.icon === "Motorcycle" || asset.icon === "Car") {
+                if (asset.value < 1000) {
+                    totalAssetValue += asset.value;
+                } else {
+                    const assetYear = new Date(asset.year).getFullYear();
+                    const age = today.getFullYear() - assetYear;
+                    let depreciatedValue = asset.value * Math.pow(0.85, age);
+
+                    if (depreciatedValue < 1000) {
+                        totalAssetValue += 1000;
+                    } else {
+                        totalAssetValue += depreciatedValue;
+                    }
+                }
+            } else {
+                totalAssetValue += asset.value;
+            }
+        }
+        return totalAssetValue;
+    } catch (err) {
+        console.error("Error in calculateTotalAssetValue:", err);
+        return 0; 
+    }
+}
+
 
 async function calculateProgress(plan, assets, users, userId) {
     if (!plan || typeof plan !== 'object') {
@@ -63,19 +98,22 @@ async function calculateProgress(plan, assets, users, userId) {
 
     try {
         const userAssets = await assets.find({ userId: new ObjectId(userId) }).toArray();
-        const totalUserAssetValue = userAssets.reduce((total, asset) => total + asset.value, 0);
+        const totalUserAssetValue = await calculateTotalAssetValue(userAssets);
         const totalUserPlanValue = plan.retirementAssets;
+    
         
         const userDoc = await users.findOne({ _id: new ObjectId(userId) });
+
         if (!userDoc || !userDoc.dob) {
-            console.error("User document or DOB not found for userId:", userId);
-            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+            console.error("[calculateProgress] User document or DOB not found for userId:", userId);
+            // Ensure a structured return even on error to avoid undefined.progress issues
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN }; 
         }
         const userDob = new Date(userDoc.dob);
 
         if (isNaN(userDob.getTime())) {
-            console.error("userDob is an invalid date. Aborting calculation.");
-            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, percentage: NaN };
+            console.error("[calculateProgress] userDob is an invalid date. Aborting calculation.");
+            return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN };
         }
 
         const today = new Date();
@@ -90,6 +128,10 @@ async function calculateProgress(plan, assets, users, userId) {
         const monthlyInvestment = (totalUserPlanValue - totalUserAssetValue + totalCostOfRetirement) / monthsUntilRetirement;
         
         const percentageCalculated = (totalUserAssetValue / (totalUserPlanValue + totalCostOfRetirement)) * 100;
+
+        if (monthsUntilRetirement <= 0) {
+            return { monthlyInvestment: 0, totalCostOfRetirement: totalCostOfRetirement, monthsUntilRetirement: 0, yearsRetired: yearsRetired, yearsUntilRetirement: 0, percentage: 0 };
+        }
         
         const progress = {};
 
@@ -104,10 +146,23 @@ async function calculateProgress(plan, assets, users, userId) {
 
     } catch (err) {
         console.error("Error in calculateProgress:", err);
-        return;
+        // Ensure a structured return even on error to avoid undefined.progress issues
+        return { monthlyInvestment: NaN, totalCostOfRetirement: NaN, monthsUntilRetirement: NaN, yearsRetired: NaN, yearsUntilRetirement: NaN, percentage: NaN }; 
     }
 }
+
+async function updateProgress(plans, assets, users, userId) {
+                const userPlansFromDB = await plans.find({ userId: new ObjectId(userId) }).toArray();
     
+                for (const plan of userPlansFromDB) {
+                    const progress = await calculateProgress(plan, assets, users, userId);
+                    await updatePlanProgressInDB(plan._id, progress.percentage, plans);
+                }
+    
+                const updatedUserPlans = await plans.find({ userId: new ObjectId(userId) }).toArray();
+                return updatedUserPlans;
+            }
 
 
-module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateProgress};
+
+module.exports = { calculatePlanProgress, updatePlanProgressInDB, calculateTotalAssetValue, calculateProgress, updateProgress};

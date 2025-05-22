@@ -1,8 +1,9 @@
+const { passwordStrength } = require("check-password-strength");
+const nodeMail = require('nodemailer');
 const express = require('express');
+const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const joi = require('joi');
-const nodeMail = require('nodemailer');
-const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const PORT = process.env.PORT;
@@ -20,7 +21,7 @@ module.exports = (users) => {
 
     router.post('/auth/resetPass', async (req, res) => {
         const resetSchema = joi.object({
-            email: joi.string().email().required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
         });
         req.session.error = '';
         req.session.reset = '';
@@ -40,7 +41,7 @@ module.exports = (users) => {
 
         const token = crypto.randomBytes(32).toString('hex');
         console.log(`The reset token is ${token}`)
-        const expiration = Date.now() + 360000;
+        const expiration = Date.now() + 3600000;
 
         await users.updateOne({ email }, {
             $set: { resetToken: token, resetTokenExpires: expiration }
@@ -52,8 +53,14 @@ module.exports = (users) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password reset',
-            text: `reset your password here ${resetUrl}   this link will expire within 1 hour`,
-
+            text: `Hi ${user.name},\nA request was sent to reset your password. If this wasn't you, please ignore this email.\nIf you sent the request, reset your password here ${resetUrl}   this link will expire within 1 hour, \n Do not share this link with anyone.
+                \n \n Thankyou, The RCalculator team.`,
+                html: `
+                <p>Hi ${user.name}</p>
+                <p>A request was sent to reset your password. <strong>If this wasn't you, please ignore this email.</strong></p>
+                <p>If you sent the request, reset your password <a href="${resetUrl}">here</a>. This link will expire in 1 hour.</p>
+                <p><img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/rekor.png" alt="wallet icon" width="150"/></p>
+                <p>Thank you,<br/>The RCalculator team</p>`,
         };
 
         try {
@@ -76,7 +83,7 @@ module.exports = (users) => {
         const valid = passwordSchema.validate({ password, confirmPassword });
         if (valid.error) {
             console.log("houston we have a problem"); // nice
-            req.session.error = 'Invalid input';
+            req.session.error = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');;
             res.status(status.BadRequest);
             return res.redirect(`/reset/${token}`);
         }
@@ -97,6 +104,13 @@ module.exports = (users) => {
             req.session.error = 'Reset link is invalid.';
             return res.redirect(`/reset`);
         }
+
+        let strength = passwordStrength(password);
+        if (strength.id < 2) {
+            req.session.errMessage = `Password ${strength.value}`;
+            return res.redirect(`/reset/${token}`);
+        }
+
         const hashPassword = await bcrypt.hash(password, 12);
 
         await users.updateOne(

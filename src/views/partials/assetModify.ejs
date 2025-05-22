@@ -8,7 +8,8 @@
                     style="width: 100%;"
                     onclick="lockAsset('<%= asset._id %>', '<%= asset.icon %>')" 
                     type="submit" 
-                    class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
+                    class="text-center w-sm py-2 py-2 mx-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
+                    bg-blue-600 hover:bg-blue-700 focus:outline-none "
                 >
                     Close
                 </button>
@@ -30,7 +31,13 @@
     <div class="flex flex-row justify-between">
         <% if (asset.type == "other") { %>
             <div class="flex items-center">
-                <button id="dropdown-icon-button-<%= asset._id %>" value="" data-dropdown-toggle="dropdown-icons-<%= asset._id %>" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+                <button 
+                    id="dropdown-icon-button-<%= asset._id %>" 
+                    value="" 
+                    data-dropdown-toggle="dropdown-icons-<%= asset._id %>" 
+                    class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" 
+                    type="button"
+                >
                     <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4 me-2" alt="<%= asset.icon %>"> <%= asset.icon %>
                     <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -51,7 +58,11 @@
                 </div>
             </div>
         <% } else { %>
-            <button disabled class="inline-flex items-center py-2.5 px-10 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" type="button">
+            <button 
+                disabled 
+                class="inline-flex items-center py-2.5 px-10 text-sm font-medium text-center border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none" 
+                type="button"
+            >
                 <img src="/static/svgs/icons/<%= asset.icon %>.svg" class="h-4 w-4" alt="<%= asset.icon %>">
             </button>
         <% } %>
@@ -61,7 +72,7 @@
             <button
                 id="edit-<%= asset._id %>"
                 onclick="unlockAsset('<%= asset._id %>')"
-                class="py-3 px-8 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  cursor-pointer"
+                class="py-3 px-8 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500  cursor-pointer"
             >
                 Edit
             </button>
@@ -70,48 +81,127 @@
     <br>
 
     <form id="<%= asset._id %>-form" method="POST" action="/updateAsset">
-        <input id="type-<%= asset._id %>" name="type" type="text" hidden value="<%= asset.type %>">
-        <input id="id-<%= asset._id %>" name="id" type="text" hidden value="<%= asset._id %>">
+        <input id="type-<%= asset._id %>"      name="type"   type="text" hidden value="<%= asset.type %>">
+        <input id="id-<%= asset._id %>"        name="id"     type="text" hidden value="<%= asset._id %>">
         <input id="userId-<%= asset.userId %>" name="userId" type="text" hidden value="<%= asset.userId %>">
-        <input id="icon-<%= asset._id %>" name="icon" type="text" hidden value="<%= asset.icon %>">
+        <input id="icon-<%= asset._id %>"      name="icon"   type="text" hidden value="<%= asset.icon %>">
 
         <% if (asset.type != "stock") { %>
-            <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name</label>
-            <input id="name-<%= asset._id %>" disabled type="text" name="name" value="<%= asset.name %>" class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="name" class="block text-sm font-medium text-gray-700 mt-6">Name <span class="text-red-500">*</span></label>
+            <input 
+                id="name-<%= asset._id %>" 
+                disabled 
+                type="text" 
+                name="name" 
+                value="<%= asset.name %>" 
+                class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
         <% } else { %>
-            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker</label>
-            <input id="ticker-<%= asset._id %>" disabled type="text" name="ticker" value="<%= asset.ticker %>" class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="ticker" class="block text-sm font-medium text-gray-700 mt-2">Stock Ticker <span class="text-red-500">*</span></label>
+            <input 
+                id="ticker-<%= asset._id %>" 
+                disabled 
+                type="text" 
+                name="ticker" 
+                value="<%= asset.ticker %>" 
+                class="mt-1 mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
         <% } %>
 
         <hr class="h-px mt-6 mb-4 bg-gray-500 border-0 mx-10">
 
         <% if (asset.type != "stock") { %>
-            <label for="value" class="block text-sm font-medium text-gray-700">Value</label>
-            <input id="value-<%= asset._id %>" disabled type="number" name="value" value="<%= asset.value %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="value" class="block text-sm font-medium text-gray-700">Value <span class="text-red-500">*</span></label>
+            <input 
+                id="value-<%= asset._id %>" 
+                disabled 
+                type="number" 
+                step=".01" 
+                name="value" 
+                value="<%= asset.value %>" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
+
+            <div 
+                id="year-modify-<%= asset._id %>"
+                <% if (asset.icon != "Car" && asset.icon != "Motorcycle") { %>
+                    style="display: none;"
+                <% } %>
+            >
+                <label for="year" class="block text-sm font-medium text-gray-700 mt-2">Year <span class="text-red-500">*</span></label>
+                <input
+                    id="year-<%= asset._id %>"
+                    disabled
+                    required 
+                    placeholder="2000" 
+                    min="1900" 
+                    max="<% new Date().getFullYear() %>" 
+                    type="number"
+                    name="year" 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+                    value="<%= asset.year %>"
+                >
+            </div>
         <% } else { %>
-            <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share</label>
-            <input id="price-<%= asset._id %>" disabled type="number" name="price" value="<%= asset.price %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="price" class="block text-sm font-medium text-gray-700 mt-2">Price per Share <span class="text-red-500">*</span></label>
+            <input 
+                id="price-<%= asset._id %>" 
+                disabled 
+                type="number" 
+                step=".01" 
+                name="price" 
+                value="<%= asset.price %>" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
             
-            <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares</label>
-            <input id="quantity-<%= asset._id %>" disabled type="number" name="quantity" value="<%= asset.quantity %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="quantity" class="block text-sm font-medium text-gray-700 mt-2">Quantity of Shares <span class="text-red-500">*</span></label>
+            <input 
+                id="quantity-<%= asset._id %>" 
+                disabled 
+                type="number" 
+                name="quantity" 
+                value="<%= asset.quantity %>" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
         <% } %>
 
         <% if (asset.type == "other") { %>
             <label for="description" class="block text-sm font-medium text-gray-700 mt-2">Description</label>
-            <textarea disabled maxlength="240" id="description-<%= asset._id %>" name="description" rows="4" cols="50" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"><%= asset.description %></textarea>
+            <textarea 
+                disabled 
+                maxlength="240" 
+                id="description-<%= asset._id %>" 
+                name="description" 
+                rows="4" 
+                cols="50" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            ><%= asset.description %></textarea>
         <% } %>
 
         <% if (asset.type != "saving") { %>
-            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Purchased on</label>
-            <input id="purchaseDate-<%= asset._id %>" disabled type="date" name="purchaseDate" value="<%= asset.purchaseDate %>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+            <label for="purchaseDate" class="block text-sm font-medium text-gray-700 mt-2">Purchased on <span class="text-red-500">*</span></label>
+            <input 
+                id="purchaseDate-<%= asset._id %>" 
+                disabled 
+                type="date" 
+                name="purchaseDate" 
+                value="<%= asset.purchaseDate %>" 
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+            >
         <% } %>
 
         <br>
-        <small class="block text-sm font-medium text-gray-700">Last Modified: <%= asset.updatedAt %></small>
+        <% let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
+        <small class="block text-sm font-medium text-gray-700">Last Modified: <%= asset.updatedAt.toLocaleDateString("en-US", options); %></small>
         <br>
 
         <div>
-            <button id="save-<%= asset._id %>" disabled type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed">
+            <button 
+                id="save-<%= asset._id %>" 
+                disabled 
+                type="submit" 
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-not-allowed"
+            >
                 Save
             </button>
         </div>

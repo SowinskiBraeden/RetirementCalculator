@@ -53,16 +53,22 @@ Example:
 ```
 retirementCalculator/
 ├── src/
-│   ├── views/
-│   │   └── partials/
-│   ├── css/
-│   ├── images/
-│   ├── scripts/
-│   └── utils/
+|   ├── auth/
+|   ├── database/
+│   ├── public/
+│   │   ├── images/
+│   │   ├── scripts/
+│   │   └── svgs/
+|   |
+│   ├── router/
+│   ├── utils/
+│   └── views/
+│       └── partials/
 │
-├── app.js
 ├── .env.example
 ├── .gitignore
+├── app.js
+├── CONTRIBUTING.md
 ├── LICENSE
 ├── package-lock.json
 ├── package.json

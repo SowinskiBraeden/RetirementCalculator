@@ -27,14 +27,14 @@ module.exports = (users) => {
     router.post("/login", async (req, res) => {
       
         const credentialSchema = joi.object({
-            email: joi.string().email().required(),
-            password: joi.string().alphanum().max(20).required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
+            password: joi.string().max(20).required(),
         });
 
         const valid = credentialSchema.validate(req.body);
 
-        if (valid.err) {
-            req.session.errMessage = "Invalid input";
+        if (valid.error) {
+            req.session.errMessage = "Invalid input:" + valid.error.details.map(d => d.message.replace(/"/g, '')).join(', ');
             res.status(status.BadRequest);
             return res.redirect("/login");
         }
@@ -43,13 +43,13 @@ module.exports = (users) => {
             if (!user) {
                 req.session.errMessage = "User not found";
                 res.status(status.NotFound);
-                return res.redirect("/login");
+                return res.redirect(`/login/?email=${req.body.email}`);
             }
 
             if (!bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.errMessage = "Incorrect password";
                 res.status(status.Unauthorized);
-                return res.redirect("/login");
+                return res.redirect(`/login/?email=${req.body.email}`);
             }
 
             req.session.authenticated = true;
@@ -72,16 +72,16 @@ module.exports = (users) => {
 
     router.post("/signup", async (req, res) => {
         const userSchema = joi.object({
-            email: joi.string().email().required(),
+            email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
             name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20).required(),
-            password: joi.string().alphanum().max(20).min(8).required(),
-            repassword: joi.string().alphanum().max(20).min(8).required(),
+            password: joi.string().max(20).min(8).required(),
+            repassword: joi.string().max(20).min(8).required(),
         });
 
         const valid = userSchema.validate(req.body);
-
-        if (valid.err) {
-            req.session.errMessage = "Invalid input",
+        
+        if (valid.error) {
+            req.session.errMessage = valid.error.details[0].message,
             res.status(status.BadRequest);
             return res.redirect("/signup");
         }
@@ -95,8 +95,9 @@ module.exports = (users) => {
 
         if (req.body.password != req.body.repassword) {
             req.session.errMessage = "Passwords must match";
+
             res.status(status.BadRequest);
-            return res.redirect("/signup");
+            return res.redirect(`/signup/?name=${req.body.name}&email=${req.body.email}`);
         }
 
         let strength = passwordStrength(req.body.password);
@@ -104,7 +105,7 @@ module.exports = (users) => {
         if (strength.id < 2) {
             req.session.errMessage = `Password ${strength.value}`;
             res.status(status.BadRequest);
-            return res.redirect("/signup");
+            return res.redirect(`/signup/?name=${req.body.name}&email=${req.body.email}`);
         }
 
         let hashedPassword = await bcrypt.hashSync(req.body.password, salt);
