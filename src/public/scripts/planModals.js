@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPlanError = document.getElementById('newPlanError');
     const resetNewPlanFormBtn = document.getElementById('resetNewPlanFormBtn');
 
+    let url = new URLSearchParams(window.location.search);
+    let modalValue = url.get('openModal');
+
+    if (modalValue === 'true') {
+        newPlanDialog.showModal();
+    }
+
     openModalBtn.addEventListener('click', () => {
         newPlanDialog.showModal();
         // Error reset is now handled by 'close' event, but good to clear on open too
