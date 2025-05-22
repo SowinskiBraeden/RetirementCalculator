@@ -477,7 +477,7 @@ module.exports = (middleware, users, plans, assets) => {
     router.post("/updateAccount", async (req, res) => {
         const accountSchema = joi.object({
             email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }),
-            name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20),
+            name: joi.string().pattern(new RegExp('^[a-zA-Z0-9_ ]*$')).max(20),
             password: joi.string().max(20).min(8),
             repassword: joi.string().max(20).min(8),
         });

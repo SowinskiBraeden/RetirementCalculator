@@ -73,7 +73,7 @@ module.exports = (users) => {
     router.post("/signup", async (req, res) => {
         const userSchema = joi.object({
             email: joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
-            name: joi.string().pattern(new RegExp('^[a-zA-Z]+$')).max(20).required(),
+            name: joi.string().pattern(new RegExp('^[a-zA-Z0-9_ ]*$')).max(20).required(),
             password: joi.string().max(20).min(8).required(),
             repassword: joi.string().max(20).min(8).required(),
         });
