@@ -24,7 +24,7 @@ const getAssetSchema = (type) => {
             assetSchema = joi.object({
                 type: joi.string().valid("other", "stock", "saving").required(),
                 icon: joi.string().alphanum().required(),
-                name: joi.string().alphanum().min(3).max(30).required(),
+                name: joi.string().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 year: joi.number().min(1900).max(new Date().getFullYear()),
                 purchaseDate: joi.date().required(),
@@ -36,7 +36,7 @@ const getAssetSchema = (type) => {
         case "saving":
             assetSchema = joi.object({
                 type: joi.string().valid("other", "stock", "saving").required(),
-                name: joi.string().alphanum().min(3).max(30).required(),
+                name: joi.string().min(3).max(30).required(),
                 value: joi.number().min(0).required(),
                 id: joi.string().alphanum(), // May be passed when updating existing asset
                 userId: joi.string().alphanum(),
@@ -45,7 +45,7 @@ const getAssetSchema = (type) => {
         case "stock":
             assetSchema = joi.object({
                 type: joi.string().valid("other", "stock", "saving").required(),
-                ticker: joi.string().alphanum().min(3).max(5).required(),
+                ticker: joi.string().min(3).max(5).required(),
                 price: joi.number().min(0).required(),
                 quantity: joi.number().min(1).required(),
                 purchaseDate: joi.date().required(),
