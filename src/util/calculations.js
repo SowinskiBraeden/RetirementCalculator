@@ -45,28 +45,35 @@ async function updatePlanProgressInDB(planId, percentage, plans) {
 async function calculateTotalAssetValue(assets) {
     if (!assets || typeof assets.find !== 'function') {
         console.error("Error with the assets collection");
-        return;
+        return 0; 
     }
     try {
         let totalAssetValue = 0;
+        const today = new Date();
+
         for (const asset of assets) {
-            if(asset.icon == "Motorcycle" || asset.icon == "Car"){
-                today = new Date();
-                asset.year = new Date(asset.year).getFullYear();
-                let age = today.getFullYear() - asset.year;
-                let value = asset.value * Math.pow(0.85, age);
-                if (value < 1000) {
-                    value = 1000;
+            if (asset.icon === "Motorcycle" || asset.icon === "Car") {
+                if (asset.value < 1000) {
+                    totalAssetValue += asset.value;
+                } else {
+                    const assetYear = new Date(asset.year).getFullYear();
+                    const age = today.getFullYear() - assetYear;
+                    let depreciatedValue = asset.value * Math.pow(0.85, age);
+
+                    if (depreciatedValue < 1000) {
+                        totalAssetValue += 1000;
+                    } else {
+                        totalAssetValue += depreciatedValue;
+                    }
                 }
-                totalAssetValue += value;
             } else {
-            totalAssetValue += asset.value;
+                totalAssetValue += asset.value;
             }
         }
         return totalAssetValue;
     } catch (err) {
         console.error("Error in calculateTotalAssetValue:", err);
-        return 0;
+        return 0; 
     }
 }
 
