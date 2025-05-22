@@ -56,9 +56,15 @@ async function calculateTotalAssetValue(assets) {
                 if (asset.value < 1000) {
                     totalAssetValue += asset.value;
                 } else {
-                    const assetYear = new Date(asset.year).getFullYear();
+                    const assetYear = asset.year;
                     const age = today.getFullYear() - assetYear;
-                    let depreciatedValue = asset.value * Math.pow(0.90, age);
+                    let depreciatedValue;
+
+                    if (age < 1){
+                        depreciatedValue = asset.value * 0.9;
+                    }else{
+                        depreciatedValue = asset.value * Math.pow(0.90, age);
+                    }
 
                     if (depreciatedValue < 1000) {
                         totalAssetValue += 1000;
