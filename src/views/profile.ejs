@@ -97,6 +97,8 @@
                         <% let day   = typeof(user.dob) == "object" ? user.dob.getDate() + 1 : user.dob.split('-')[2].split('T')[0];%>
                         <% let d = new Date(parseInt(year), parseInt(month), parseInt(day)); %>
                         value="<%= d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); %>"
+                        <% let d1 = new Date(); %>
+                        max="<%= (d1.getFullYear() - 18) + "-" +("0"+(d1.getMonth()+1)).slice(-2) + "-" + ("0" + d1.getDate()).slice(-2); %>"
                     >
                 </div>
                 <div>
