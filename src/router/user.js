@@ -189,20 +189,6 @@ module.exports = (middleware, users, plans, assets) => {
         }
     });
 
-    // router.get('/newPlan', (req, res) => {
-    //     if (!req.session.user.financialData || !req.session.user) {
-    //         req.session.errMessage = "Please complete your financial data before creating a plan.";
-    //         return res.status(status.Unauthorized).redirect('/questionnaire');
-    //     }
-    //     const errMessage = req.session.errMessage;
-    //     req.session.errMessage = "";
-    //     res.render('newPlan', {
-    //         user: req.session.user,
-    //         errMessage: errMessage,
-    //         geoData: req.session.geoData
-    //     });
-    // });
-
     router.post('/newPlan', async (req, res) => {
 
         if (!req.session.user.financialData || !req.session.user) {

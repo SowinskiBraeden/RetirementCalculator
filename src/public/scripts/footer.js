@@ -6,7 +6,7 @@ const factSubmitButton = document.getElementById("factSubmitButton");
 var path = window.location.pathname;
 var page = path.split("/").pop();
 
-if(page !== "login" && page !== "signup" && page !== "forgotPassword" && page !== "") {
+if(page !== "login" && page !== "signup" && page !== "forgotPassword" && page !== "aboutUs" && page !== "") {
     factButton.classList.remove("hidden");
 }
 

@@ -3,22 +3,30 @@
 
 ## Overview
 
-Retirement Calculator - The goal of the application is to help users manage and track their financial progress in a way that reflects real life. Instead of just acting as a calculator, the app functions as a dynamic tracker. It shows the user a percentage of how much of their goal has been achieved and compares their actual performance to their planned targets.
+RCalculator is a dynamic financial tracking application designed to help users manage and monitor their progress towards long-term financial goals, particularly retirement. It moves beyond simple calculations by providing personalized insights, tracking actual performance against planned targets, and offering a clear view of your financial journey towards achieving your desired future.
 
 ---
 
 ## Features
 
-- Do calculator stuff
+- **Personalized Financial Profile:** Users complete a comprehensive questionnaire to build a financial profile, enabling tailored guidance and projections.
+- **Comprehensive Asset Management:** Add, track, and manage various types of assets including savings, stocks, real estate, and other investments for a holistic view of net worth.
+- **Strategic Goal Planning:** Define long-term financial objectives (e.g., retirement, home purchase, education) and create detailed plans with actionable steps.
+- **Clear Financial Projections:** Visualize potential investment growth and assess the feasibility of financial plans through easy-to-understand projections and charts.
+- **User-Friendly Dashboard:** An intuitive dashboard provides an at-a-glance overview of financial health, asset allocation, and progress towards goals.
+- **Secure User Authentication:** Robust authentication system to protect sensitive financial data, including secure registration and login processes.
+- **Dynamic Currency Conversion:** (If applicable) Utilizes geolocation to provide relevant currency information and conversion rates for international users or assets.
 
 ---
 
 ## Technologies Used
 
-Example:
-- **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Express.js
-- **Database**: MongoDB
+- **Frontend:** EJS (Embedded JavaScript templates), Tailwind CSS, Vanilla JavaScript
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **Authentication:** express-session for session management, bcrypt for password hashing.
+- **Data Validation:** Joi for schema validation.
+- **APIs:** Google Geolocation API (for location-based currency/data if used).
 
 ---
 
@@ -53,26 +61,25 @@ Example:
 ```
 retirementCalculator/
 ├── src/
-|   ├── auth/
-|   ├── database/
-│   ├── public/
-│   │   ├── images/
-│   │   ├── scripts/
-│   │   └── svgs/
-|   |
-│   ├── router/
-│   ├── utils/
-│   └── views/
-│       └── partials/
+│   ├── auth/                 # Authentication logic (e.g., passport setup, strategies)
+│   ├── database/             # MongoDB connection, schemas, models
+│   ├── public/               # Static assets
+│   │   ├── images/           # Site images and icons
+│   │   ├── scripts/          # Client-side JavaScript files
+│   │   └── svgs/             # SVG icons
+│   ├── router/               # Express route definitions
+│   ├── util/                 # Utility functions (e.g., calculations, helpers)
+│   └── views/                # EJS templates
+│       └── partials/         # Reusable EJS partials (headers, footers, nav)
 │
-├── .env.example
-├── .gitignore
-├── app.js
-├── CONTRIBUTING.md
-├── LICENSE
-├── package-lock.json
-├── package.json
-└── README.md
+├── .env.example              # Example environment variables file
+├── .gitignore                # Specifies intentionally untracked files that Git should ignore
+├── app.js                    # Main application entry point
+├── CONTRIBUTING.md           # Guidelines for contributing to the project
+├── LICENSE                   # Project license information
+├── package-lock.json         # Records exact versions of dependencies
+├── package.json              # Project metadata and dependencies
+└── README.md                 # This file
 ```
 
 ---
@@ -87,13 +94,22 @@ retirementCalculator/
 ## more details to come...
 
 ## Limitations and Future Work
+
 ### Limitations
 
-- None
+- **Generalized Advice:** The application provides financial guidance based on user input and common models; it does not substitute professional financial advisory services.
+- **Market Volatility:** Projections are based on assumed rates of return and do not account for all potential market fluctuations or unforeseen economic events.
+- **Manual Data Entry:** Asset information and updates currently require manual input.
+- **Single User Focus:** Primarily designed for individual financial planning.
 
 ### Future Work
 
-- All work
+- **Third-Party API Integrations:** Connect with financial institutions (e.g., Plaid) for automated asset tracking and transaction importing.
+- **Advanced Reporting:** Implement more detailed financial reports, customizable charts, and data export options (e.g., PDF, CSV).
+- **Scenario Analysis Tools:** Allow users to model different financial scenarios (e.g., changing income, retirement age, investment strategies).
+- **Enhanced Security Features:** Implement Two-Factor Authentication (2FA) and advanced security audits.
+- **Mobile Responsiveness & PWA:** Improve mobile experience and explore Progressive Web App (PWA) capabilities for offline access.
+- **Educational Resources:** Integrate a section with articles, tips, and resources on financial literacy and planning.
 
 ---
 
