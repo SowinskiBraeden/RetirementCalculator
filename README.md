@@ -26,7 +26,7 @@ RCalculator is a dynamic financial tracking application designed to help users m
 - **Database:** MongoDB
 - **Authentication:** express-session for session management, bcrypt for password hashing.
 - **Data Validation:** Joi for schema validation.
-- **APIs:** Google Geolocation API (for location-based currency/data if used).
+- **APIs:** Google Gemini API for generating financial advice. **Geolocation API** for currency conversion.
 
 ---
 
@@ -55,6 +55,8 @@ RCalculator is a dynamic financial tracking application designed to help users m
    The application should now be running, typically on `http://localhost:3000` (or the port specified in your `.env` file).
 
 ---
+## Test logs
+https://docs.google.com/spreadsheets/d/19xkdnbiBGiKXvYmgOizPsxAPsqweTEYEssK8G9NfdH4/edit?gid=0#gid=0
 
 ## Project Structure
 
