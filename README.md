@@ -30,6 +30,14 @@ RCalculator is a dynamic financial tracking application designed to help users m
 
 ---
 
+## Prerequisites
+
+1. You'll need to setup an instance of MongoDB. You can use the cloud platform, MongoDB Atlas, or create your own instance locally.  
+  i.  [Create your MongoDB Altas instance.](https://www.mongodb.com/docs/manual/tutorial/getting-started/)  
+  ii. [Create your local MongoDB server instance.](https://www.mongodb.com/docs/manual/administration/install-community/)  
+
+    After this, you'll need to get your MongoURI from your database instance, as well as your database name for later configuration in the `.env` file.
+
 ## Usage
 
 1. **Clone the repository:**
