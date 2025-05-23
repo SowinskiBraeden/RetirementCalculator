@@ -91,7 +91,6 @@ retirementCalculator/
 - **[Mitchell Schaeffer](https://github.com/knighthawk4227)** - BCIT CST Student with a passion for technology.
 
 ---
-## more details to come...
 
 ## Limitations and Future Work
 
@@ -106,9 +105,7 @@ retirementCalculator/
 
 - **Third-Party API Integrations:** Connect with financial institutions (e.g., Plaid) for automated asset tracking and transaction importing.
 - **Advanced Reporting:** Implement more detailed financial reports, customizable charts, and data export options (e.g., PDF, CSV).
-- **Scenario Analysis Tools:** Allow users to model different financial scenarios (e.g., changing income, retirement age, investment strategies).
 - **Enhanced Security Features:** Implement Two-Factor Authentication (2FA) and advanced security audits.
-- **Mobile Responsiveness & PWA:** Improve mobile experience and explore Progressive Web App (PWA) capabilities for offline access.
 - **Educational Resources:** Integrate a section with articles, tips, and resources on financial literacy and planning.
 
 ---
