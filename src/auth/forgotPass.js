@@ -47,7 +47,7 @@ module.exports = (users) => {
             $set: { resetToken: token, resetTokenExpires: expiration }
         });
 
-        const resetUrl = `https://rcalculator.sowinski.dev/${PORT}/reset/${token}`;
+        const resetUrl = `https://rcalculator.sowinski.dev/reset/${token}`;
 
         const mailSend = {
             from: process.env.EMAIL_USER,
