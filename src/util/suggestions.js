@@ -10,10 +10,14 @@ async function generateFact(factInput) {
   return response.text;
 }
 
-async function generateSuggestions() {
+async function generateSuggestions(totalUserAssetValue, plan) {
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
-      contents: "Return a mock investment suggestion 3-5 lines only, please do not include any extra text or explanation.",
+      contents: `Return an investment suggestion 3-5 based on the user's total asset value and their plan. Please do not include any extra text or explanation.
+      
+      Total User Asset Value: ${totalUserAssetValue}
+      
+      Plan: ${plan}`,
     });
     return response.text;
 }

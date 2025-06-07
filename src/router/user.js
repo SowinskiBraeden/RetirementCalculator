@@ -172,6 +172,8 @@ module.exports = (middleware, users, plans, assets) => {
 
             const progress = await calculateProgress(plan, assets, users, req.session.userId);
 
+            const suggestions = await generateSuggestions(totalUserAssetValue, plan);
+
             res.render('planDetail', {
                 user: req.session.user,
                 plan: plan, 
@@ -179,7 +181,7 @@ module.exports = (middleware, users, plans, assets) => {
                 totalUserAssetValue: totalUserAssetValue,
                 assets: userAssets,
                 progress: progress, 
-                suggestions: await suggestions.generateSuggestions(),
+                suggestions: suggestions,
             });
 
         } catch (err) {
