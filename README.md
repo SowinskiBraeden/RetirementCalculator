@@ -1,5 +1,5 @@
-# RCalculator
-## 2800-202510-BBY14
+# Retirement Calculator
+### 2800-202510-BBY14
 
 ## Overview
 
@@ -63,9 +63,6 @@ RCalculator is a dynamic financial tracking application designed to help users m
    The application should now be running, typically on `http://localhost:3000` (or the port specified in your `.env` file).
 
 ---
-## Test logs
-https://docs.google.com/spreadsheets/d/19xkdnbiBGiKXvYmgOizPsxAPsqweTEYEssK8G9NfdH4/edit?gid=0#gid=0
-
 ## Project Structure
 
 ```
